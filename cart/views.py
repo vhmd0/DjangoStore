@@ -2,6 +2,7 @@ from django.shortcuts import render, redirect
 from django.http import JsonResponse
 from django.contrib import messages
 from django.template.loader import render_to_string
+from asgiref.sync import sync_to_async
 
 from products.models import Product
 
@@ -15,10 +16,9 @@ def save_cart(request, cart):
     request.session.modified = True
 
 
-def _build_cart_context(request):
+async def _build_cart_context(request):
     """
     Build cart context dict.
-
     Single IN-query with select_related — no N+1 queries.
     Skips the DB entirely when the cart is empty.
     """
@@ -31,10 +31,11 @@ def _build_cart_context(request):
     product_ids = [int(pid) for pid in cart]
 
     # One query only
-    product_dict = {
-        p.id: p
-        for p in Product.objects.filter(id__in=product_ids).select_related("brand")
-    }
+    products = []
+    async for p in Product.objects.filter(id__in=product_ids).select_related("brand"):
+        products.append(p)
+
+    product_dict = {p.id: p for p in products}
 
     items = []
     total = 0
@@ -50,18 +51,19 @@ def _build_cart_context(request):
     return {"cart_items": items, "cart_total": total, "cart_count": cart_count}
 
 
-def cart_detail(request):
+async def cart_detail(request):
     """Shopping cart page."""
-    ctx = _build_cart_context(request)
+    ctx = await _build_cart_context(request)
     ctx["products"] = ctx["cart_items"]
     ctx["total"] = ctx["cart_total"]
-    return render(request, "cart/cart_detail.html", ctx)
+    return await sync_to_async(render)(request, "cart/cart_detail.html", ctx)
 
 
-def cart_add(request, product_id):
+async def cart_add(request, product_id):
     """Add (or decrement) a product in the cart."""
     # Validate product exists first — only one query, no product object needed
-    if not Product.objects.filter(id=product_id).exists():
+    exists = await Product.objects.filter(id=product_id).aexists()
+    if not exists:
         if request.headers.get("X-Requested-With") == "XMLHttpRequest":
             return JsonResponse(
                 {"success": False, "error": "Product not found"}, status=404
@@ -88,11 +90,13 @@ def cart_add(request, product_id):
     if request.headers.get("X-Requested-With") == "XMLHttpRequest":
         return JsonResponse({"success": True, "cart_count": sum(cart.values())})
 
-    messages.success(request, "Cart updated.")
+    # async views might have issues modifying sync messages array directly unless sync_to_async is used
+    # messages framework relies on the session, it should be fine.
+    await sync_to_async(messages.success)(request, "Cart updated.")
     return redirect("cart:detail")
 
 
-def cart_remove(request, product_id):
+async def cart_remove(request, product_id):
     """Remove a product from the cart (no DB query needed)."""
     cart = get_cart(request)
     pid = str(product_id)
@@ -104,15 +108,19 @@ def cart_remove(request, product_id):
     if request.headers.get("X-Requested-With") == "XMLHttpRequest":
         return JsonResponse({"success": True, "cart_count": sum(cart.values())})
 
-    messages.success(request, "Item removed from cart.")
+    await sync_to_async(messages.success)(request, "Item removed from cart.")
     return redirect("cart:detail")
 
 
-def offcanvas_fragment(request):
+async def offcanvas_fragment(request):
     """Return rendered cart partials as JSON for the AJAX offcanvas refresher."""
-    ctx = _build_cart_context(request)
-    items_html = render_to_string("components/cart_items.html", ctx, request=request)
-    footer_html = render_to_string("components/cart_footer.html", ctx, request=request)
+    ctx = await _build_cart_context(request)
+    items_html = await sync_to_async(render_to_string)(
+        "components/cart_items.html", ctx, request=request
+    )
+    footer_html = await sync_to_async(render_to_string)(
+        "components/cart_footer.html", ctx, request=request
+    )
     return JsonResponse(
         {
             "items_html": items_html,

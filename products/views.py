@@ -1,3 +1,4 @@
+from asgiref.sync import sync_to_async
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.http import require_POST
 from django.shortcuts import render, get_object_or_404, redirect
@@ -12,19 +13,19 @@ from products.forms import ReviewForm
 # ── helpers ───────────────────────────────────────────────────────────────────
 
 
-def _get_cached_categories():
+async def _get_cached_categories():
     """Return all categories, cached for 1 hour."""
-    cats = cache.get("all_categories")
+    cats = await cache.aget("all_categories")
     if cats is None:
-        cats = list(Category.objects.only("id", "name", "slug"))
-        cache.set("all_categories", cats, 3600)
+        cats = [c async for c in Category.objects.only("id", "name", "slug")]
+        await cache.aset("all_categories", cats, 3600)
     return cats
 
 
 # ── views ─────────────────────────────────────────────────────────────────────
 
 
-def product_list(request):
+async def product_list(request):
     """Products page with filtering, sorting, and pagination."""
 
     # JSON autocomplete — minimal fields, no prefetch needed
@@ -33,9 +34,8 @@ def product_list(request):
         qs = Product.objects.only("id", "name", "slug", "price", "img")
         if query:
             qs = qs.filter(name__icontains=query)
-        return JsonResponse(
-            {"products": list(qs[:10].values("id", "name", "slug", "price", "img"))}
-        )
+        result = [p async for p in qs[:10].values("id", "name", "slug", "price", "img")]
+        return JsonResponse({"products": result})
 
     # Full queryset — single DB round-trip per page via Paginator
     products = Product.objects.select_related("category", "brand").only(
@@ -66,70 +66,89 @@ def product_list(request):
 
     # Pagination — Paginator only hits the DB slice, not the full table
     paginator = Paginator(products, 12)
-    page_obj = paginator.get_page(request.GET.get("page", 1))
+
+    def get_page_sync():
+        p = paginator.get_page(request.GET.get("page", 1))
+        # Evaluate object list
+        _ = list(p.object_list)
+        return p
+
+    page_obj = await sync_to_async(get_page_sync)()
 
     context = {
         "page_obj": page_obj,
-        "categories": _get_cached_categories(),
+        "categories": await _get_cached_categories(),
         "current_category": category_slug,
         "current_sort": sort,
         "query": query,
     }
 
     if request.headers.get("HX-Target") == "product-grid":
-        return render(request, "products/partials/product_grid.html", context)
+        return await sync_to_async(render)(
+            request, "products/partials/product_grid.html", context
+        )
 
-    return render(request, "pages/products/products.html", context)
+    return await sync_to_async(render)(request, "pages/products/products.html", context)
 
 
-def product_detail(request, slug):
+async def product_detail(request, slug):
     """Product detail page with caching."""
     cache_key = f"product_detail_{slug}"
-    p_data = cache.get(cache_key)
+    p_data = await cache.aget(cache_key)
 
     if p_data is None:
-        from django.db.models import Avg
 
-        product = get_object_or_404(
-            Product.objects.select_related("category", "brand").prefetch_related(
-                "tags"
-            ),
-            slug=slug,
-        )
-        related_products = list(
-            Product.objects.filter(category_id=product.category_id)
-            .exclude(id=product.id)
-            .select_related("brand")
-            .only(
-                "id",
-                "name",
-                "slug",
-                "img",
-                "img_link",
-                "price",
-                "brand__id",
-                "brand__name",
-            )[:4]
-        )
-        avg_rating = product.reviews.aggregate(Avg("rating"))["rating__avg"] or 0
-        p_data = {
-            "product": product,
-            "related_products": related_products,
-            "avg_rating": round(avg_rating, 1),
-            "review_count": product.reviews.count(),
-        }
-        cache.set(cache_key, p_data, 60 * 30)
+        def get_product_data():
+            from django.db.models import Avg
+
+            product = get_object_or_404(
+                Product.objects.select_related("category", "brand").prefetch_related(
+                    "tags"
+                ),
+                slug=slug,
+            )
+            related_products = list(
+                Product.objects.filter(category_id=product.category_id)
+                .exclude(id=product.id)
+                .select_related("brand")
+                .only(
+                    "id",
+                    "name",
+                    "slug",
+                    "img",
+                    "img_link",
+                    "price",
+                    "brand__id",
+                    "brand__name",
+                )[:4]
+            )
+            avg_rating = product.reviews.aggregate(Avg("rating"))["rating__avg"] or 0
+            return {
+                "product": product,
+                "related_products": related_products,
+                "avg_rating": round(avg_rating, 1),
+                "review_count": product.reviews.count(),
+            }
+
+        p_data = await sync_to_async(get_product_data)()
+        await cache.aset(cache_key, p_data, 60 * 30)
 
     # Reviews are fetched fresh (no cache for now to show updates immediately)
-    reviews = p_data["product"].reviews.select_related("user__user").all()
+    def fetch_reviews():
+        reviews = list(p_data["product"].reviews.select_related("user__user").all())
+        is_in_wishlist = False
+        user_review = None
+        if request.user.is_authenticated:
+            is_in_wishlist = Wishlist.objects.filter(
+                user=request.user.profile, product_id=p_data["product"].id
+            ).exists()
+            for review in reviews:
+                if str(review.user_id) == str(request.user.profile.id):
+                    user_review = review
+                    break
+        return reviews, is_in_wishlist, user_review
 
-    is_in_wishlist = False
-    user_review = None
-    if request.user.is_authenticated:
-        is_in_wishlist = Wishlist.objects.filter(
-            user=request.user.profile, product_id=p_data["product"].id
-        ).exists()
-        user_review = reviews.filter(user=request.user.profile).first()
+    reviews, is_in_wishlist, user_review = await sync_to_async(fetch_reviews)()
 
     ctx = {
         **p_data,
@@ -138,9 +157,12 @@ def product_detail(request, slug):
         "user_review": user_review,
         "review_form": ReviewForm(),
     }
-    return render(request, "pages/products/products_details.html", ctx)
+    return await sync_to_async(render)(
+        request, "pages/products/products_details.html", ctx
+    )
 
 
+@sync_to_async
 @login_required
 @require_POST
 def add_review(request, product_id):
@@ -163,47 +185,66 @@ def add_review(request, product_id):
     return redirect(product.get_absolute_url())
 
 
-def category_list(request):
+async def category_list(request):
     """Categories listing page."""
-    context = {"categories": _get_cached_categories()}
+    context = {"categories": await _get_cached_categories()}
 
     if request.headers.get("HX-Target") == "category-grid":
-        return render(request, "pages/category/partials/category_grid.html", context)
+        return await sync_to_async(render)(
+            request, "pages/category/partials/category_grid.html", context
+        )
 
-    return render(request, "pages/category/category_list.html", context)
+    return await sync_to_async(render)(
+        request, "pages/category/category_list.html", context
+    )
 
 
-def category_detail(request, slug):
+async def category_detail(request, slug):
     """Category detail page — category cached per slug for 10 minutes."""
     from django.core.cache import cache
 
     cache_key = f"category_{slug}"
-    category = cache.get(cache_key)
+    category = await cache.aget(cache_key)
     if category is None:
-        category = get_object_or_404(
-            Category.objects.only("id", "name", "slug", "image"), slug=slug
-        )
-        cache.set(cache_key, category, 60 * 10)
+
+        def get_category():
+            return get_object_or_404(
+                Category.objects.only("id", "name", "slug", "image"), slug=slug
+            )
+
+        category = await sync_to_async(get_category)()
+        await cache.aset(cache_key, category, 60 * 10)
 
     products = category.products.select_related("brand").only(
         "id", "name", "slug", "img", "img_link", "price", "brand__id", "brand__name"
     )
 
     paginator = Paginator(products, 12)
-    page_obj = paginator.get_page(request.GET.get("page", 1))
+
+    def get_page_sync():
+        p = paginator.get_page(request.GET.get("page", 1))
+        _ = list(p.object_list)
+        return p
+
+    page_obj = await sync_to_async(get_page_sync)()
 
     context = {"category": category, "page_obj": page_obj}
 
     if request.headers.get("HX-Target") == "category-products":
-        return render(request, "pages/category/partials/category_products.html", context)
+        return await sync_to_async(render)(
+            request, "pages/category/partials/category_products.html", context
+        )
 
-    return render(request, "pages/category/category_detail.html", context)
+    return await sync_to_async(render)(
+        request, "pages/category/category_detail.html", context
+    )
 
 
+@sync_to_async
 @login_required
 def wishlist_list(request):
     """List products in user's wishlist."""
-    wishlist_items = (
+    wishlist_items = list(
         Wishlist.objects.filter(user=request.user.profile)
         .select_related("product__brand")
         .only(
@@ -223,6 +264,7 @@ def wishlist_list(request):
     )
 
 
+@sync_to_async
 @login_required
 @require_POST
 def toggle_wishlist(request, product_id):
