@@ -1,4 +1,4 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.http import JsonResponse
 from django.contrib import messages
 from django.template.loader import render_to_string
@@ -59,28 +59,31 @@ async def cart_detail(request):
 
 @sync_to_async
 def cart_add(request, product_id):
-    """Add (or decrement) a product in the cart (Sync wrapped)."""
-    if not Product.objects.filter(id=product_id).exists():
-        if request.headers.get("X-Requested-With") == "XMLHttpRequest":
-            return JsonResponse(
-                {"success": False, "error": "Product not found"}, status=404
-            )
-        return redirect("cart:detail")
-
+    """Add (or decrement) a product in the cart with stock validation."""
+    product = get_object_or_404(Product, id=product_id)
     cart = get_cart(request)
-
+    
     try:
         quantity = int(request.POST.get("quantity", 1))
     except (TypeError, ValueError):
         quantity = 1
 
     pid = str(product_id)
-    if pid in cart:
-        cart[pid] = max(0, cart[pid] + quantity)
-        if cart[pid] == 0:
+    current_qty = cart.get(pid, 0)
+    new_qty = max(0, current_qty + quantity)
+
+    # Validate stock (only if increasing)
+    if quantity > 0 and new_qty > product.stock:
+        if request.headers.get("X-Requested-With") == "XMLHttpRequest":
+            return JsonResponse({"success": False, "error": f"Only {product.stock} items left in stock."}, status=400)
+        messages.error(request, f"Sorry, only {product.stock} items are available for {product.name}.")
+        return redirect("cart:detail")
+
+    if new_qty == 0:
+        if pid in cart:
             del cart[pid]
-    elif quantity > 0:
-        cart[pid] = quantity
+    else:
+        cart[pid] = new_qty
 
     save_cart(request, cart)
 
