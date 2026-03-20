@@ -1,57 +1,43 @@
-# Getting Started
+#  Smarts3r — Django E-Commerce Platform
 
-This project uses a Node.js frontend and a Django backend managed with `uv`.
+A full-stack e-commerce platform built with Django and PostgreSQL,
+featuring a modular architecture, Docker deployment, and Arabic 
+language support.
 
-## Frontend (Node.js)
+##  Features
+-  Product catalog with categories and filtering
+-  Shopping cart with session management
+-  Order processing and management system
+-  User authentication and profile management
+-  Arabic/English internationalization (i18n)
+-  Dockerized with Nginx for production deployment
+-  PostgreSQL with optimized ORM queries
 
-1. **Install dependencies**  
-   ```bash
-   npm install
-   ```
+##  Tech Stack
+| Layer | Technology |
+|---|---|
+| Backend | Django, Python |
+| Database | PostgreSQL |
+| Frontend | HTML, CSS, Bootstrap, JavaScript |
+| DevOps | Docker, Docker Compose, Nginx |
+| i18n | Django Translations (AR/EN) |
 
-2. **Start the development server**  
-   ```bash
-   npm start
-   ```
-   The app will open at [http://localhost:3000](http://localhost:3000).
+##  Quick Start (Docker)
+```bash
+git clone https://github.com/vhmd0/store-p11
+cd store-p11
+cp .env.example .env
+docker-compose up --build
+```
+Visit: http://localhost
 
-3. **Build for production**  
-   ```bash
-   npm run build
-   ```
-   Optimized assets are written to `build/`.
-
-4. **Run tests**  
-   ```bash
-   npm test
-   ```
-
-## Backend (Django + uv)
-
-1. **Install uv** (one-time)  
-   ```bash
-   curl -Ls https://astral.sh/uv/install.sh | sh
-   ```
-
-2. **Create & activate a virtual environment**  
-   ```bash
-   uv venv
-   source .venv/bin/activate   # On Windows: .venv\Scripts\activate
-   ```
-
-3. **Install Python dependencies**  
-   ```bash
-   uv pip install -r requirements.txt
-   ```
-
-4. **Prepare the database**  
-   ```bash
-   python manage.py migrate
-   python load_fixture.py      # Load sample data
-   ```
-
-5. **Start the Django server**  
-   ```bash
-   python manage.py runserver
-   ```
-   The API will be available at [http://localhost:8000](http://localhost:8000).
+##  Project Structure
+```
+├── products/     # Product catalog & categories
+├── cart/         # Shopping cart logic
+├── orders/       # Order processing
+├── users/        # Authentication & profiles
+├── shop/         # Main storefront
+├── core/         # Shared utilities
+└── nginx/        # Production server config
+```
