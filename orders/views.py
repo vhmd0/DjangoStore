@@ -176,6 +176,15 @@ def create_order(request):
                 del request.session["checkout_data"]
 
             messages.success(request, "Your order has been placed successfully!")
+
+            from .tasks import send_order_confirmation_task
+
+            send_order_confirmation_task.delay(order.id)
+
+            from products.tasks import check_and_notify_low_stock_task
+
+            check_and_notify_low_stock_task.delay()
+
             return redirect("orders:confirmation", order_id=order.id)
 
     except Exception as e:
@@ -266,4 +275,9 @@ def cancel_order(request, order_id):
     messages.success(
         request, f"Order #{order.id} has been cancelled and stock restored."
     )
+
+    from .tasks import send_order_cancelled_task
+
+    send_order_cancelled_task.delay(order.id)
+
     return redirect("orders:order_detail", order_id=order.id)

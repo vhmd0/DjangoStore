@@ -40,6 +40,11 @@ def register(request):
                 request,
                 _("Account created successfully! Please complete your profile."),
             )
+
+            from .tasks import send_welcome_email_task
+
+            send_welcome_email_task.delay(user.id)
+
             return redirect("profile")
         else:
             messages.error(request, _("Please fix the errors below."))

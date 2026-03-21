@@ -25,10 +25,10 @@ if (Test-Path "requimentes.txt") {
 }
 
 if (Test-Path "manage.py") {
-    Write-Host "--- [Step 4/6] Setting up Database ---" -ForegroundColor Cyan
+    Write-Host "--- [Step 4/7] Setting up Database ---" -ForegroundColor Cyan
     uv run python manage.py migrate
 
-    Write-Host "--- [Step 5/6] Creating Admin Account (User: admin / Pass: admin) ---" -ForegroundColor Cyan
+    Write-Host "--- [Step 5/7] Creating Admin Account (User: admin / Pass: admin) ---" -ForegroundColor Cyan
     $adminScript = @"
 from django.contrib.auth import get_user_model;
 User = get_user_model();
@@ -40,7 +40,12 @@ else:
 "@
     $adminScript | uv run python manage.py shell
 
-    Write-Host "--- [Step 6/6] Collecting static files ---" -ForegroundColor Cyan
+    Write-Host "--- [Step 6/7] Loading Seed Data ---" -ForegroundColor Cyan
+    if (Test-Path "load_data.py") {
+        uv run python load_data.py
+    }
+
+    Write-Host "--- [Step 7/7] Collecting static files ---" -ForegroundColor Cyan
     uv run python manage.py collectstatic --noinput
 
 

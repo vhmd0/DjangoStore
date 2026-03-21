@@ -2,179 +2,15 @@
 {% load i18n %}
 {% load bootstrap_icons %}
 {% load humanize %}
+{% load static %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/products.css' %}" />
+{% endblock %}
 
 {% block title %}{% trans "My Wishlist" %} — SMART S3R{% endblock %}
 
 {% block content %}
-
-<style>
-@import url('https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700;800&family=DM+Sans:wght@300;400;500;600&display=swap');
-
-:root {
-  --accent:      #10b981;
-  --accent-mid:  rgba(16,185,129,0.12);
-  --accent-dim:  rgba(16,185,129,0.07);
-  --bg:          #f8fafc;
-  --white:       #ffffff;
-  --text-1:      #0f172a;
-  --text-2:      #475569;
-  --text-3:      #94a3b8;
-  --border:      #e2e8f0;
-  --border-2:    #cbd5e1;
-  --radius-sm:   10px;
-  --radius-md:   14px;
-  --radius-lg:   20px;
-  --font-head:   'Sora', sans-serif;
-  --font-body:   'DM Sans', sans-serif;
-}
-body { font-family: var(--font-body); background: var(--bg); }
-
-/* ── Page Header ───────────────────────────── */
-.page-hero {
-  background: linear-gradient(145deg, #0f172a 0%, #1e293b 100%);
-  border-radius: var(--radius-lg);
-  padding: 40px 44px;
-  margin-bottom: 2.4rem;
-  position: relative; overflow: hidden;
-}
-.hero-orb {
-  position: absolute; border-radius: 50%; filter: blur(70px); pointer-events: none;
-}
-.orb-1 { width:300px;height:300px;background:rgba(239,68,68,0.1);top:-80px;left:-60px; }
-.orb-2 { width:200px;height:200px;background:rgba(16,185,129,0.08);bottom:-50px;right:-30px; }
-.hero-grid {
-  position: absolute; inset: 0; pointer-events: none;
-  background-image: linear-gradient(rgba(255,255,255,0.025) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,0.025) 1px,transparent 1px);
-  background-size: 40px 40px;
-}
-.hero-inner { position: relative; z-index: 2; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 16px; }
-
-.hero-badge {
-  display: inline-flex; align-items: center; gap: 7px;
-  background: rgba(239,68,68,0.15); border: 1px solid rgba(239,68,68,0.25);
-  color: #fca5a5; font-family: var(--font-head);
-  font-size: 0.68rem; font-weight: 700; letter-spacing: 0.1em;
-  text-transform: uppercase; padding: 4px 13px; border-radius: 100px;
-  margin-bottom: 0.5rem;
-}
-.hero-dot { width:6px;height:6px;border-radius:50%;background:#f87171;box-shadow:0 0 8px #f87171;animation:pulse 2s ease-in-out infinite; }
-@keyframes pulse { 0%,100%{opacity:1}50%{opacity:.35} }
-
-.hero-title { font-family: var(--font-head); font-size: 1.8rem; font-weight: 800; color: #f0f9ff; letter-spacing: -0.02em; margin-bottom: 0.2rem; }
-.hero-sub { font-size: 0.88rem; color: #64748b; }
-
-.shop-btn {
-  display: inline-flex; align-items: center; gap: 8px;
-  background: var(--white); color: var(--text-1);
-  border: none; border-radius: var(--radius-sm);
-  padding: 11px 22px;
-  font-family: var(--font-head); font-size: 0.85rem; font-weight: 700;
-  text-decoration: none; transition: all 0.2s; flex-shrink: 0;
-}
-.shop-btn:hover { background: #f1f5f9; color: var(--text-1); transform: translateY(-1px); }
-
-/* ── Wishlist count chip ────────────────────── */
-.count-chip {
-  display: inline-flex; align-items: center; gap: 6px;
-  background: rgba(239,68,68,0.12); border: 1px solid rgba(239,68,68,0.2);
-  color: #f87171; font-family: var(--font-head);
-  font-size: 0.75rem; font-weight: 700;
-  padding: 4px 12px; border-radius: 100px; margin-bottom: 1.4rem;
-}
-
-/* ── Product Card ──────────────────────────── */
-.wish-card {
-  background: var(--white);
-  border: 1.5px solid var(--border);
-  border-radius: var(--radius-md);
-  overflow: hidden;
-  height: 100%;
-  display: flex; flex-direction: column;
-  transition: border-color 0.22s, transform 0.22s, box-shadow 0.22s;
-  position: relative;
-}
-.wish-card:hover {
-  border-color: var(--accent);
-  transform: translateY(-4px);
-  box-shadow: 0 10px 32px rgba(16,185,129,0.1);
-}
-
-.wish-img-wrap {
-  aspect-ratio: 1/1; overflow: hidden;
-  background: var(--bg); position: relative;
-}
-.wish-img-wrap img {
-  width: 100%; height: 100%; object-fit: cover;
-  transition: transform 0.35s;
-}
-.wish-card:hover .wish-img-wrap img { transform: scale(1.05); }
-.wish-placeholder {
-  width: 100%; height: 100%;
-  display: flex; align-items: center; justify-content: center;
-  color: var(--text-3); font-size: 2.5rem;
-}
-
-/* Remove from wishlist button */
-.remove-btn {
-  position: absolute; top: 10px; right: 10px; z-index: 3;
-  width: 34px; height: 34px; border-radius: 50%;
-  background: rgba(255,255,255,0.92); border: 1px solid rgba(239,68,68,0.2);
-  display: flex; align-items: center; justify-content: center;
-  color: #ef4444; font-size: 0.85rem; cursor: pointer;
-  transition: all 0.2s; backdrop-filter: blur(4px);
-}
-.remove-btn:hover { background: #fef2f2; border-color: #ef4444; transform: scale(1.1); }
-
-/* Card body */
-.wish-body { padding: 12px 14px 14px; flex: 1; display: flex; flex-direction: column; }
-.wish-brand { font-size: 0.68rem; font-weight: 700; color: var(--text-3); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 4px; }
-.wish-name {
-  font-family: var(--font-head); font-size: 0.85rem; font-weight: 600;
-  color: var(--text-1); line-height: 1.4; flex: 1; margin-bottom: 12px;
-  display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
-  text-decoration: none;
-}
-.wish-name:hover { color: var(--accent); }
-
-.wish-footer { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
-.wish-price { font-family: var(--font-head); font-size: 1rem; font-weight: 800; color: var(--text-1); }
-.wish-price span { font-size: 0.7rem; font-weight: 500; color: var(--text-3); margin-right: 2px; }
-
-.add-cart-btn {
-  display: inline-flex; align-items: center; gap: 6px;
-  background: var(--text-1); color: #fff; border: none;
-  border-radius: var(--radius-sm); padding: 8px 14px;
-  font-family: var(--font-head); font-size: 0.78rem; font-weight: 700;
-  cursor: pointer; transition: all 0.2s; white-space: nowrap;
-}
-.add-cart-btn:hover { background: var(--accent); transform: translateY(-1px); }
-
-/* ── Empty State ───────────────────────────── */
-.empty-state {
-  text-align: center; padding: 90px 20px;
-  background: var(--white); border: 1px solid var(--border);
-  border-radius: var(--radius-lg);
-}
-.empty-icon {
-  width: 80px; height: 80px; border-radius: 22px;
-  background: #fef2f2; border: 1px solid #fecaca;
-  display: flex; align-items: center; justify-content: center;
-  font-size: 2rem; color: #f87171;
-  margin: 0 auto 1.4rem;
-}
-.empty-title { font-family: var(--font-head); font-size: 1.3rem; font-weight: 800; color: var(--text-1); margin-bottom: 0.5rem; }
-.empty-sub { font-size: 0.9rem; color: var(--text-2); margin-bottom: 1.8rem; max-width: 360px; margin-left: auto; margin-right: auto; }
-.empty-btn {
-  display: inline-flex; align-items: center; gap: 8px;
-  background: var(--text-1); color: #fff; border: none;
-  border-radius: var(--radius-sm); padding: 13px 28px;
-  font-family: var(--font-head); font-size: 0.9rem; font-weight: 700;
-  text-decoration: none; transition: all 0.22s;
-  box-shadow: 0 4px 14px rgba(15,23,42,0.15);
-}
-.empty-btn:hover { background: #1e293b; transform: translateY(-2px); color: #fff; }
-</style>
-
 
 {# ── Page Hero ───────────────────────────────── #}
 <div class="page-hero">
@@ -210,9 +46,9 @@ body { font-family: var(--font-body); background: var(--bg); }
         {# Image + remove #}
         <div class="wish-img-wrap">
           {% if item.product.img %}
-            <img src="{{ item.product.img.url }}" alt="{{ item.product.name }}">
+            <img src="{{ item.product.img.url }}" alt="{{ item.product.name }}" loading="lazy">
           {% elif item.product.img_link %}
-            <img src="{{ item.product.img_link }}" alt="{{ item.product.name }}">
+            <img src="{{ item.product.img_link }}" alt="{{ item.product.name }}" loading="lazy">
           {% else %}
             <div class="wish-placeholder"><i class="bi bi-phone"></i></div>
           {% endif %}
@@ -261,20 +97,8 @@ body { font-family: var(--font-body); background: var(--bg); }
 
 {% endif %}
 
-
-<script>
-document.querySelectorAll('.js-cart-form').forEach(form => {
-  form.addEventListener('submit', function(e) {
-    const btn = this.querySelector('button');
-    const orig = btn.innerHTML;
-    btn.innerHTML = '<i class="bi bi-check-circle-fill"></i> {% trans "Added!" %}';
-    btn.style.background = 'var(--accent)';
-    setTimeout(() => {
-      btn.innerHTML = orig;
-      btn.style.background = '';
-    }, 1800);
-  });
-});
-</script>
+{% block extra_js %}
+<script src="{% static 'js/cart.js' %}"></script>
+{% endblock %}
 
 {% endblock %}

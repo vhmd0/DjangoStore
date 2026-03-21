@@ -29,6 +29,11 @@ User = get_user_model(); \
 if not User.objects.filter(username='admin').exists(): \
     User.objects.create_superuser('admin', 'admin@example.com', 'admin')" | uv run python manage.py shell
 
+    if [ -f "load_data.py" ]; then
+        echo "Loading seed data..."
+        uv run python load_data.py
+    fi
+
     uv run python manage.py collectstatic --noinput
 
     if command -v open &> /dev/null; then

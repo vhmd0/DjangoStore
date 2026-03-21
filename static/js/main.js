@@ -7,11 +7,32 @@ document.addEventListener('DOMContentLoaded', function () {
     });
   });
 
+  // RTL Fix: Fix dropdown positioning for RTL languages
+  fixRTLDropdowns();
+
   // Initialize all features
   initCart();
   initWishlist();
   initPasswordToggle();
 });
+
+// RTL Dropdown Fix
+function fixRTLDropdowns() {
+  const isRTL = document.documentElement.dir === 'rtl';
+  
+  if (!isRTL) return;
+
+  // Fix all dropdowns
+  document.querySelectorAll('.dropdown-menu').forEach(function(menu) {
+    // Remove Bootstrap's end alignment in RTL
+    if (menu.classList.contains('dropdown-menu-end')) {
+      menu.classList.remove('dropdown-menu-end');
+      menu.classList.add('dropdown-menu-start');
+      menu.style.right = 'auto';
+      menu.style.left = '0';
+    }
+  });
+}
 
 // Global functions
 function getCsrf() {

@@ -68,6 +68,7 @@ MIDDLEWARE = [
     "whitenoise.middleware.WhiteNoiseMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.locale.LocaleMiddleware",
+    "shop.middleware.LanguageDirectionMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
@@ -122,40 +123,30 @@ else:
     }
 
 
-# Celery Configuration (only configure if Redis is available outside DEBUG)
-if not DEBUG:
-    CELERY_BROKER_URL = REDIS_URL
-    CELERY_RESULT_BACKEND = REDIS_URL
-    CELERY_ACCEPT_CONTENT = ["json"]
-    CELERY_TASK_SERIALIZER = "json"
-    CELERY_RESULT_SERIALIZER = "json"
+# Celery Configuration
+CELERY_TASK_ALWAYS_EAGER = True
+CELERY_TASK_EAGER_PROPAGATES = True
+CELERY_BROKER_URL = os.environ.get("CELERY_BROKER_URL", "memory://")
+CELERY_RESULT_BACKEND = "cache+memory://" if DEBUG else REDIS_URL
+
+CELERY_ACCEPT_CONTENT = ["json"]
+CELERY_TASK_SERIALIZER = "json"
+CELERY_RESULT_SERIALIZER = "json"
+
+
+# Email Configuration (Console backend for development)
+EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
+DEFAULT_FROM_EMAIL = "noreply@smarts3r.local"
+SERVER_EMAIL = DEFAULT_FROM_EMAIL
 
 
 # Database
 # https://docs.djangoproject.com/en/6.0/ref/settings/#databases
 
-import pymysql
-
-pymysql.version_info = (2, 2, 1, "final", 0)
-pymysql.install_as_MySQLdb()
-
-MYSQL_HOST = os.environ.get("MYSQL_HOST", "127.0.0.1")
-MYSQL_PORT = os.environ.get("MYSQL_PORT", "3306")
-MYSQL_DATABASE = os.environ.get("MYSQL_DATABASE", "s3r_store")
-MYSQL_USER = os.environ.get("MYSQL_USER", "root")
-MYSQL_PASSWORD = os.environ.get("MYSQL_PASSWORD", "")
-
 DATABASES = {
     "default": {
-        "ENGINE": "django.db.backends.mysql",
-        "NAME": MYSQL_DATABASE,
-        "USER": MYSQL_USER,
-        "PASSWORD": MYSQL_PASSWORD,
-        "HOST": MYSQL_HOST,
-        "PORT": MYSQL_PORT,
-        "OPTIONS": {
-            "charset": "utf8mb4",
-        },
+        "ENGINE": "django.db.backends.sqlite3",
+        "NAME": BASE_DIR / "db.sqlite3",
     }
 }
 

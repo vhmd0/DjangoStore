@@ -12,9 +12,9 @@
            style="width: 80px; height: 80px;">
         <a href="{{ item.product.get_absolute_url }}">
           {% if item.product.img %}
-            <img src="{{ item.product.img.url }}" class="w-100 h-100 img-fluid" style="object-fit: cover;" alt="{{ item.product.name }}">
+            <img src="{{ item.product.img.url }}" class="w-100 h-100 img-fluid" style="object-fit: cover;" alt="{{ item.product.name }}" loading="lazy">
           {% elif item.product.img_link %}
-            <img src="{{ item.product.img_link }}" class="w-100 h-100 img-fluid" style="object-fit: cover;" alt="{{ item.product.name }}">
+            <img src="{{ item.product.img_link }}" class="w-100 h-100 img-fluid" style="object-fit: cover;" alt="{{ item.product.name }}" loading="lazy">
           {% else %}
             <div class="d-flex align-items-center justify-content-center h-100 bg-dark text-muted">
               <i class="bi bi-image fs-4"></i>

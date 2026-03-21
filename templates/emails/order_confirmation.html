@@ -1,0 +1,108 @@
+{% extends "emails/base.html" %}
+
+{% block content %}
+<!-- Hero Section -->
+<tr>
+    <td style="padding: 50px 40px 30px 40px; text-align: center;">
+        <div style="width: 64px; height: 64px; background: linear-gradient(135deg, #10b981 0%, #059669 100%); border-radius: 50%; display: inline-block; margin-bottom: 24px;">
+            <span style="font-size: 32px; line-height: 64px;">✓</span>
+        </div>
+        <h1 style="margin: 0 0 16px 0; font-size: 28px; font-weight: 700; color: #1a1a2e; line-height: 1.3;">
+            Order Confirmed!
+        </h1>
+        <p style="margin: 0; font-size: 16px; color: #6b7280; line-height: 1.6;">
+            Thank you for your purchase, {{ order.user.get_full_name|default:order.user.username }}!
+        </p>
+    </td>
+</tr>
+
+<!-- Order Details Card -->
+<tr>
+    <td style="padding: 0 40px 30px 40px;">
+        <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%" style="background: #f9fafb; border-radius: 12px; border: 1px solid #e5e7eb;">
+            <tr>
+                <td style="padding: 24px;">
+                    <!-- Order Number -->
+                    <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%" style="margin-bottom: 20px;">
+                        <tr>
+                            <td>
+                                <p style="margin: 0 0 4px 0; font-size: 12px; color: #6b7280; text-transform: uppercase; letter-spacing: 0.5px;">Order Number</p>
+                                <p style="margin: 0; font-size: 20px; font-weight: 700; color: #1a1a2e;">#{{ order.id }}</p>
+                            </td>
+                            <td align="right">
+                                <span style="display: inline-block; background: #fef3c7; color: #92400e; font-size: 12px; font-weight: 600; padding: 6px 12px; border-radius: 20px;">
+                                    {{ order.get_status_display }}
+                                </span>
+                            </td>
+                        </tr>
+                    </table>
+                    
+                    <div style="border-bottom: 1px solid #e5e7eb; margin-bottom: 16px;"></div>
+                    
+                    <!-- Order Items -->
+                    <p style="margin: 0 0 12px 0; font-size: 12px; color: #6b7280; text-transform: uppercase; letter-spacing: 0.5px;">Items</p>
+                    {% for item in order_items %}
+                    <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%" style="margin-bottom: 12px;">
+                        <tr>
+                            <td style="padding: 8px 0;">
+                                <span style="font-size: 14px; color: #1a1a2e;">{{ item.quantity }}× {{ item.product.name }}</span>
+                            </td>
+                            <td align="right" style="padding: 8px 0;">
+                                <span style="font-size: 14px; font-weight: 600; color: #1a1a2e;">{{ item.price }} EGP</span>
+                            </td>
+                        </tr>
+                    </table>
+                    {% endfor %}
+                    
+                    <div style="border-bottom: 1px solid #e5e7eb; margin: 16px 0;"></div>
+                    
+                    <!-- Total -->
+                    <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%">
+                        <tr>
+                            <td style="padding: 8px 0;">
+                                <span style="font-size: 16px; font-weight: 700; color: #1a1a2e;">Total</span>
+                            </td>
+                            <td align="right" style="padding: 8px 0;">
+                                <span style="font-size: 20px; font-weight: 700; color: #10b981;">{{ order.total_amount }} EGP</span>
+                            </td>
+                        </tr>
+                    </table>
+                </td>
+            </tr>
+        </table>
+    </td>
+</tr>
+
+<!-- Shipping Info -->
+<tr>
+    <td style="padding: 0 40px 30px 40px;">
+        <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%" style="background: #eff6ff; border-radius: 12px;">
+            <tr>
+                <td style="padding: 20px;">
+                    <p style="margin: 0 0 8px 0; font-size: 12px; color: #4361ee; text-transform: uppercase; letter-spacing: 0.5px; font-weight: 600;">Shipping Address</p>
+                    <p style="margin: 0; font-size: 14px; color: #1a1a2e; line-height: 1.6;">{{ order.shipping_address }}</p>
+                    <p style="margin: 8px 0 0 0; font-size: 14px; color: #1a1a2e;">Phone: {{ order.phone }}</p>
+                </td>
+            </tr>
+        </table>
+    </td>
+</tr>
+
+<!-- Timeline Info -->
+<tr>
+    <td style="padding: 0 40px 30px 40px; text-align: center;">
+        <p style="margin: 0; font-size: 14px; color: #6b7280;">
+            📍 You'll receive tracking information once your order ships.
+        </p>
+    </td>
+</tr>
+
+<!-- CTA Button -->
+<tr>
+    <td style="padding: 0 40px 40px 40px; text-align: center;">
+        <a href="{{ site_url|default:"#" }}/orders/{{ order.id }}" style="display: inline-block; background: linear-gradient(135deg, #4361ee 0%, #3f37c9 100%); color: #ffffff; text-decoration: none; font-size: 16px; font-weight: 600; padding: 16px 32px; border-radius: 8px;">
+            View Order →
+        </a>
+    </td>
+</tr>
+{% endblock %}

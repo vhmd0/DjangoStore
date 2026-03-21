@@ -1,14 +1,15 @@
 #!/usr/bin/env python
 """
-Load seeding data into MariaDB database.
-Run: python load_data.py
+Load seeding data into SQLite database.
+Run: uv run python load_data.py
 """
 
 import os
-import pymysql
+import sqlite3
 from pathlib import Path
 
 BASE_DIR = Path(__file__).resolve().parent
+DB_PATH = BASE_DIR / "db.sqlite3"
 
 
 def load_env():
@@ -25,47 +26,51 @@ def load_env():
 
 def load_data():
     load_env()
-    # Connect to MariaDB
-    conn = pymysql.connect(
-        host=os.environ.get("MYSQL_HOST", "127.0.0.1"),
-        port=int(os.environ.get("MYSQL_PORT", 3306)),
-        user=os.environ.get("MYSQL_USER", "root"),
-        password=os.environ.get("MYSQL_PASSWORD", ""),
-        charset="utf8mb4",
-        autocommit=True,
-    )
+    conn = sqlite3.connect(DB_PATH)
+    conn.row_factory = sqlite3.Row
+    cursor = conn.cursor()
 
     sql_files = [
         ("Seeding Data", BASE_DIR / "data_seeding.sql"),
     ]
 
-    with conn.cursor() as cursor:
-        for name, sql_file in sql_files:
-            if not sql_file.exists():
-                print(f"⚠️  File not found: {sql_file}")
-                continue
+    for name, sql_file in sql_files:
+        if not sql_file.exists():
+            print(f"  File not found: {sql_file}")
+            continue
 
-            print(f"📄 Loading {name}...")
-            with open(sql_file, "r", encoding="utf-8") as f:
-                sql_content = f.read()
+        print(f"Loading {name}...")
+        with open(sql_file, "r", encoding="utf-8") as f:
+            sql_content = f.read()
 
-            # Split by semicolon and execute each statement
-            for statement in sql_content.split(";"):
-                statement = statement.strip()
-                if statement and not statement.startswith("--"):
-                    try:
-                        cursor.execute(statement)
-                    except pymysql.err.OperationalError as e:
-                        if "already exists" in str(e).lower():
-                            continue  # Skip if table already exists
-                        print(f"   ⚠️  {e}")
-                    except Exception as e:
-                        print(f"   ⚠️  {e}")
+        for statement in sql_content.split(";"):
+            statement = statement.strip()
+            if (
+                statement
+                and not statement.startswith("--")
+                and not statement.startswith("SET")
+                and not statement.startswith("START")
+                and not statement.startswith("COMMIT")
+            ):
+                try:
+                    cursor.execute(statement)
+                except sqlite3.IntegrityError as e:
+                    if (
+                        "UNIQUE constraint failed" in str(e)
+                        or "already exists" in str(e).lower()
+                    ):
+                        continue
+                    print(f"   Warning: {e}")
+                except sqlite3.OperationalError as e:
+                    print(f"   Warning: {e}")
+                except Exception as e:
+                    print(f"   Warning: {e}")
 
-            print(f"   ✅ {name} loaded")
+        print(f"   {name} loaded")
 
+    conn.commit()
     conn.close()
-    print("\n🎉 Data loaded successfully!")
+    print("\nData loaded successfully!")
 
 
 if __name__ == "__main__":
