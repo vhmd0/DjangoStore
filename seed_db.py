@@ -13,8 +13,8 @@ import sqlite3
 import sys
 from pathlib import Path
 
-SQL_FILE = Path("data_seeding.sql")
-DB_FILE = Path("db.sqlite3")
+SQL_FILE = Path(__file__).resolve().parent / "data_seeding.sql"
+DB_FILE = Path(__file__).resolve().parent.parent / "db.sqlite3"
 
 if not SQL_FILE.exists():
     print(f"  ✘  {SQL_FILE} not found.", file=sys.stderr)
@@ -28,12 +28,12 @@ sql = SQL_FILE.read_text(encoding="utf-8")
 
 # ── 1. Strip MySQL-only statements ───────────────────────────────────────────
 STRIP_PATTERNS = [
-    r"(?im)^\s*SET\s+[^;]+;",                        # SET FOREIGN_KEY_CHECKS, SET SQL_MODE …
-    r"(?im)^\s*START\s+TRANSACTION\s*;",              # START TRANSACTION
-    r"(?im)^\s*COMMIT\s*;",                           # COMMIT
-    r"(?im)^\s*ROLLBACK\s*;",                         # ROLLBACK
-    r"(?im)^\s*LOCK\s+TABLES\s+[^;]+;",              # LOCK TABLES
-    r"(?im)^\s*UNLOCK\s+TABLES\s*;",                 # UNLOCK TABLES
+    r"(?im)^\s*SET\s+[^;]+;",  # SET FOREIGN_KEY_CHECKS, SET SQL_MODE …
+    r"(?im)^\s*START\s+TRANSACTION\s*;",  # START TRANSACTION
+    r"(?im)^\s*COMMIT\s*;",  # COMMIT
+    r"(?im)^\s*ROLLBACK\s*;",  # ROLLBACK
+    r"(?im)^\s*LOCK\s+TABLES\s+[^;]+;",  # LOCK TABLES
+    r"(?im)^\s*UNLOCK\s+TABLES\s*;",  # UNLOCK TABLES
     r"(?im)^\s*ALTER\s+TABLE\s+\S+\s+AUTO_INCREMENT[^;]*;",  # AUTO_INCREMENT resets
 ]
 for pattern in STRIP_PATTERNS:
