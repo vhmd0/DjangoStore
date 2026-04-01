@@ -58,10 +58,23 @@ INSTALLED_APPS = [
     "products",
     "cart",
     "orders",
-    "django_browser_reload",
     "django_bootstrap5",
     "django_bootstrap_icons",
 ]
+
+if DEBUG:
+    INSTALLED_APPS += [
+        "debug_toolbar",
+        "django_browser_reload",
+    ]
+
+
+# BOOTSTRAP5 = {
+#     "css_url": {
+#         "ar": "https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.rtl.min.css",
+#         "default": "https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css",
+#     },
+# }
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
@@ -73,8 +86,13 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
-    "django_browser_reload.middleware.BrowserReloadMiddleware",
 ]
+
+if DEBUG:
+    MIDDLEWARE += [
+        "django_browser_reload.middleware.BrowserReloadMiddleware",
+        "debug_toolbar.middleware.DebugToolbarMiddleware",
+    ]
 
 
 SESSION_ENGINE = "django.contrib.sessions.backends.db"
@@ -123,10 +141,10 @@ else:
 
 
 # Celery Configuration
-CELERY_TASK_ALWAYS_EAGER = True
+CELERY_TASK_ALWAYS_EAGER = DEBUG  # Sync in dev, async in production
 CELERY_TASK_EAGER_PROPAGATES = True
-CELERY_BROKER_URL = os.environ.get("CELERY_BROKER_URL", "memory://")
-CELERY_RESULT_BACKEND = "cache+memory://" if DEBUG else REDIS_URL
+CELERY_BROKER_URL = os.environ.get("CELERY_BROKER_URL", "redis://127.0.0.1:6379/0")
+CELERY_RESULT_BACKEND = REDIS_URL
 
 CELERY_ACCEPT_CONTENT = ["json"]
 CELERY_TASK_SERIALIZER = "json"
@@ -266,7 +284,7 @@ JAZZMIN_UI_TWEAKS = {
     "sidebar_nav_legacy_style": False,
     "sidebar_nav_flat_style": True,
     "theme": "default",
-    "default_theme_mode": "light",
+    "default_theme_mode": "dark",
     "button_classes": {
         "primary": "btn-primary",
         "secondary": "btn-secondary",
@@ -278,7 +296,7 @@ JAZZMIN_UI_TWEAKS = {
     "actions_sticky_top": False,
 }
 
-JAZZMIN_SETTINGS["custom_css"] = "/static/css/jazzmin-responsive.css"
+# JAZZMIN_SETTINGS["custom_css"] = "/static/css/jazzmin-responsive.css"
 
-mimetypes.add_type("text/css", ".css", True)
-mimetypes.add_type("text/javascript", ".js", True)
+# mimetypes.add_type("text/css", ".css", True)
+# mimetypes.add_type("text/javascript", ".js", True)

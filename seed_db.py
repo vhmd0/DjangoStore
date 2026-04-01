@@ -14,7 +14,7 @@ import sys
 from pathlib import Path
 
 SQL_FILE = Path(__file__).resolve().parent / "data_seeding.sql"
-DB_FILE = Path(__file__).resolve().parent.parent / "db.sqlite3"
+DB_FILE = Path(__file__).resolve().parent / "db.sqlite3"
 
 if not SQL_FILE.exists():
     print(f"  ✘  {SQL_FILE} not found.", file=sys.stderr)

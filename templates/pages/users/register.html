@@ -4,7 +4,7 @@
 {% load static %}
 
 {% block extra_css %}
-<link rel="stylesheet" href="{% static 'css/auth.css' %}" />
+<link rel="stylesheet" href="{% static 'css/auth.css' %}"/>
 {% endblock %}
 
 {% block title %}{% trans "Join SMART S3R" %}{% endblock %}
@@ -13,88 +13,89 @@
 
 <div class="auth-wrapper">
 
-  {# ── Left Panel ── #}
-  <div class="auth-left d-none d-lg-flex">
+    {# ── Left Panel ── #}
+    <div class="auth-left d-none d-lg-flex">
 
-    <div class="glow-orb orb-1"></div>
-    <div class="glow-orb orb-2"></div>
-    <div class="grid-overlay"></div>
+        <div class="glow-orb orb-1"></div>
+        <div class="glow-orb orb-2"></div>
+        <div class="grid-overlay"></div>
 
-    <div class="left-content">
+        <div class="left-content">
 
-      <div class="brand-badge">
-        <span class="brand-dot"></span>
-        SMART S3R
-      </div>
+            <div class="brand-badge">
+                <span class="brand-dot"></span>
+                SMART S3R
+            </div>
 
-      <div class="icon-ring">
-        {% bs_icon 'person-plus-fill' size='2.2em' extra_classes='icon-main' %}
-      </div>
+            <div class="icon-ring">
+                {% bs_icon 'person-plus-fill' size='2.2em' extra_classes='icon-main' %}
+            </div>
 
-      <h1 class="left-title">{% trans "Create Account" %}</h1>
-      <p class="left-sub">{% trans "Join our community. Get exclusive deals, real-time order tracking, and a personalized shopping experience." %}</p>
+            <h1 class="left-title">{% trans "Create Account" %}</h1>
+            <p class="left-sub">{% trans "Join our community. Get exclusive deals, real-time order tracking, and a
+                personalized shopping experience." %}</p>
 
-      <ul class="perks-list">
-        <li>
-          <span class="perk-icon"><i class="bi bi-lightning-charge-fill"></i></span>
-          <span>{% trans "Real-time order tracking" %}</span>
-        </li>
-        <li>
-          <span class="perk-icon"><i class="bi bi-heart-fill"></i></span>
-          <span>{% trans "Save your favorite items" %}</span>
-        </li>
-        <li>
-          <span class="perk-icon"><i class="bi bi-rocket-takeoff-fill"></i></span>
-          <span>{% trans "Faster checkout experience" %}</span>
-        </li>
-      </ul>
+            <ul class="perks-list">
+                <li>
+                    <span class="perk-icon"><i class="bi bi-lightning-charge-fill"></i></span>
+                    <span>{% trans "Real-time order tracking" %}</span>
+                </li>
+                <li>
+                    <span class="perk-icon"><i class="bi bi-heart-fill"></i></span>
+                    <span>{% trans "Save your favorite items" %}</span>
+                </li>
+                <li>
+                    <span class="perk-icon"><i class="bi bi-rocket-takeoff-fill"></i></span>
+                    <span>{% trans "Faster checkout experience" %}</span>
+                </li>
+            </ul>
 
-      <div class="trust-bar">
-        <div class="avatar-stack">
-          <div class="av" style="background:#6366f1">A</div>
-          <div class="av" style="background:#10b981">B</div>
-          <div class="av" style="background:#f59e0b">C</div>
-          <div class="av" style="background:#ef4444">D</div>
+            <div class="trust-bar">
+                <div class="avatar-stack">
+                    <div class="av" style="background:#6366f1">A</div>
+                    <div class="av" style="background:#10b981">B</div>
+                    <div class="av" style="background:#f59e0b">C</div>
+                    <div class="av" style="background:#ef4444">D</div>
+                </div>
+                <span class="trust-text">{% trans "10,000+ members joined" %}</span>
+            </div>
+
         </div>
-        <span class="trust-text">{% trans "10,000+ members joined" %}</span>
-      </div>
-
     </div>
-  </div>
 
-  {# ── Right Panel ── #}
-  <div class="auth-right">
-    <div class="form-card form-card-register">
+    {# ── Right Panel ── #}
+    <div class="auth-right">
+        <div class="form-card form-card-register">
 
-      <div class="form-header form-header-register">
-        <div class="mobile-logo d-lg-none">
-          {% bs_icon 'bag-heart-fill' size='1.6em' extra_classes='text-success' %}
-          <span>SMART S3R</span>
-        </div>
-        <h2 class="form-title">{% trans "Get Started" %}</h2>
-        <p class="form-sub">{% trans "Free forever. No credit card needed." %}</p>
-      </div>
+            <div class="form-header form-header-register">
+                <div class="mobile-logo d-lg-none">
+                    {% bs_icon 'bag-heart-fill' size='1.6em' extra_classes='text-success' %}
+                    <span>SMART S3R</span>
+                </div>
+                <h2 class="form-title">{% trans "Get Started" %}</h2>
+                <p class="form-sub">{% trans "Free forever. No credit card needed." %}</p>
+            </div>
 
-      {% if form.non_field_errors %}
-        <div class="error-banner">
-          <i class="bi bi-exclamation-triangle-fill me-2"></i>
-          {% for error in form.non_field_errors %}{{ error }}{% endfor %}
-        </div>
-      {% endif %}
+            {% if form.non_field_errors %}
+            <div class="error-banner">
+                <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                {% for error in form.non_field_errors %}{{ error }}{% endfor %}
+            </div>
+            {% endif %}
 
-      <form method="POST" novalidate>
-        {% csrf_token %}
+            <form method="POST" novalidate>
+                {% csrf_token %}
 
-        <div class="fields-grid">
-          {% for field in form %}
-            <div class="field-wrap {% if field.name == 'first_name' or field.name == 'last_name' %}field-half{% endif %}">
+                <div class="fields-grid">
+                    {% for field in form %}
+                    <div class="field-wrap {% if field.name == 'first_name' or field.name == 'last_name' %}field-half{% endif %}">
 
-              <label class="field-label" for="{{ field.id_for_label }}">
-                {{ field.label }}
-                {% if field.field.required %}<span class="req-star">*</span>{% endif %}
-              </label>
+                        <label class="field-label" for="{{ field.id_for_label }}">
+                            {{ field.label }}
+                            {% if field.field.required %}<span class="req-star">*</span>{% endif %}
+                        </label>
 
-              <div class="input-shell {% if field.errors %}has-error{% endif %}">
+                        <div class="input-shell {% if field.errors %}has-error{% endif %}">
                 <span class="input-icon">
                   {% if field.name == 'username' %}<i class="bi bi-at"></i>
                   {% elif field.name == 'email' %}<i class="bi bi-envelope"></i>
@@ -106,60 +107,61 @@
                   {% endif %}
                 </span>
 
-                  <input
-                    type="{{ field.field.widget.input_type }}"
-                    name="{{ field.html_name }}"
-                    id="{{ field.id_for_label }}"
-                    class="auth-input auth-input-register"
-                    placeholder="{{ field.label }}"
-                    value="{{ field.value|default='' }}"
-                    {% if field.field.required %}required{% endif %}
-                  >
+                            <input
+                                    type="{{ field.field.widget.input_type }}"
+                                    name="{{ field.html_name }}"
+                                    id="{{ field.id_for_label }}"
+                                    class="auth-input auth-input-register"
+                                    placeholder="{{ field.label }}"
+                                    value="{{ field.value|default='' }}"
+                                    {% if field.field.required %}required{% endif %}
+                            >
 
-                {% if 'password' in field.name %}
-                  <button type="button" class="toggle-pw" onclick="togglePassword('{{ field.id_for_label }}', this)" tabindex="-1">
-                    <i class="bi bi-eye"></i>
-                  </button>
-                {% endif %}
-              </div>
+                            {% if 'password' in field.name %}
+                            <button type="button" class="toggle-pw"
+                                    onclick="togglePassword('{{ field.id_for_label }}', this)" tabindex="-1">
+                                <i class="bi bi-eye"></i>
+                            </button>
+                            {% endif %}
+                        </div>
 
-              {% if field.help_text and field.name != 'password' %}
-                <p class="field-hint">{{ field.help_text|safe }}</p>
-              {% endif %}
+                        {% if field.help_text and field.name != 'password' %}
+                        <p class="field-hint">{{ field.help_text|safe }}</p>
+                        {% endif %}
 
-              {% if field.errors %}
-                <p class="field-error">
-                  <i class="bi bi-exclamation-circle me-1"></i>
-                  {% for error in field.errors %}{{ error }}{% endfor %}
-                </p>
-              {% endif %}
+                        {% if field.errors %}
+                        <p class="field-error">
+                            <i class="bi bi-exclamation-circle me-1"></i>
+                            {% for error in field.errors %}{{ error }}{% endfor %}
+                        </p>
+                        {% endif %}
 
-            </div>
-          {% endfor %}
+                    </div>
+                    {% endfor %}
+                </div>
+
+                <button type="submit" class="submit-btn submit-btn-register">
+                    <span>{% trans "Create My Account" %}</span>
+                    <span class="btn-icon"><i class="bi bi-arrow-right"></i></span>
+                </button>
+
+            </form>
+
+            <p class="terms-note">
+                {% trans "By signing up, you agree to our" %}
+                <a href="#">{% trans "Terms of Service" %}</a> {% trans "and" %}
+                <a href="#">{% trans "Privacy Policy" %}</a>.
+            </p>
+
+            <div class="divider"><span>{% trans "Already a member?" %}</span></div>
+
+            <a href="{% url 'login' %}" class="signin-btn">
+                <i class="bi bi-box-arrow-in-right me-2"></i>
+                {% trans "Sign In to Your Account" %}
+            </a>
+
         </div>
-
-        <button type="submit" class="submit-btn submit-btn-register">
-          <span>{% trans "Create My Account" %}</span>
-          <span class="btn-icon"><i class="bi bi-arrow-right"></i></span>
-        </button>
-
-      </form>
-
-      <p class="terms-note">
-        {% trans "By signing up, you agree to our" %}
-        <a href="#">{% trans "Terms of Service" %}</a> {% trans "and" %}
-        <a href="#">{% trans "Privacy Policy" %}</a>.
-      </p>
-
-      <div class="divider"><span>{% trans "Already a member?" %}</span></div>
-
-      <a href="{% url 'login' %}" class="signin-btn">
-        <i class="bi bi-box-arrow-in-right me-2"></i>
-        {% trans "Sign In to Your Account" %}
-      </a>
-
     </div>
-  </div>
 </div>
 
 {% block extra_js %}
@@ -167,3 +169,5 @@
 {% endblock %}
 
 {% endblock %}
+
+
