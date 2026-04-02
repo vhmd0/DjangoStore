@@ -87,11 +87,11 @@
 
               <div class="prod-overlay position-absolute top-0 start-0 w-100 h-100 d-flex align-items-end justify-content-center p-3" style="background:linear-gradient(0deg,rgba(0,0,0,.45) 0%,transparent 50%); opacity:0; transition:opacity .25s;">
                 {% if user.is_authenticated %}
-                  <form action="{% url 'cart:add' product.id %}" method="post" class="js-cart-form">
+                  <form action="{% url 'cart:add' product.id %}" method="post" x-data="{ submitting: false }" x-on:submit.prevent="submitting = true; $store.cart.addToCart($el).then(() => { submitting = false; $store.cart.showOffcanvas() })">
                     {% csrf_token %}
                     <input type="hidden" name="quantity" value="1">
-                    <button type="submit" class="btn btn-light btn-sm rounded-pill fw-semibold px-3">
-                      <i class="bi bi-cart-plus"></i> {% trans "Add to Cart" %}
+                    <button type="submit" class="btn btn-light btn-sm rounded-pill fw-semibold px-3" :disabled="submitting" :class="submitting ? 'text-success' : ''">
+                      <i class="bi" :class="submitting ? 'bi-check-circle-fill' : 'bi-cart-plus'"></i> <span x-text="submitting ? '{% trans 'Added!' %}' : '{% trans 'Add to Cart' %}'"></span>
                     </button>
                   </form>
                 {% else %}
@@ -160,10 +160,6 @@
 
   </div>{# /grid-area #}
 </div>{# /store-layout #}
-
-{% block extra_js %}
-<script src="{% static 'js/cart.js' %}"></script>
-{% endblock %}
 
 <style>
 .prod-card-wrap:hover .prod-overlay { opacity: 1 !important; }

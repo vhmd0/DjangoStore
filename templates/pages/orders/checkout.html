@@ -56,7 +56,8 @@
                    value="{{ addr.pk }}"
                    data-phone="{{ addr.phone }}"
                    data-address="{{ addr.address }}, {% if addr.area %}{{ addr.area }}, {% endif %}{{ addr.city }}"
-                   {% if addr.is_default %}checked{% endif %}>
+                    {% if addr.is_default %}checked{% endif %}
+                    x-on:change="selectedAddress = $el.value; document.getElementById('phone').value = $el.dataset.phone; document.getElementById('shipping_address').value = $el.dataset.address">
             <label class="card-body py-3" for="address_{{ addr.pk }}">
               <div class="d-flex align-items-center gap-2 mb-1">
                 <span class="fw-semibold">{{ addr.name }}</span>
@@ -70,7 +71,7 @@
           </div>
           {% endfor %}
           <div class="card border mb-2">
-            <input type="radio" name="saved_address" id="address_new" value="new">
+            <input type="radio" name="saved_address" id="address_new" value="new" x-on:change="selectedAddress = $el.value; document.getElementById('phone').value = ''; document.getElementById('shipping_address').value = ''">
             <label class="card-body py-3" for="address_new">
               <i class="bi bi-plus-circle"></i> {% trans "Enter new address" %}
             </label>
@@ -79,7 +80,7 @@
         {% endif %}
 
         {# Main form #}
-        <form action="{% url 'orders:create_order' %}" method="post" id="checkout-form">
+        <form action="{% url 'orders:create_order' %}" method="post" id="checkout-form" x-data="{ selectedAddress: '' }">
           {% csrf_token %}
 
           <div id="new-address-form">
@@ -193,9 +194,5 @@
   </div>
 
 </div>
-
-{% block extra_js %}
-<script src="{% static 'js/checkout.js' %}"></script>
-{% endblock %}
 
 {% endblock %}

@@ -66,11 +66,12 @@
             <div class="fw-bold font-heading">
               <span>{% if request.LANGUAGE_CODE == 'ar' %}ج.م{% else %}EGP{% endif %}</span> {{ item.product.price|floatformat:2|intcomma }}
             </div>
-            <form action="{% url 'cart:add' item.product.id %}" method="post" class="js-cart-form">
+            <form action="{% url 'cart:add' item.product.id %}" method="post"
+                  x-data="{ submitting: false }" x-on:submit.prevent="submitting = true; $store.cart.addToCart($el).then(() => { submitting = false; $store.cart.showOffcanvas() })">
               {% csrf_token %}
               <input type="hidden" name="quantity" value="1">
-              <button type="submit" class="btn btn-dark-custom btn-sm rounded-pill">
-                <i class="bi bi-cart-plus"></i> {% trans "Add" %}
+              <button type="submit" class="btn btn-dark-custom btn-sm rounded-pill" :disabled="submitting">
+                <i class="bi" :class="submitting ? 'bi-check-circle-fill' : 'bi-cart-plus'"></i> <span x-text="submitting ? '{% trans 'Added!' %}' : '{% trans 'Add' %}'"></span>
               </button>
             </form>
           </div>
@@ -93,9 +94,5 @@
   </div>
 
 {% endif %}
-
-{% block extra_js %}
-<script src="{% static 'js/cart.js' %}"></script>
-{% endblock %}
 
 {% endblock %}

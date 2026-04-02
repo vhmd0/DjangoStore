@@ -26,6 +26,7 @@
 
   {# Alpine.js for interactivity #}
   <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+  <script src="{% static 'js/alpine-store.js' %}"></script>
 
   {# App CSS #}
   <link rel="stylesheet" href="{% static 'css/style.css' %}" />
@@ -88,8 +89,7 @@
   {% include 'components/auth_modal.html' %}
 
   {% bootstrap_javascript %}
-  <script src="{% static 'js/main.js' %}" defer></script>
-  <script src="{% static 'js/search-autocomplete.js' %}" defer></script>
+  <script src="{% static 'js/main.js' %}"></script>
   {% block extra_js %}{% endblock %}
 </body>
 

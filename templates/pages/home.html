@@ -124,11 +124,11 @@
 
             <div class="prod-overlay position-absolute inset-0 d-flex align-items-end justify-content-center p-3" style="background: rgba(0,0,0,0.4); opacity: 0; transition: 0.3s;">
               {% if user.is_authenticated %}
-                <form action="{% url 'cart:add' product.id %}" method="post" class="js-cart-form">
+                <form action="{% url 'cart:add' product.id %}" method="post" x-data="{ submitting: false }" x-on:submit.prevent="submitting = true; $store.cart.addToCart($el).then(() => { submitting = false; $store.cart.showOffcanvas() })">
                   {% csrf_token %}
                   <input type="hidden" name="quantity" value="1">
-                  <button type="submit" class="btn btn-light btn-sm rounded-pill fw-bold">
-                    <i class="bi bi-cart-plus"></i> {% trans "Add to Cart" %}
+                  <button type="submit" class="btn btn-light btn-sm rounded-pill fw-bold" :disabled="submitting" :class="submitting ? 'text-success' : ''">
+                    <i class="bi" :class="submitting ? 'bi-check-circle-fill' : 'bi-cart-plus'"></i> <span x-text="submitting ? '{% trans 'Added!' %}' : '{% trans 'Add to Cart' %}'"></span>
                   </button>
                 </form>
               {% else %}
@@ -186,11 +186,11 @@
 
             <div class="prod-overlay position-absolute inset-0 d-flex align-items-end justify-content-center p-3" style="background: rgba(0,0,0,0.4); opacity: 0; transition: 0.3s;">
               {% if user.is_authenticated %}
-                <form action="{% url 'cart:add' product.id %}" method="post" class="js-cart-form">
+                <form action="{% url 'cart:add' product.id %}" method="post" x-data="{ submitting: false }" x-on:submit.prevent="submitting = true; $store.cart.addToCart($el).then(() => { submitting = false; $store.cart.showOffcanvas() })">
                   {% csrf_token %}
                   <input type="hidden" name="quantity" value="1">
-                  <button type="submit" class="btn btn-light btn-sm rounded-pill fw-bold">
-                    <i class="bi bi-cart-plus"></i> {% trans "Add to Cart" %}
+                  <button type="submit" class="btn btn-light btn-sm rounded-pill fw-bold" :disabled="submitting" :class="submitting ? 'text-success' : ''">
+                    <i class="bi" :class="submitting ? 'bi-check-circle-fill' : 'bi-cart-plus'"></i> <span x-text="submitting ? '{% trans 'Added!' %}' : '{% trans 'Add to Cart' %}'"></span>
                   </button>
                 </form>
               {% else %}
@@ -315,9 +315,5 @@
 .prod-card-wrap:hover img { transform: scale(1.05); }
 .prod-card-wrap img { transition: transform 0.35s; }
 </style>
-
-{% block extra_js %}
-<script src="{% static 'js/home.js' %}"></script>
-{% endblock %}
 
 {% endblock %}
