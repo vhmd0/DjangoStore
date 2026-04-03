@@ -75,6 +75,9 @@ class Product(models.Model):
         blank=True, null=True, help_text="External image URL (alternative to uploading)"
     )
     price = models.DecimalField(max_digits=10, decimal_places=2)
+    discount_price = models.DecimalField(
+        max_digits=10, decimal_places=2, blank=True, null=True, verbose_name="Discount Price"
+    )
     stock = models.PositiveIntegerField(default=0)
     type = models.CharField(max_length=100, blank=True)
     description = models.TextField(blank=True)
@@ -112,6 +115,22 @@ class Product(models.Model):
         if translation.get_language() == "ar" and self.description_ar:
             return self.description_ar
         return self.description
+
+    @property
+    def current_price(self):
+        return self.discount_price if self.discount_price else self.price
+
+    @property
+    def on_sale(self):
+        return self.discount_price is not None and self.discount_price < self.price
+
+    @property
+    def discount_percent(self):
+        if self.on_sale:
+            if self.price <= 0:
+                return 0
+            return int(((self.price - self.discount_price) / self.price) * 100)
+        return 0
 
     def get_absolute_url(self):
         from django.urls import reverse
