@@ -185,7 +185,7 @@ LOGIN_URL = "/login/"
 # Internationalization
 # https://docs.djangoproject.com/en/6.0/topics/i18n/
 
-LANGUAGE_CODE = "en-us"
+LANGUAGE_CODE = "en"
 LANGUAGES = [
     ("en", _("English")),
     ("ar", _("Arabic")),

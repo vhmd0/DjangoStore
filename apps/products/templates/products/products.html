@@ -7,7 +7,7 @@
 
 {% block content %}
 
-{# ── Breadcrumb ──────────────────────────────── #}
+{# Breadcrumb #}
 <nav class="flex mb-6 text-sm text-charcoal-500" aria-label="Breadcrumb">
   <ol class="inline-flex items-center gap-2">
     <li><a href="{% url 'home' %}" class="hover:text-corporate-600 transition-colors"><i class="bi bi-house me-1"></i>{% trans "Home" %}</a></li>
@@ -18,7 +18,7 @@
   </ol>
 </nav>
 
-{# ── Page Header ─────────────────────────────── #}
+{# Page Header #}
 <div class="flex items-end justify-between mb-8 flex-wrap gap-4">
   <div>
     <span class="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-bold text-corporate-600 bg-corporate-50 rounded-md mb-2">
@@ -83,10 +83,10 @@
   </div>
 </div>
 
-{# ── Store Layout ────────────────────────────── #}
+{# Store Layout #}
 <div class="flex gap-6 items-start">
 
-  {# ── Desktop Sidebar ── #}
+  {# Desktop Sidebar #}
   <aside class="flex-shrink-0 bg-white border border-surface-200 rounded-xl p-5 hidden lg:block w-64 sticky top-24">
     <p class="text-xs font-bold text-charcoal-400 uppercase tracking-widest mb-4">{% trans "Categories" %}</p>
     <div class="flex flex-col gap-1">
@@ -103,7 +103,7 @@
     </div>
   </aside>
 
-  {# ── Product Grid ── #}
+  {# Product Grid #}
   <div class="flex-grow min-w-0">
     <div id="product-grid">
       {% include 'products/partials/product_grid.html' %}
@@ -111,7 +111,7 @@
   </div>
 </div>
 
-{# ── Filter Drawer (Mobile) ── #}
+{# Filter Drawer (Mobile) #}
 <div x-data="{ open: false }" x-show="open" x-cloak class="relative z-[60]" aria-labelledby="filter-drawer-title" role="dialog" aria-modal="true">
   <div x-show="open" x-transition:enter="ease-in-out duration-500" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100" x-transition:leave="ease-in-out duration-500" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0" class="fixed inset-0 bg-charcoal-900/50 transition-opacity" @click="open = false"></div>
   <div class="fixed inset-0 overflow-hidden">

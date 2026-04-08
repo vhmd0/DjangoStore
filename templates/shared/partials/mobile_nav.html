@@ -1,0 +1,78 @@
+{% load i18n %}
+{# Mobile Bottom Nav — Cart centered and larger (Fitts's Law) #}
+<nav
+  class="fixed bottom-0 start-0 end-0 z-50 bg-white border-t border-surface-200 lg:hidden touch-manipulation"
+  aria-label="{% trans 'Mobile navigation' %}"
+  x-data="{ active: '{{ request.resolver_match.url_name }}' }"
+>
+  <div class="grid grid-cols-6 h-16">
+    <a
+      href="{% url 'home' %}"
+      @click="active = 'home'"
+      class="flex flex-col items-center justify-center gap-0.5 transition-colors focus-visible:ring-2 focus-visible:ring-corporate-600 focus-visible:ring-inset col-span-1"
+      :class="active === 'home' ? 'text-corporate-600' : 'text-charcoal-400'"
+      aria-label="{% trans 'Home' %}"
+    >
+      <i class="bi bi-house-door text-lg" aria-hidden="true"></i>
+      <span class="text-[9px] font-medium uppercase"
+        >{% trans "Home" %}</span
+      >
+    </a>
+    <a
+      href="{% url 'products:products' %}"
+      @click="active = 'products'"
+      class="flex flex-col items-center justify-center gap-0.5 transition-colors focus-visible:ring-2 focus-visible:ring-corporate-600 focus-visible:ring-inset col-span-1"
+      :class="active === 'products' || active === 'product_detail' ? 'text-corporate-600' : 'text-charcoal-400'"
+      aria-label="{% trans 'Shop' %}"
+    >
+      <i class="bi bi-grid-3x3-gap text-lg" aria-hidden="true"></i>
+      <span class="text-[9px] font-medium uppercase"
+        >{% trans "Shop" %}</span
+      >
+    </a>
+    <a
+      href="{% url 'categories:categories' %}"
+      @click="active = 'categories'"
+      class="flex flex-col items-center justify-center gap-0.5 transition-colors focus-visible:ring-2 focus-visible:ring-corporate-600 focus-visible:ring-inset col-span-1"
+      :class="active === 'categories' ? 'text-corporate-600' : 'text-charcoal-400'"
+      aria-label="{% trans 'Categories' %}"
+    >
+      <i class="bi bi-tags text-lg" aria-hidden="true"></i>
+      <span class="text-[9px] font-medium uppercase"
+        >{% trans "Categories" %}</span
+      >
+    </a>
+    <a
+      href="{% url 'wishlist' %}"
+      @click="active = 'wishlist'"
+      class="relative flex flex-col items-center justify-center gap-0.5 transition-colors focus-visible:ring-2 focus-visible:ring-corporate-600 focus-visible:ring-inset col-span-1"
+      :class="active === 'wishlist' ? 'text-corporate-600' : 'text-charcoal-400'"
+      aria-label="{% trans 'Wishlist' %}"
+    >
+      <i class="bi bi-heart text-lg" aria-hidden="true"></i>
+      {% if wishlist_count > 0 %}
+      <span
+        class="absolute top-0.5 end-1/4 inline-flex items-center justify-center w-3.5 h-3.5 text-[8px] font-bold text-white bg-corporate-600 rounded-full"
+        >{{ wishlist_count }}</span
+      >
+      {% endif %}
+      <span class="text-[9px] font-medium uppercase"
+        >{% trans "Wishlist" %}</span
+      >
+    </a>
+    <button
+      @click="$store.cart.showOffcanvas()"
+      class="relative flex flex-col items-center justify-center gap-0.5 transition-colors focus-visible:ring-2 focus-visible:ring-corporate-600 focus-visible:ring-inset col-span-2 bg-corporate-600 text-white -mt-4 rounded-t-xl shadow-lg"
+      aria-label="{% trans 'Cart' %}"
+    >
+      <i class="bi bi-bag text-2xl" aria-hidden="true"></i>
+      {% if cart_count > 0 %}
+      <span
+        class="absolute -top-1 end-4 inline-flex items-center justify-center min-w-[1.25rem] h-5 px-1 text-[10px] font-bold text-corporate-600 bg-white rounded-full js-cart-badge"
+        >{{ cart_count }}</span
+      >
+      {% endif %}
+      <span class="text-[10px] font-bold">{% trans "Cart" %}</span>
+    </button>
+  </div>
+</nav>
