@@ -165,10 +165,9 @@
             </button>
           </form>
         {% else %}
-          <button type="button" class="inline-flex items-center justify-center px-6 py-3 text-base font-semibold text-white bg-corporate-600 rounded-full hover:bg-corporate-700 flex-grow font-bold shadow-lg transition-colors w-full sm:w-auto"
-                  data-hs-overlay="#authModal">
+          <a href="{% url 'login' %}?next={{ request.path }}" class="inline-flex items-center justify-center px-6 py-3 text-base font-semibold text-white bg-corporate-600 rounded-full hover:bg-corporate-700 flex-grow font-bold shadow-lg transition-colors w-full sm:w-auto">
             <i class="bi bi-bag-plus text-xl me-2"></i> {% trans "Add to cart" %}
-          </button>
+          </a>
         {% endif %}
 
         {% if user.is_authenticated %}

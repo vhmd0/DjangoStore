@@ -55,11 +55,10 @@
           </span>
         {% endif %}
       {% else %}
-        <button type="button"
-                class="inline-flex items-center px-4 py-2 text-sm font-semibold text-white bg-corporate-600 rounded-lg hover:bg-corporate-700 transition-colors shadow-lg focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2"
-                data-hs-overlay="#authModal">
+        <a href="{% url 'login' %}?next={{ request.path }}"
+                class="inline-flex items-center px-4 py-2 text-sm font-semibold text-white bg-corporate-600 rounded-lg hover:bg-corporate-700 transition-colors shadow-lg focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2">
           <i class="bi bi-cart-plus me-1" aria-hidden="true"></i> {% trans "Add to cart" %}
-        </button>
+        </a>
       {% endif %}
     </div>
 
