@@ -2,61 +2,59 @@
 {% load humanize %}
 
 <div class="group bg-white border border-surface-200 rounded-xl overflow-hidden hover:shadow-lg hover:-translate-y-0.5 transition-all duration-300 {% if class %}{{ class }}{% endif %}">
-  <a href="{{ product.get_absolute_url }}" class="block relative aspect-square bg-surface-50 overflow-hidden">
-    {% if product.img %}
-      <img src="{{ product.img.url }}" alt="{{ product.name }}" loading="lazy" decoding="async" width="400" height="400" class="w-full h-full object-cover">
-    {% elif product.img_link %}
-      <img src="{{ product.img_link }}" alt="{{ product.name }}" loading="lazy" decoding="async" width="400" height="400" class="w-full h-full object-cover">
-    {% else %}
-      <div class="flex items-center justify-center h-full">
-        <i class="bi bi-phone text-5xl text-charcoal-200 group-hover:text-corporate-300 transition-colors" aria-hidden="true"></i>
-      </div>
-    {% endif %}
+  <div class="relative aspect-square bg-surface-50 overflow-hidden">
+    <a href="{{ product.get_absolute_url }}" class="block w-full h-full">
+      {% if product.img %}
+        <img src="{{ product.img.url }}" alt="{{ product.name }}" loading="lazy" decoding="async" width="400" height="400" class="w-full h-full object-cover">
+      {% elif product.img_link %}
+        <img src="{{ product.img_link }}" alt="{{ product.name }}" loading="lazy" decoding="async" width="400" height="400" class="w-full h-full object-cover">
+      {% else %}
+        <div class="flex items-center justify-center h-full">
+          <i class="bi bi-phone text-5xl text-charcoal-200 group-hover:text-corporate-300 transition-colors" aria-hidden="true"></i>
+        </div>
+      {% endif %}
 
-    {# Sale Badge #}
-    {% if product.on_sale %}
-      <span class="absolute top-2 start-2 inline-flex items-center px-2 py-0.5 text-xs font-bold text-white bg-red-600 rounded-md">
-        -{{ product.discount_percent }}%
-      </span>
-    {% endif %}
+      {# Sale Badge #}
+      {% if product.on_sale %}
+        <span class="absolute top-2 start-2 inline-flex items-center px-2 py-0.5 text-xs font-bold text-white bg-red-600 rounded-md">
+          -{{ product.discount_percent }}%
+        </span>
+      {% endif %}
 
-    {# Stock Badge with Scarcity #}
-    {% if product.stock <= 5 and product.stock > 0 %}
-      <span class="absolute top-2 end-2 inline-flex items-center gap-1 px-2 py-0.5 text-xs font-bold text-amber-800 bg-amber-100 rounded-md">
-        <span class="w-1.5 h-1.5 bg-amber-500 rounded-full animate-pulse"></span>
-        {% trans "Low stock" %}
-      </span>
-    {% elif product.stock == 0 %}
-      <span class="absolute top-2 end-2 inline-flex items-center px-2 py-0.5 text-xs font-bold text-red-700 bg-red-100 rounded-md">
-        {% trans "Out of stock" %}
-      </span>
-    {% endif %}
+      {# Stock Badge with Scarcity #}
+      {% if product.stock <= 5 and product.stock > 0 %}
+        <span class="absolute top-2 end-2 inline-flex items-center gap-1 px-2 py-0.5 text-xs font-bold text-amber-800 bg-amber-100 rounded-md">
+          <span class="w-1.5 h-1.5 bg-amber-500 rounded-full animate-pulse"></span>
+          {% trans "Low stock" %}
+        </span>
+      {% elif product.stock == 0 %}
+        <span class="absolute top-2 end-2 inline-flex items-center px-2 py-0.5 text-xs font-bold text-red-700 bg-red-100 rounded-md">
+          {% trans "Out of stock" %}
+        </span>
+      {% endif %}
+    </a>
 
     {# Quick Add Overlay #}
-    <div class="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end justify-center pb-3 backdrop-blur-[1px]">
+    <div class="absolute inset-x-0 bottom-0 top-auto bg-black/30 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center pb-3 pt-8 backdrop-blur-[1px] bg-gradient-to-t from-black/60 to-transparent pointer-events-none group-hover:pointer-events-auto">
       {% if user.is_authenticated %}
         {% if product.stock > 0 %}
           <form action="{% url 'cart:add' product.id %}" method="post"
                 x-data="{ submitting: false }"
                 x-on:submit.prevent="submitting = true; $store.cart.addToCart($el).then(() => { submitting = false; $store.cart.showOffcanvas() })"
-                class="m-0">
+                class="m-0 pointer-events-auto">
             {% csrf_token %}
             <input type="hidden" name="quantity" value="1">
             <button type="submit"
-                    class="inline-flex items-center px-4 py-2 text-sm font-semibold text-white bg-corporate-600 rounded-lg hover:bg-corporate-700 transition-colors shadow-lg focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2"
+                    class="inline-flex items-center px-4 py-2 text-sm font-semibold text-white bg-corporate-600 rounded-lg hover:bg-corporate-700 transition-all shadow-lg focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 active:scale-95"
                     :disabled="submitting">
               <i class="bi" :class="submitting ? 'bi-check-circle-fill' : 'bi-cart-plus'" aria-hidden="true"></i>
               <span class="ms-1" x-text="submitting ? '{% trans 'Added!' %}' : '{% trans 'Add to cart' %}'"></span>
             </button>
           </form>
-        {% else %}
-          <span class="inline-flex items-center px-4 py-2 text-sm font-semibold text-charcoal-400 bg-white/80 rounded-lg cursor-not-allowed">
-            <i class="bi bi-x-circle me-1" aria-hidden="true"></i> {% trans "Out of stock" %}
-          </span>
         {% endif %}
       {% else %}
         <a href="{% url 'login' %}?next={{ request.path }}"
-                class="inline-flex items-center px-4 py-2 text-sm font-semibold text-white bg-corporate-600 rounded-lg hover:bg-corporate-700 transition-colors shadow-lg focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2">
+                class="pointer-events-auto inline-flex items-center px-4 py-2 text-sm font-semibold text-white bg-corporate-600 rounded-lg hover:bg-corporate-700 transition-colors shadow-lg focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2">
           <i class="bi bi-cart-plus me-1" aria-hidden="true"></i> {% trans "Add to cart" %}
         </a>
       {% endif %}
@@ -65,19 +63,36 @@
     {# Wishlist Button #}
     {% if user.is_authenticated %}
       <button type="button"
-              x-data="{ inWishlist: {{ product.in_wishlist|yesno:'true,false' }} }"
-              @click.prevent.stop="
+              x-data="{ 
+                inWishlist: {{ product.in_wishlist|default:'false'|lower }},
+                loading: false 
+              }"
+              @click.stop="
+                if(loading) return;
+                loading = true;
                 fetch('{% url 'products:toggle_wishlist' product.id %}', {
                   method: 'POST',
                   headers: { 'X-CSRFToken': $store.utils.csrf(), 'X-Requested-With': 'XMLHttpRequest' }
-                }).then(r => r.json()).then(d => { inWishlist = d.in_wishlist; }).catch(() => {});
+                })
+                .then(r => r.json())
+                .then(d => { 
+                  inWishlist = d.in_wishlist; 
+                  if(d.wishlist_count !== undefined) {
+                    document.querySelectorAll('.js-wishlist-badge').forEach(badge => {
+                        badge.textContent = d.wishlist_count;
+                        badge.classList.toggle('hidden', d.wishlist_count === 0);
+                    });
+                  }
+                })
+                .finally(() => { loading = false; });
               "
-              class="absolute bottom-3 start-3 p-2 bg-white/90 rounded-full shadow-md opacity-0 group-hover:opacity-100 transition-all hover:bg-white hover:scale-110 focus-visible:opacity-100 focus-visible:ring-2 focus-visible:ring-corporate-600 focus-visible:ring-offset-2"
+              class="absolute bottom-3 start-3 z-10 p-2 bg-white/90 rounded-full shadow-md opacity-0 group-hover:opacity-100 transition-all hover:bg-white hover:scale-110 focus-visible:opacity-100 focus-visible:ring-2 focus-visible:ring-corporate-600 focus-visible:ring-offset-2"
+              :class="loading && 'animate-pulse'"
               :aria-label="inWishlist ? '{% trans 'Remove from wishlist' %}' : '{% trans 'Add to wishlist' %}'">
-        <i class="bi text-sm" :class="inWishlist ? 'bi-heart-fill text-red-500' : 'bi-heart text-charcoal-600'" aria-hidden="true"></i>
+        <i class="bi text-sm transition-colors duration-300" :class="inWishlist ? 'bi-heart-fill text-red-500' : 'bi-heart text-charcoal-600'" aria-hidden="true"></i>
       </button>
     {% endif %}
-  </a>
+  </div>
 
   {# Content Section — Better Hierarchy #}
   <div class="p-4">

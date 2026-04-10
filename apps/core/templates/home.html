@@ -8,72 +8,90 @@
 
 {% block content %}
 
-{# Hero Section #}
+{# Hero Carousel Section #}
 {% cache 3600 home_hero request.LANGUAGE_CODE banners.0.id %}
-<section class="relative bg-gradient-to-br from-surface-50 via-white to-corporate-50 rounded-2xl overflow-hidden mb-8">
-  <div class="max-w-screen-xl mx-auto px-6 py-16 md:py-24 lg:py-32">
-    <div class="grid lg:grid-cols-2 gap-12 items-center">
-      {# Hero Text #}
-      <div class="text-center lg:text-start rtl:lg:text-right">
-        {% if banners and banners.0 %}
-          <h1 class="text-4xl md:text-5xl lg:text-6xl font-black text-charcoal-900 leading-tight mb-4">
-            {{ banners.0.get_title|default:"أحدث الأجهزة التقنية" }}
-          </h1>
-          {% if banners.0.get_subtitle %}
-            <p class="text-lg md:text-xl text-charcoal-500 mb-8 leading-relaxed">
-              {{ banners.0.get_subtitle }}
-            </p>
-          {% endif %}
-          {% if banners.0.link and banners.0.get_link_text %}
-            <a href="{{ banners.0.link }}" class="inline-flex items-center px-8 py-3.5 text-base font-bold text-white bg-corporate-600 rounded-lg hover:bg-corporate-700 transition-all shadow-lg hover:shadow-xl hover:-translate-y-0.5">
-              {{ banners.0.get_link_text }}
-              <i class="bi bi-arrow-left ms-2 rtl:rotate-180"></i>
-            </a>
-          {% endif %}
-        {% else %}
-          <h1 class="text-4xl md:text-5xl lg:text-6xl font-black text-charcoal-900 leading-tight mb-4">
-            {% trans "Premium tech, delivered" %}
-          </h1>
-          <p class="text-lg md:text-xl text-charcoal-500 mb-8 leading-relaxed">
-            {% trans "Discover the latest laptops, smartphones, and accessories at unbeatable prices." %}
-          </p>
-          <a href="{% url 'products:products' %}" class="inline-flex items-center px-8 py-3.5 text-base font-bold text-white bg-corporate-600 rounded-lg hover:bg-corporate-700 transition-all shadow-lg hover:shadow-xl hover:-translate-y-0.5">
-            {% trans "Shop now" %}
-            <i class="bi bi-arrow-left ms-2 rtl:rotate-180"></i>
-          </a>
-        {% endif %}
-      </div>
-
-      {# Hero Image / Banner #}
-      <div class="hidden lg:flex justify-center">
-        {% if banners and banners.0 %}
-          {% if banners.0.image %}
-            <img src="{{ banners.0.image.url }}" alt="{{ banners.0.get_title }}" class="max-h-[400px] object-contain rounded-xl shadow-2xl" loading="eager" fetchpriority="high">
-          {% elif banners.0.image_link %}
-            <img src="{{ banners.0.image_link }}" alt="{{ banners.0.get_title }}" class="max-h-[400px] object-contain rounded-xl shadow-2xl" loading="eager" fetchpriority="high">
-          {% else %}
-            <div class="w-80 h-80 bg-gradient-to-br from-corporate-100 to-corporate-200 rounded-2xl flex items-center justify-center">
-              <i class="bi bi-laptop text-8xl text-corporate-600"></i>
+<div id="indicators-carousel" class="relative w-full mb-12 z-0" data-carousel="slide">
+    <!-- Carousel wrapper -->
+    <div class="relative h-56 overflow-hidden rounded-2xl md:h-96 lg:h-[500px]">
+         {% if banners %}
+             {% for banner in banners %}
+             <!-- Item {{ forloop.counter }} -->
+             <div class="hidden duration-700 ease-in-out" data-carousel-item="{% if forloop.first %}active{% endif %}">
+                 {% if banner.image %}
+                 <img src="{{ banner.image.url }}" class="absolute block w-full h-full object-cover" alt="{{ banner.get_title|default:'Banner' }}">
+                 {% elif banner.image_link %}
+                 <img src="{{ banner.image_link }}" class="absolute block w-full h-full object-cover" alt="{{ banner.get_title|default:'Banner' }}">
+                 {% endif %}
+                 
+                 <!-- Overlay content -->
+                 <div class="absolute inset-0 bg-black/40 flex items-center">
+                    <div class="text-center md:text-start rtl:md:text-right px-8 md:px-16 w-full max-w-screen-xl mx-auto">
+                        {% if banner.get_title %}
+                        <h2 class="text-3xl md:text-5xl lg:text-6xl font-black text-white mb-4 drop-shadow-md">{{ banner.get_title }}</h2>
+                        {% endif %}
+                        {% if banner.get_subtitle %}
+                        <p class="text-lg md:text-xl text-white/90 mb-8 drop-shadow max-w-2xl">{{ banner.get_subtitle }}</p>
+                        {% endif %}
+                        {% if banner.link and banner.get_link_text %}
+                        <a href="{{ banner.link }}" class="inline-flex items-center px-8 py-3 text-base font-bold text-white bg-corporate-600 rounded-lg hover:bg-corporate-700 transition-all shadow-lg hover:shadow-xl hover:-translate-y-0.5">
+                            {{ banner.get_link_text }}
+                            <i class="bi bi-arrow-left ms-2 rtl:rotate-180"></i>
+                        </a>
+                        {% endif %}
+                    </div>
+                 </div>
+             </div>
+             {% endfor %}
+         {% else %}
+            <!-- Default Item -->
+            <div class="hidden duration-700 ease-in-out" data-carousel-item="active">
+                <div class="absolute inset-0 bg-gradient-to-br from-corporate-600 to-corporate-800 flex items-center justify-center p-8">
+                    <div class="text-center">
+                        <h1 class="text-3xl md:text-5xl lg:text-6xl font-black text-white mb-4 drop-shadow-md">
+                            {% trans "Premium tech, delivered" %}
+                        </h1>
+                        <p class="text-lg md:text-xl text-corporate-50 mb-8 drop-shadow max-w-2xl mx-auto">
+                            {% trans "Discover the latest laptops, smartphones, and accessories at unbeatable prices." %}
+                        </p>
+                        <a href="{% url 'products:products' %}" class="inline-flex items-center px-8 py-3 text-base font-bold text-corporate-600 bg-white rounded-lg hover:bg-corporate-50 transition-all shadow-lg hover:shadow-xl hover:-translate-y-0.5">
+                            {% trans "Shop now" %}
+                            <i class="bi bi-arrow-left ms-2 rtl:rotate-180"></i>
+                        </a>
+                    </div>
+                </div>
             </div>
-          {% endif %}
-        {% else %}
-          <div class="w-80 h-80 bg-gradient-to-br from-corporate-100 to-corporate-200 rounded-2xl flex items-center justify-center">
-            <i class="bi bi-laptop text-8xl text-corporate-600"></i>
-          </div>
-        {% endif %}
-      </div>
+         {% endif %}
     </div>
-  </div>
 
-  {# Multi-banner dots (if multiple banners) #}
-  {% if banners|length > 1 %}
-  <div class="flex justify-center gap-2 pb-6">
-    {% for banner in banners %}
-    <a href="#slide{{ forloop.counter }}" class="w-2.5 h-2.5 rounded-full bg-surface-200 hover:bg-corporate-400 transition-colors" aria-label="{% trans 'Go to slide' %} {{ forloop.counter }}"></a>
-    {% endfor %}
-  </div>
-  {% endif %}
-</section>
+    <!-- Slider indicators -->
+    <div class="absolute z-30 flex -translate-x-1/2 space-x-3 rtl:space-x-reverse bottom-5 left-1/2">
+        {% if banners %}
+            {% for banner in banners %}
+            <button type="button" class="w-3 h-3 rounded-full bg-white/50 aria-[current=true]:bg-white" aria-current="{% if forloop.first %}true{% else %}false{% endif %}" aria-label="Slide {{ forloop.counter }}" data-carousel-slide-to="{{ forloop.counter0 }}"></button>
+            {% endfor %}
+        {% else %}
+            <button type="button" class="w-3 h-3 rounded-full bg-white" aria-current="true" aria-label="Slide 1" data-carousel-slide-to="0"></button>
+        {% endif %}
+    </div>
+
+    <!-- Slider controls -->
+    <button type="button" class="absolute top-0 start-0 z-30 flex items-center justify-center h-full px-4 cursor-pointer group focus:outline-none" data-carousel-prev>
+        <span class="inline-flex items-center justify-center w-10 h-10 rounded-full bg-black/30 group-hover:bg-black/50 focus:ring-4 focus:ring-white focus:outline-none transition-colors">
+            <svg class="w-4 h-4 text-white rtl:rotate-180" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 6 10">
+                <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 1 1 5l4 4"/>
+            </svg>
+            <span class="sr-only">Previous</span>
+        </span>
+    </button>
+    <button type="button" class="absolute top-0 end-0 z-30 flex items-center justify-center h-full px-4 cursor-pointer group focus:outline-none" data-carousel-next>
+        <span class="inline-flex items-center justify-center w-10 h-10 rounded-full bg-black/30 group-hover:bg-black/50 focus:ring-4 focus:ring-white focus:outline-none transition-colors">
+            <svg class="w-4 h-4 text-white rtl:rotate-180" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 6 10">
+                <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 9 4-4-4-4"/>
+            </svg>
+            <span class="sr-only">Next</span>
+        </span>
+    </button>
+</div>
 {% endcache %}
 
 
