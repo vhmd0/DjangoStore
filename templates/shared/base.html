@@ -1,0 +1,91 @@
+<!doctype html>
+{% load static %} {% load i18n %}
+<html
+  lang="{{ request.LANGUAGE_CODE }}"
+  dir="{% if request.LANGUAGE_CODE == 'ar' %}rtl{% else %}ltr{% endif %}"
+>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="color-scheme" content="light" />
+    <link rel="icon" href="{% static 'img/favicon.ico' %}" type="image/x-icon" />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Readex+Pro:wght@200;300;400;500;600;700;800&family=Inter:wght@300;400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <script
+      defer
+      src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"
+    ></script>
+    <script src="{% static 'js/alpine-store.js' %}"></script>
+    <script src="https://unpkg.com/htmx.org@1.9.10"></script>
+    <script src="https://cdn.jsdelivr.net/npm/flowbite@2.5.2/dist/flowbite.min.js"></script>
+    <script>
+      window.CART_FRAGMENT_URL = "{% url 'cart:offcanvas_fragment' %}";
+      document.body.addEventListener("htmx:configRequest", (event) => {
+        event.detail.headers["X-CSRFToken"] = "{{ csrf_token }}";
+      });
+      document.addEventListener("htmx:afterOnLoad", function (evt) {
+        if (window.HSStaticMethods) {
+          window.HSStaticMethods.autoInit();
+        }
+      });
+      document.body.addEventListener("htmx:responseError", (evt) => {
+        const msg =
+          evt.detail.xhr.status === 0
+            ? "Network error. Please check your connection."
+            : `Server error (${evt.detail.xhr.status}). Please try again.`;
+        if (window.Alpine && Alpine.store("toast")) {
+          Alpine.store("toast").show(msg, "error");
+        }
+      });
+      document.body.addEventListener("htmx:sendError", (evt) => {
+        if (window.Alpine && Alpine.store("toast")) {
+          Alpine.store("toast").show(
+            "Network error. Please check your connection.",
+            "error",
+          );
+        }
+      });
+    </script>
+    <link rel="stylesheet" href="{% static 'css/tailwind.css' %}" />
+    <link rel="stylesheet" href="{% static 'css/style.css' %}" />
+
+    {% block extra_css %}{% endblock %}
+    <title>{% block title %}SMART S3R{% endblock %}</title>
+  </head>
+
+  <body
+    hx-boost="true"
+    class="bg-white text-charcoal-900 min-h-screen flex flex-col font-readex {% if request.LANGUAGE_CODE == 'ar' %}text-lg leading-relaxed{% else %}text-base{% endif %} overflow-x-hidden touch-manipulation"
+  >
+    <a
+      href="#main-content"
+      class="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:start-4 focus:z-[100] focus:px-4 focus:py-2 focus:bg-corporate-600 focus:text-white focus:rounded-lg"
+    >
+      {% trans "Skip to content" %}
+    </a>
+
+    {% include 'shared/partials/navbar.html' %}
+
+    <main id="main-content" class="container mx-auto px-4 py-8 flex-grow">
+      {% include 'shared/partials/messages.html' %}
+      {% block content %}
+      {% endblock %}
+    </main>
+
+     {% include 'shared/partials/footer.html' %}
+     {% include 'shared/partials/cart_offcanvas.html' %}
+     {% include 'shared/partials/auth_modal.html' %}
+     {% include 'shared/partials/search_modal.html' %}
+     {% include 'shared/partials/toast.html' %}
+
+    {% block extra_js %}{% endblock %}
+  </body>
+</html>

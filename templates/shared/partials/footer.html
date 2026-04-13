@@ -1,0 +1,204 @@
+{% load i18n %}
+<footer
+  class="bg-surface-50 text-charcoal-700 mt-10 pt-10 pb-6 border-t border-surface-200 text-sm"
+>
+  <div class="container mx-auto px-4 lg:px-8">
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-8 pb-10">
+      <div class="lg:col-span-4 lg:pe-8">
+        <div class="mb-6">
+          <a
+            class="flex items-center gap-2 flex-shrink-0 no-underline font-bold text-xl text-charcoal-900 hover:text-corporate-600 transition-colors"
+            href="{% url 'home' %}"
+          >
+            <span
+              class="bg-corporate-600 text-white px-2 py-0.5 rounded-md font-black text-lg"
+              >S</span
+            >
+            <span class="tracking-tight"
+              >SMART<span class="text-corporate-600">S3R</span></span
+            >
+          </a>
+        </div>
+        <p class="text-charcoal-500 mb-6 leading-relaxed">
+          {% trans "Your destination for premium electronics" %}
+        </p>
+        <div class="p-4 rounded-xl bg-white border border-surface-200">
+          <h6
+            class="font-bold mb-3 text-xs uppercase tracking-wider text-charcoal-900"
+          >
+            {% trans "Stay Updated" %}
+          </h6>
+          <form
+            action="#"
+            method="POST"
+            class="flex flex-col gap-2"
+          >
+            {% csrf_token %}
+            <input
+              type="email"
+              name="email"
+              placeholder="{% trans 'Enter your email address' %}"
+              required
+              class="block w-full px-3 py-2 bg-surface-100 border border-surface-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-corporate-600 focus:border-transparent"
+            >
+            <button
+              type="submit"
+              class="w-full px-4 py-2 bg-corporate-600 text-white text-sm font-medium rounded-lg hover:bg-corporate-700 transition-colors"
+            >
+              {% trans "Subscribe" %}
+            </button>
+          </form>
+        </div>
+      </div>
+      <div class="lg:col-span-2 col-span-1">
+        <h6
+          class="font-bold uppercase text-xs mb-4 tracking-wider text-charcoal-900"
+        >
+          {% trans "Shop" %}
+        </h6>
+        <ul class="flex flex-col gap-3">
+          <li>
+            <a
+              href="{% url 'products:products' %}"
+              class="text-charcoal-500 hover:text-corporate-600 transition-colors"
+              >{% trans "All Products" %}</a
+            >
+          </li>
+          {% if menu_categories %} {% for cat in menu_categories|slice:":4" %}
+          <li>
+            <a
+              href="{% url 'products:products' %}?category={{ cat.slug }}"
+              class="text-charcoal-500 hover:text-corporate-600 transition-colors"
+              >{{ cat.get_name }}</a
+            >
+          </li>
+          {% endfor %} {% endif %}
+        </ul>
+      </div>
+      <div class="lg:col-span-2 col-span-1">
+        <h6
+          class="font-bold uppercase text-xs mb-4 tracking-wider text-charcoal-900"
+        >
+          {% trans "Account" %}
+        </h6>
+        <ul class="flex flex-col gap-3">
+          <li>
+            <a
+              href="{% url 'profile' %}"
+              class="text-charcoal-500 hover:text-corporate-600 transition-colors"
+              >{% trans "My Profile" %}</a
+            >
+          </li>
+          <li>
+            <a
+              href="{% url 'orders:order_list' %}"
+              class="text-charcoal-500 hover:text-corporate-600 transition-colors"
+              >{% trans "My Orders" %}</a
+            >
+          </li>
+          <li>
+            <a
+              href="{% url 'products:wishlist_list' %}"
+              class="text-charcoal-500 hover:text-corporate-600 transition-colors"
+              >{% trans "Wishlist" %}</a
+            >
+          </li>
+          <li>
+            <a
+              href="{% url 'users:address_list' %}"
+              class="text-charcoal-500 hover:text-corporate-600 transition-colors"
+              >{% trans "Saved Addresses" %}</a
+            >
+          </li>
+        </ul>
+      </div>
+      <div class="lg:col-span-2 col-span-1">
+        <h6
+          class="font-bold uppercase text-xs mb-4 tracking-wider text-charcoal-900"
+        >
+          {% trans "Support" %}
+        </h6>
+        <ul class="flex flex-col gap-3">
+          <li>
+            <a
+              href="#"
+              class="text-charcoal-500 hover:text-corporate-600 transition-colors"
+              >{% trans "Contact Us" %}</a
+            >
+          </li>
+          <li>
+            <a
+              href="#"
+              class="text-charcoal-500 hover:text-corporate-600 transition-colors"
+              >{% trans "Shipping Info" %}</a
+            >
+          </li>
+          <li>
+            <a
+              href="#"
+              class="text-charcoal-500 hover:text-corporate-600 transition-colors"
+              >{% trans "Returns Policy" %}</a
+            >
+          </li>
+          <li>
+            <a
+              href="#"
+              class="text-charcoal-500 hover:text-corporate-600 transition-colors"
+              >{% trans "FAQ" %}</a
+            >
+          </li>
+        </ul>
+      </div>
+      <div class="lg:col-span-2 col-span-1">
+        <h6
+          class="font-bold uppercase text-xs mb-4 tracking-wider text-charcoal-900"
+        >
+          {% trans "Social" %}
+        </h6>
+        <div class="flex flex-wrap gap-3">
+          <a
+            href="#"
+            class="inline-flex items-center justify-center w-9 h-9 text-charcoal-500 border border-surface-200 rounded-lg hover:border-corporate-600 hover:bg-corporate-600 hover:text-white transition-all"
+          >
+            <i class="bi bi-facebook text-lg"></i>
+          </a>
+          <a
+            href="#"
+            class="inline-flex items-center justify-center w-9 h-9 text-charcoal-500 border border-surface-200 rounded-lg hover:border-charcoal-900 hover:bg-charcoal-900 hover:text-white transition-all"
+          >
+            <i class="bi bi-twitter-x text-lg"></i>
+          </a>
+          <a
+            href="#"
+            class="inline-flex items-center justify-center w-9 h-9 text-charcoal-500 border border-surface-200 rounded-lg hover:border-red-600 hover:bg-red-600 hover:text-white transition-all"
+          >
+            <i class="bi bi-instagram text-lg"></i>
+          </a>
+        </div>
+      </div>
+    </div>
+    <div class="pt-6 border-t border-surface-200">
+      <div class="flex flex-col md:flex-row justify-between items-center gap-4">
+        <div class="text-center md:text-start">
+          <p class="text-charcoal-500 text-xs m-0">
+            &copy; {% now "Y" %}
+            <span class="font-bold text-charcoal-900">SMART S3R</span>. {% trans
+            "All rights reserved." %}
+          </p>
+        </div>
+        <div class="text-center md:text-end">
+          <div
+            class="flex flex-wrap justify-center md:justify-end gap-4 text-charcoal-400"
+          >
+            <i
+              class="bi bi-credit-card-2-front text-2xl"
+              title="Visa/Mastercard"
+            ></i>
+            <i class="bi bi-cash text-2xl" title="COD"></i>
+            <i class="bi bi-shield-check text-2xl" title="Secure SSL"></i>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</footer>

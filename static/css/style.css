@@ -192,8 +192,8 @@ body {
   body { padding-bottom: 0 !important; }
 }
 
-@media (max-width: 991px) {
-  body { padding-bottom: 60px !important; }
+@media (max-width: 767px) {
+  body { padding-bottom: 76px !important; }
 }
 
 /* ═══════════════════════════════════════════════════
@@ -401,6 +401,43 @@ body {
 
 .hover-lift { transition: transform 0.2s, box-shadow 0.2s; }
 .hover-lift:hover { transform: translateY(-4px); box-shadow: var(--shadow-lg); }
+
+/* ═══════════════════════════════════════════════════
+   Product Card Animations (Shopify Style)
+   ═══════════════════════════════════════════════════ */
+
+/* Image zoom on hover */
+.group:hover .group-hover\:scale-105 {
+  transform: scale(1.05);
+}
+
+/* Quick add slide up animation */
+.group .translate-y-4 {
+  transform: translateY(1rem);
+}
+.group:hover .translate-y-4 {
+  transform: translateY(0);
+}
+
+/* Shadow elevation on hover */
+.group:hover .shadow-lg {
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+}
+
+/* Smooth transitions */
+.group {
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+/* Wishlist button pulse when loading */
+.animate-pulse {
+  animation: wishlist-pulse 1s ease-in-out infinite;
+}
+
+@keyframes wishlist-pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(0.95); }
+}
 
 /* ═══════════════════════════════════════════════════
    Responsive

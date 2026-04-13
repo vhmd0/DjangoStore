@@ -1,0 +1,74 @@
+{% load i18n %}
+{# Bottom Navigation - Only on small screens (below md) #}
+<div class="fixed bottom-0 start-0 end-0 z-40 md:hidden safe-area-bottom">
+  <div class="relative h-[68px]">
+    {# Glass Container #}
+    <div class="absolute inset-x-2 bottom-1.5 h-[60px] bg-white rounded-2xl shadow-[0_-2px_20px_rgba(0,0,0,0.08)] border border-charcoal-100 overflow-hidden">
+      {# Navigation Grid #}
+      <div class="grid grid-cols-5 h-full">
+        
+        {# Home #}
+        <a href="{% url 'home' %}" class="flex flex-col items-center justify-center gap-0.5 transition-all duration-200 {% if request.resolver_match.url_name == 'home' %}text-corporate-600{% else %}text-charcoal-400{% endif %}">
+          <div class="p-1.5 rounded-xl transition-all duration-200">
+            <svg class="w-5 h-5" fill="{% if request.resolver_match.url_name == 'home' %}currentColor{% else %}none{% endif %}" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path></svg>
+          </div>
+          <span class="text-[10px] font-semibold">{% trans "Home" %}</span>
+        </a>
+
+        {# Categories #}
+        <a href="{% url 'categories:categories' %}" class="flex flex-col items-center justify-center gap-0.5 transition-all duration-200 {% if 'categories' in request.path %}text-corporate-600{% else %}text-charcoal-400{% endif %}">
+          <div class="p-1.5 rounded-xl transition-all duration-200">
+            <svg class="w-5 h-5" fill="{% if 'categories' in request.path %}currentColor{% else %}none{% endif %}" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"></path></svg>
+          </div>
+          <span class="text-[10px] font-semibold">{% trans "Categories" %}</span>
+        </a>
+
+        {# Center Spacer for Cart #}
+        <div class="relative">
+          <div class="absolute -top-5 start-1/2 -translate-x-1/2">
+            {% if user.is_authenticated %}
+            <button onclick="$store.cart.showOffcanvas()" class="relative w-12 h-12 bg-gradient-to-br from-corporate-600 to-corporate-700 rounded-full shadow-[0_6px_20px_rgba(26,86,219,0.35)] flex flex-col items-center justify-center text-white transition-all duration-200 hover:shadow-[0_8px_25px_rgba(26,86,219,0.45)] active:scale-95">
+              <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"></path></svg>
+              <span class="text-[7px] font-black uppercase tracking-wider -mt-0.5">{% trans "Cart" %}</span>
+              {% if cart_count > 0 %}
+              <span class="absolute -top-0.5 -end-0.5 w-4 h-4 bg-white text-corporate-600 text-[9px] font-bold rounded-full flex items-center justify-center shadow border border-corporate-600">{{ cart_count }}</span>
+              {% endif %}
+            </button>
+            {% else %}
+            <a href="{% url 'login' %}" class="relative w-12 h-12 bg-gradient-to-br from-corporate-600 to-corporate-700 rounded-full shadow-[0_6px_20px_rgba(26,86,219,0.35)] flex flex-col items-center justify-center text-white transition-all duration-200 hover:shadow-[0_8px_25px_rgba(26,86,219,0.45)]">
+              <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"></path></svg>
+              <span class="text-[7px] font-black uppercase tracking-wider -mt-0.5">{% trans "Cart" %}</span>
+            </a>
+            {% endif %}
+          </div>
+        </div>
+
+        {# Wishlist #}
+        <a href="{% url 'wishlist' %}" class="flex flex-col items-center justify-center gap-0.5 transition-all duration-200 relative {% if 'wishlist' in request.path %}text-corporate-600{% else %}text-charcoal-400{% endif %}">
+          <div class="p-1.5 rounded-xl transition-all duration-200">
+            <svg class="w-5 h-5" fill="{% if 'wishlist' in request.path %}currentColor{% else %}none{% endif %}" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path></svg>
+            {% if wishlist_count > 0 %}
+            <span class="absolute -top-0.5 -end-1 w-3.5 h-3.5 bg-pink-500 text-white text-[8px] font-bold rounded-full flex items-center justify-center">{{ wishlist_count }}</span>
+            {% endif %}
+          </div>
+          <span class="text-[10px] font-semibold">{% trans "Wishlist" %}</span>
+        </a>
+
+        {# Shop #}
+        <a href="{% url 'products:products' %}" class="flex flex-col items-center justify-center gap-0.5 transition-all duration-200 {% if 'products' in request.path and 'category' not in request.path %}text-corporate-600{% else %}text-charcoal-400{% endif %}">
+          <div class="p-1.5 rounded-xl transition-all duration-200">
+            <svg class="w-5 h-5" fill="{% if 'products' in request.path and 'category' not in request.path %}currentColor{% else %}none{% endif %}" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"></path></svg>
+          </div>
+          <span class="text-[10px] font-semibold">{% trans "Shop" %}</span>
+        </a>
+
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+  .safe-area-bottom {
+    padding-bottom: env(safe-area-inset-bottom, 0);
+  }
+</style>

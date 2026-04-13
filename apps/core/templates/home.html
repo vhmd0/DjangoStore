@@ -1,0 +1,293 @@
+{% extends 'shared/base.html' %}
+{% load i18n %}
+{% load humanize %}
+{% load static %}
+{% load cache %}
+
+{% block title %}SMART S3R — {% trans "Home" %}{% endblock %}
+
+{% block content %}
+
+{# Hero Carousel Section #}
+<div id="indicators-carousel" class="relative w-full mb-12 z-0" data-carousel="slide">
+    <div class="relative h-56 overflow-hidden rounded-2xl md:h-96 lg:h-[500px]">
+         {% if banners %}
+             {% for banner in banners %}
+             <div class="hidden duration-700 ease-in-out" data-carousel-item="{% if forloop.first %}active{% endif %}">
+                 {% if banner.image_link %}
+                 <img src="{{ banner.image_link }}" class="absolute block w-full h-full object-cover" alt="{{ banner.get_title|default:'Banner' }}" loading="{% if forloop.first %}eager{% else %}lazy{% endif %}">
+                 {% elif banner.image %}
+                 <img src="{{ banner.image.url }}" class="absolute block w-full h-full object-cover" alt="{{ banner.get_title|default:'Banner' }}" loading="{% if forloop.first %}eager{% else %}lazy{% endif %}">
+                 {% endif %}
+              </div>
+              {% endfor %}
+          {% else %}
+             <div class="hidden duration-700 ease-in-out" data-carousel-item="active">
+                 <div class="absolute inset-0 bg-gradient-to-br from-corporate-600 to-corporate-800 flex items-center justify-center p-8">
+                     <div class="text-center">
+                         <h1 class="text-3xl md:text-5xl lg:text-6xl font-black text-white mb-4 drop-shadow-md">
+                             {% trans "Premium tech, delivered" %}
+                         </h1>
+                         <p class="text-lg md:text-xl text-corporate-50 mb-8 drop-shadow max-w-2xl mx-auto">
+                             {% trans "Discover the latest laptops, smartphones, and accessories at unbeatable prices." %}
+                         </p>
+                         <a href="{% url 'products:products' %}" class="inline-flex items-center px-8 py-3 text-base font-bold text-corporate-600 bg-white rounded-lg hover:bg-corporate-50 transition-all shadow-lg hover:shadow-xl hover:-translate-y-0.5">
+                             {% trans "Shop now" %}
+                             <i class="bi bi-arrow-left ms-2 rtl:rotate-180"></i>
+                         </a>
+                     </div>
+                 </div>
+             </div>
+          {% endif %}
+    </div>
+
+    <div class="absolute z-30 flex -translate-x-1/2 space-x-3 rtl:space-x-reverse bottom-5 left-1/2">
+        {% if banners %}
+            {% for banner in banners %}
+            <button type="button" class="w-3 h-3 rounded-full bg-white/50 aria-[current=true]:bg-white" aria-current="{% if forloop.first %}true{% else %}false{% endif %}" aria-label="Slide {{ forloop.counter }}" data-carousel-slide-to="{{ forloop.counter0 }}"></button>
+            {% endfor %}
+        {% else %}
+            <button type="button" class="w-3 h-3 rounded-full bg-white" aria-current="true" aria-label="Slide 1" data-carousel-slide-to="0"></button>
+        {% endif %}
+    </div>
+
+    <button type="button" class="absolute top-0 start-0 z-30 flex items-center justify-center h-full px-4 cursor-pointer group focus:outline-none" data-carousel-prev>
+        <span class="inline-flex items-center justify-center w-10 h-10 rounded-full bg-black/30 group-hover:bg-black/50 focus:ring-4 focus:ring-white focus:outline-none transition-colors">
+            <svg class="w-4 h-4 text-white rtl:rotate-180" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 6 10">
+                <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 1 1 5l4 4"/>
+            </svg>
+            <span class="sr-only">Previous</span>
+        </span>
+    </button>
+    <button type="button" class="absolute top-0 end-0 z-30 flex items-center justify-center h-full px-4 cursor-pointer group focus:outline-none" data-carousel-next>
+        <span class="inline-flex items-center justify-center w-10 h-10 rounded-full bg-black/30 group-hover:bg-black/50 focus:ring-4 focus:ring-white focus:outline-none transition-colors">
+            <svg class="w-4 h-4 text-white rtl:rotate-180" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 6 10">
+                <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 9 4-4-4-4"/>
+            </svg>
+            <span class="sr-only">Next</span>
+        </span>
+    </button>
+</div>
+
+
+{# Trust Bar #}
+<section class="mb-16">
+  <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+    <div class="flex items-center gap-3 p-4 bg-white border border-surface-200 rounded-xl hover:shadow-md transition-all duration-300">
+      <div class="w-12 h-12 bg-corporate-50 rounded-full flex items-center justify-center flex-shrink-0">
+        <i class="bi bi-truck text-corporate-600 text-xl" aria-hidden="true"></i>
+      </div>
+      <div>
+        <h4 class="font-bold text-sm text-charcoal-900">{% trans "Free shipping" %}</h4>
+        <p class="text-xs text-charcoal-500">{% trans "On orders over EGP 500" %}</p>
+      </div>
+    </div>
+    <div class="flex items-center gap-3 p-4 bg-white border border-surface-200 rounded-xl hover:shadow-md transition-all duration-300">
+      <div class="w-12 h-12 bg-green-50 rounded-full flex items-center justify-center flex-shrink-0">
+        <i class="bi bi-shield-lock text-green-600 text-xl" aria-hidden="true"></i>
+      </div>
+      <div>
+        <h4 class="font-bold text-sm text-charcoal-900">{% trans "Secure payment" %}</h4>
+        <p class="text-xs text-charcoal-500">{% trans "SSL Encrypted" %}</p>
+      </div>
+    </div>
+    <div class="flex items-center gap-3 p-4 bg-white border border-surface-200 rounded-xl hover:shadow-md transition-all duration-300">
+      <div class="w-12 h-12 bg-amber-50 rounded-full flex items-center justify-center flex-shrink-0">
+        <i class="bi bi-arrow-counterclockwise text-amber-600 text-xl" aria-hidden="true"></i>
+      </div>
+      <div>
+        <h4 class="font-bold text-sm text-charcoal-900">{% trans "Easy returns" %}</h4>
+        <p class="text-xs text-charcoal-500">{% trans "30-day returns" %}</p>
+      </div>
+    </div>
+    <div class="flex items-center gap-3 p-4 bg-white border border-surface-200 rounded-xl hover:shadow-md transition-all duration-300">
+      <div class="w-12 h-12 bg-blue-50 rounded-full flex items-center justify-center flex-shrink-0">
+        <i class="bi bi-headset text-blue-600 text-xl" aria-hidden="true"></i>
+      </div>
+      <div>
+        <h4 class="font-bold text-sm text-charcoal-900">{% trans "24/7 Support" %}</h4>
+        <p class="text-xs text-charcoal-500">{% trans "Live chat available" %}</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+{# Flash Sales / Offers Section #}
+{% if sale_products %}
+<section class="mb-16">
+  <div class="flex items-end justify-between mb-6">
+    <div>
+      <span class="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-bold text-white bg-red-600 rounded-md mb-2">
+        <i class="bi bi-lightning-fill"></i> {% trans "Flash Sale" %}
+      </span>
+      <h2 class="font-bold text-2xl lg:text-3xl tracking-tight text-charcoal-900">{% trans "Exclusive Offers" %}</h2>
+    </div>
+    <a href="{% url 'products:products' %}?on_sale=true" class="inline-flex items-center text-sm font-semibold text-red-600 hover:text-red-700 transition-colors">
+      {% trans "View all offers" %} <i class="bi bi-arrow-left ms-1 rtl:rotate-180"></i>
+    </a>
+  </div>
+
+  <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 lg:gap-6">
+    {% for product in sale_products %}
+      {% include 'partials/product_card.html' with product=product %}
+    {% endfor %}
+  </div>
+</section>
+{% endif %}
+
+
+{# Categories Grid #}
+{% cache 3600 home_categories request.LANGUAGE_CODE categories.0.id %}
+{% if categories %}
+<section class="mb-16">
+  <div class="flex items-end justify-between mb-6">
+    <div>
+      <span class="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-bold text-corporate-600 bg-corporate-50 rounded-md mb-2">
+        <i class="bi bi-grid-3x3-gap-fill"></i> {% trans "Browse" %}
+      </span>
+      <h2 class="font-bold text-2xl lg:text-3xl tracking-tight text-charcoal-900">{% trans "Shop by category" %}</h2>
+    </div>
+    <a href="{% url 'categories:categories' %}" class="inline-flex items-center text-sm font-semibold text-corporate-600 hover:text-corporate-700 transition-colors">
+      {% trans "View all" %} <i class="bi bi-arrow-left ms-1 rtl:rotate-180"></i>
+    </a>
+  </div>
+
+  <div class="grid grid-cols-2 md:grid-cols-4 gap-4 lg:gap-6">
+    {% for cat in categories %}
+    <a href="{{ cat.get_absolute_url }}" class="group relative bg-white border border-surface-200 rounded-xl overflow-hidden hover:shadow-xl hover:-translate-y-1 transition-all duration-500">
+      <div class="absolute inset-0 bg-gradient-to-br from-corporate-50/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+      <div class="relative aspect-square bg-surface-50 overflow-hidden">
+        {% if cat.image %}
+          <img src="{{ cat.image.url }}" alt="{{ cat.get_name }}" loading="lazy" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700">
+        {% elif cat.image_link %}
+          <img src="{{ cat.image_link }}" alt="{{ cat.get_name }}" loading="lazy" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700">
+        {% else %}
+          <div class="flex items-center justify-center h-full">
+            <i class="bi bi-box text-5xl text-charcoal-200 group-hover:text-corporate-300 transition-colors"></i>
+          </div>
+        {% endif %}
+      </div>
+      <div class="relative p-3 text-center">
+        <h3 class="font-bold text-sm text-charcoal-900 group-hover:text-corporate-600 transition-colors">{{ cat.get_name }}</h3>
+      </div>
+    </a>
+    {% endfor %}
+  </div>
+</section>
+{% endif %}
+{% endcache %}
+
+
+{# Featured Products #}
+{% if featured_products %}
+<section class="mb-16">
+  <div class="flex items-end justify-between mb-6">
+    <div>
+      <span class="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-bold text-corporate-600 bg-corporate-50 rounded-md mb-2">
+        <i class="bi bi-stars"></i> {% trans "Hand-picked for you" %}
+      </span>
+      <h2 class="font-bold text-2xl lg:text-3xl tracking-tight text-charcoal-900">{% trans "Featured products" %}</h2>
+    </div>
+    <a href="{% url 'products:products' %}" class="inline-flex items-center text-sm font-semibold text-corporate-600 hover:text-corporate-700 transition-colors">
+      {% trans "View all" %} <i class="bi bi-arrow-left ms-1 rtl:rotate-180"></i>
+    </a>
+  </div>
+
+  <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 lg:gap-6">
+    {% for product in featured_products %}
+      {% include 'partials/product_card.html' with product=product %}
+    {% endfor %}
+  </div>
+</section>
+{% endif %}
+
+
+{# Most Liked Products #}
+{% if most_liked_products %}
+<section class="mb-16">
+  <div class="flex items-end justify-between mb-6">
+    <div>
+      <span class="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-bold text-red-600 bg-red-50 rounded-md mb-2">
+        <i class="bi bi-heart-fill"></i> {% trans "Trending" %}
+      </span>
+      <h2 class="font-bold text-2xl lg:text-3xl tracking-tight text-charcoal-900">{% trans "Most liked products" %}</h2>
+    </div>
+    <a href="{% url 'products:wishlist_list' %}" class="inline-flex items-center text-sm font-semibold text-corporate-600 hover:text-corporate-700 transition-colors">
+      {% trans "My wishlist" %} <i class="bi bi-arrow-left ms-1 rtl:rotate-180"></i>
+    </a>
+  </div>
+
+  <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 lg:gap-6">
+    {% for product in most_liked_products %}
+      {% include 'partials/product_card.html' with product=product %}
+    {% endfor %}
+  </div>
+</section>
+{% endif %}
+
+
+{# Newsletter #}
+<section class="mb-16">
+  <div class="relative bg-gradient-to-br from-corporate-600 to-corporate-800 rounded-2xl overflow-hidden">
+    <div class="absolute inset-0 overflow-hidden pointer-events-none">
+      <div class="absolute -top-20 -end-20 w-96 h-96 bg-white/10 rounded-full blur-3xl"></div>
+      <div class="absolute -bottom-32 -start-32 w-80 h-80 bg-white/5 rounded-full blur-3xl"></div>
+    </div>
+    <div class="relative grid lg:grid-cols-2 gap-8 p-8 md:p-12 items-center">
+      <div class="text-center lg:text-start rtl:lg:text-right">
+        <h2 class="text-3xl font-bold text-white mb-2">{% trans "Stay in the loop" %}</h2>
+        <p class="text-corporate-100">{% trans "Join 10,000+ tech enthusiasts for exclusive deals and new arrivals." %}</p>
+      </div>
+      <form class="flex flex-col sm:flex-row gap-3" onsubmit="return false;" x-data="{ subscribed: false }">
+        <template x-if="!subscribed">
+          <div class="flex gap-3 w-full">
+            <input type="email"
+                   class="flex-1 px-4 py-3 text-sm bg-white/10 border border-white/20 rounded-lg text-white placeholder:text-corporate-200 focus:ring-2 focus:ring-white/50 outline-none"
+                   placeholder="{% trans 'Enter your email address' %}" required>
+            <button type="submit" @click="subscribed = true" class="px-6 py-3 text-sm font-bold text-corporate-600 bg-white rounded-lg hover:bg-corporate-50 transition-colors whitespace-nowrap">
+              {% trans "Subscribe" %}
+            </button>
+          </div>
+        </template>
+        <template x-if="subscribed">
+          <div class="text-white flex items-center gap-2 py-3">
+            <i class="bi bi-check-circle-fill text-xl"></i>
+            <span class="font-bold">{% trans "Thanks for joining!" %}</span>
+          </div>
+        </template>
+      </form>
+    </div>
+  </div>
+</section>
+
+{% endblock %}
+
+{% block extra_js %}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org/",
+  "@type": "WebSite",
+  "name": "SMART S3R",
+  "url": "{{ request.build_absolute_uri }}",
+  "potentialAction": {
+    "@type": "SearchAction",
+    "target": "{{ request.scheme }}://{{ request.get_host }}/search/?q={search_term_string}",
+    "query-input": "required name=search_term_string"
+  }
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org/",
+  "@type": "Organization",
+  "name": "SMART S3R",
+  "url": "{{ request.scheme }}://{{ request.get_host }}",
+  "logo": "{{ request.scheme }}://{{ request.get_host }}{% static 'img/logo.png' %}",
+  "contactPoint": {
+    "@type": "ContactPoint",
+    "contactType": "customer service"
+  }
+}
+</script>
+{% endblock %}

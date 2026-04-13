@@ -45,7 +45,6 @@ USE_X_FORWARDED_HOST = True
 INSTALLED_APPS = [
     "jazzmin",
     "django_htmx",
-    "django_cotton",
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
@@ -53,13 +52,11 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "django.contrib.humanize",
-    "apps.core",
-    "apps.users",
-    "apps.products",
-    "apps.cart",
-    "apps.orders",
-    "django_bootstrap5",
-    "django_bootstrap_icons",
+    "core",
+    "users",
+    "products",
+    "cart",
+    "orders",
     # "django_components",
 ]
 
@@ -69,14 +66,6 @@ if DEBUG:
         "django_browser_reload",
     ]
 
-
-BOOTSTRAP5 = {
-    # Standard LTR Bootstrap; RTL is loaded conditionally in base.html via {% if LANGUAGE_CODE == 'ar' %}
-    "css_url": {
-        "url": "https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css",
-        "crossorigin": "anonymous",
-    },
-}
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
@@ -166,7 +155,7 @@ SERVER_EMAIL = DEFAULT_FROM_EMAIL
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.sqlite3",
-        "NAME": BASE_DIR.parent / "db.sqlite3",
+        "NAME": BASE_DIR / "db.sqlite3",
     }
 }
 
@@ -196,7 +185,7 @@ LOGIN_URL = "/login/"
 # Internationalization
 # https://docs.djangoproject.com/en/6.0/topics/i18n/
 
-LANGUAGE_CODE = "en-us"
+LANGUAGE_CODE = "en"
 LANGUAGES = [
     ("en", _("English")),
     ("ar", _("Arabic")),
@@ -225,7 +214,7 @@ STATICFILES_DIRS = [
 
 # Media files (User uploads)
 MEDIA_URL = "media/"
-MEDIA_ROOT = BASE_DIR.parent / "www" / "media"
+MEDIA_ROOT = BASE_DIR / "www" / "media"
 
 # Jazzmin Admin Configuration
 JAZZMIN_SETTINGS = {
