@@ -13,16 +13,16 @@
     <div class="relative h-56 overflow-hidden rounded-2xl md:h-96 lg:h-[500px]">
          {% if banners %}
              {% for banner in banners %}
-             <div class="hidden duration-700 ease-in-out" data-carousel-item="{% if forloop.first %}active{% endif %}">
+             <div class="hidden duration-700 ease-in-out" {% if forloop.first %}data-carousel-item="active"{% else %}data-carousel-item{% endif %}>
                  {% if banner.image_link %}
-                 <img src="{{ banner.image_link }}" class="absolute block w-full h-full object-cover" alt="{{ banner.get_title|default:'Banner' }}" loading="{% if forloop.first %}eager{% else %}lazy{% endif %}">
+                 <img src="{{ banner.image_link }}" class="absolute block w-full -translate-x-1/2 -translate-y-1/2 top-1/2 left-1/2 object-cover" alt="{{ banner.get_title|default:'Banner' }}" loading="{% if forloop.first %}eager{% else %}lazy{% endif %}">
                  {% elif banner.image %}
-                 <img src="{{ banner.image.url }}" class="absolute block w-full h-full object-cover" alt="{{ banner.get_title|default:'Banner' }}" loading="{% if forloop.first %}eager{% else %}lazy{% endif %}">
+                 <img src="{{ banner.image.url }}" class="absolute block w-full -translate-x-1/2 -translate-y-1/2 top-1/2 left-1/2 object-cover" alt="{{ banner.get_title|default:'Banner' }}" loading="{% if forloop.first %}eager{% else %}lazy{% endif %}">
                  {% endif %}
               </div>
               {% endfor %}
           {% else %}
-             <div class="hidden duration-700 ease-in-out" data-carousel-item="active">
+             <div class="block duration-700 ease-in-out" data-carousel-item="active">
                  <div class="absolute inset-0 bg-gradient-to-br from-corporate-600 to-corporate-800 flex items-center justify-center p-8">
                      <div class="text-center">
                          <h1 class="text-3xl md:text-5xl lg:text-6xl font-black text-white mb-4 drop-shadow-md">

@@ -32,8 +32,8 @@
         event.detail.headers["X-CSRFToken"] = "{{ csrf_token }}";
       });
       document.addEventListener("htmx:afterOnLoad", function (evt) {
-        if (window.HSStaticMethods) {
-          window.HSStaticMethods.autoInit();
+        if (window.initFlowbite) {
+          window.initFlowbite();
         }
       });
       document.body.addEventListener("htmx:responseError", (evt) => {

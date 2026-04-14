@@ -25,6 +25,7 @@ def set_language_custom(request):
 
     # Security: Ensure next_url is local
     from django.utils.http import url_has_allowed_host_and_scheme
+
     if not url_has_allowed_host_and_scheme(
         url=next_url,
         allowed_hosts={request.get_host()},
@@ -35,18 +36,20 @@ def set_language_custom(request):
     if lang_code and lang_code in dict(settings.LANGUAGES):
         # 1. Force activate language in current thread
         from django.utils import translation
+
         translation.activate(lang_code)
 
         # 2. Translate the URL
         translated_url = translate_url(next_url, lang_code)
-        
+
         # Fallback if translate_url didn't change the prefix or failed
         if not translated_url or translated_url == next_url:
             import re
+
             # Remove existing language prefix if any (e.g., /en/ or /ar/)
-            path_no_lang = re.sub(r'^/(en|ar)/', '/', next_url)
+            path_no_lang = re.sub(r"^/(en|ar)/", "/", next_url)
             # Ensure we don't have double slashes
-            path_no_lang = '/' + path_no_lang.lstrip('/')
+            path_no_lang = "/" + path_no_lang.lstrip("/")
             translated_url = f"/{lang_code}{path_no_lang}"
 
         response = HttpResponseRedirect(translated_url)
@@ -54,7 +57,7 @@ def set_language_custom(request):
         # 3. Persist preference in session and cookie
         if hasattr(request, "session"):
             request.session[settings.LANGUAGE_COOKIE_NAME] = lang_code
-        
+
         response.set_cookie(
             settings.LANGUAGE_COOKIE_NAME,
             lang_code,
@@ -121,16 +124,17 @@ def home(request):
         cache.set("most_liked_products", most_liked, 1800)
 
     # Banners
-    banners = cache.get("home_banners")
+    banners = cache.get("home_banners_v2")
     # If here is no Caching make caching
     if banners is None:
         banners = list(Banner.objects.filter(is_active=True))
-        cache.set("home_banners", banners, 3600)
+        cache.set("home_banners_v2", banners, 3600)
 
     # Products on Sale
     sale_products = cache.get("sale_products")
     if sale_products is None:
         from django.db.models import F
+
         sale_products = list(
             Product.objects.filter(discount_price__lt=F("price"))
             .select_related("brand")

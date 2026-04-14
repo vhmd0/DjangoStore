@@ -183,15 +183,26 @@ function Confirm-Action {
 # Lock file management
 # =============================================================================
 $script:LockAcquired = $false
+$script:Force = $false
 function Acquire-Lock {
     if (Test-Path $JOI_LOCK_FILE) {
         $pidContent = Get-Content $JOI_LOCK_FILE -ErrorAction SilentlyContinue
-        if ($pidContent -and (Get-Process -Id $pidContent -ErrorAction SilentlyContinue)) {
-            Write-ErrorMsg "Another instance is running (PID $pidContent)"
-            Write-Dim "  If stuck, delete $JOI_LOCK_FILE"
-            exit $EXIT_ERROR
+        if ($pidContent) {
+            $lockAge = (Get-Date) - (Get-Item $JOI_LOCK_FILE).LastWriteTime
+            $isStale = $lockAge.TotalMinutes -gt 5
+            $process = Get-Process -Id $pidContent -ErrorAction SilentlyContinue
+            if ($process -and -not $isStale) {
+                if ($script:Force) {
+                    Write-Warn "Force flag set - killing stale process (PID $pidContent)"
+                    Stop-Process -Id $pidContent -Force -ErrorAction SilentlyContinue
+                } else {
+                    Write-ErrorMsg "Another instance is running (PID $pidContent)"
+                    Write-Dim "  Wait for it to finish or use $($C_CYAN)--force$($C_RESET) to override"
+                    exit $EXIT_ERROR
+                }
+            }
+            Remove-Item $JOI_LOCK_FILE -Force -ErrorAction SilentlyContinue
         }
-        Remove-Item $JOI_LOCK_FILE -Force -ErrorAction SilentlyContinue
     }
     $script:LockAcquired = $true
     Set-Content $JOI_LOCK_FILE -Value $PID -Force
@@ -220,6 +231,9 @@ function Load-Config {
     $script:JOI_CREATE_ADMIN = $env:JOI_CREATE_ADMIN
     $script:JOI_PORT = $env:JOI_PORT
     $script:JOI_PYTHON = $env:JOI_PYTHON
+    $script:JOI_ADMIN_USERNAME = $env:JOI_ADMIN_USERNAME
+    $script:JOI_ADMIN_EMAIL = $env:JOI_ADMIN_EMAIL
+    $script:JOI_ADMIN_PASSWORD = $env:JOI_ADMIN_PASSWORD
 
     if (Test-Path $JOI_ENV_FILE) {
         Get-Content $JOI_ENV_FILE | ForEach-Object {
@@ -231,6 +245,9 @@ function Load-Config {
                     'CREATE_ADMIN' { if (-not $script:JOI_CREATE_ADMIN) { $script:JOI_CREATE_ADMIN = $value } }
                     'PORT' { if (-not $script:JOI_PORT) { $script:JOI_PORT = $value } }
                     'PYTHON' { if (-not $script:JOI_PYTHON) { $script:JOI_PYTHON = $value } }
+                    'ADMIN_USERNAME' { if (-not $script:JOI_ADMIN_USERNAME) { $script:JOI_ADMIN_USERNAME = $value } }
+                    'ADMIN_EMAIL' { if (-not $script:JOI_ADMIN_EMAIL) { $script:JOI_ADMIN_EMAIL = $value } }
+                    'ADMIN_PASSWORD' { if (-not $script:JOI_ADMIN_PASSWORD) { $script:JOI_ADMIN_PASSWORD = $value } }
                 }
             }
         }
@@ -477,15 +494,104 @@ function Invoke-Seed {
 }
 
 function Invoke-Admin {
+    param(
+        [string]$Username,
+        [string]$Email,
+        [string]$Password,
+        [switch]$NoInput
+    )
     Write-Header
     $python = Get-PythonPath
     if (-not $python) { return $EXIT_DEP }
+
+    $username = if ($Username) { $Username } elseif ($script:JOI_ADMIN_USERNAME) { $script:JOI_ADMIN_USERNAME } else { "" }
+    $email = if ($Email) { $Email } elseif ($script:JOI_ADMIN_EMAIL) { $script:JOI_ADMIN_EMAIL } else { "" }
+    $pass = if ($Password) { $Password } elseif ($script:JOI_ADMIN_PASSWORD) { $script:JOI_ADMIN_PASSWORD } else { "" }
+    $noInput = if ($NoInput) { $true } elseif ($script:JOI_NOINPUT) { $true } else { $false }
+
+    if ($noInput -or ($username -and $email -and $pass)) {
+        if (-not $username) {
+            $username = Read-Host "Username"
+            if (-not $username) {
+                Write-ErrorMsg "Username is required"
+                return $EXIT_ERROR
+            }
+        }
+        if (-not $email) {
+            $email = Read-Host "Email"
+            if (-not $email) {
+                Write-ErrorMsg "Email is required"
+                return $EXIT_ERROR
+            }
+        }
+        if (-not $pass) {
+            $pass = Read-Host "Password" -AsSecureString
+            if (-not $pass) {
+                Write-ErrorMsg "Password is required"
+                return $EXIT_ERROR
+            }
+            $pass = [Runtime.InteropServices.Marshal]::PtrToStringAuto([Runtime.InteropServices.Marshal]::SecureStringToBSTR($pass))
+        }
+        Write-Step "Creating admin user: $username"
+        $env:DJANGO_SUPERUSER_USERNAME = $username
+        $env:DJANGO_SUPERUSER_EMAIL = $email
+        $env:DJANGO_SUPERUSER_PASSWORD = $pass
+        & $python manage.py createsuperuser --noinput 2>&1 | ForEach-Object {
+            if ($_ -match '^(Error|error)') {
+                Write-ErrorMsg $_
+            } else {
+                Write-Dim "  $_"
+            }
+        }
+        Remove-Item Env:DJANGO_SUPERUSER_USERNAME -ErrorAction SilentlyContinue
+        Remove-Item Env:DJANGO_SUPERUSER_EMAIL -ErrorAction SilentlyContinue
+        Remove-Item Env:DJANGO_SUPERUSER_PASSWORD -ErrorAction SilentlyContinue
+        if ($LASTEXITCODE -eq 0) {
+            Write-Host ""; Write-Success "Admin user created"
+            Write-Host ""
+            return $EXIT_SUCCESS
+        } else {
+            Write-Host ""; Write-ErrorMsg "Failed to create admin user"
+            return $EXIT_ERROR
+        }
+    }
+
     Write-Step "Creating admin user"
     Write-Host ""
-    & $python manage.py createsuperuser
-    Write-Host ""; Write-Success "Admin user created"
+    Write-Dim "Quick options:"
+    Write-Dim "  $($C_CYAN)joi admin -u admin -e admin@example.com -p Secret123$($C_RESET)"
+    Write-Dim "  $($C_CYAN)joi admin --no-input$($C_RESET) to enter interactively"
     Write-Host ""
-    return $EXIT_SUCCESS
+    Write-Host "$($C_YELLOW)?$($C_RESET) Username $(($C_DIM))(leave blank to use 'admin')$($C_RESET) "
+    $inputUsername = Read-Host "Username"
+    $inputUsername = if ([string]::IsNullOrWhiteSpace($inputUsername)) { "admin" } else { $inputUsername }
+    Write-Host "$($C_YELLOW)?$($C_RESET) Email "
+    $inputEmail = Read-Host "Email"
+    Write-Host "$($C_YELLOW)?$($C_RESET) Password "
+    $inputPassword = Read-Host "Password" -AsSecureString
+    $inputPassword = [Runtime.InteropServices.Marshal]::PtrToStringAuto([Runtime.InteropServices.Marshal]::SecureStringToBSTR($inputPassword))
+    Write-Step "Creating admin user: $inputUsername"
+    $env:DJANGO_SUPERUSER_USERNAME = $inputUsername
+    $env:DJANGO_SUPERUSER_EMAIL = $inputEmail
+    $env:DJANGO_SUPERUSER_PASSWORD = $inputPassword
+    & $python manage.py createsuperuser --noinput 2>&1 | ForEach-Object {
+        if ($_ -match '^(Error|error)') {
+            Write-ErrorMsg $_
+        } else {
+            Write-Dim "  $_"
+        }
+    }
+    Remove-Item Env:DJANGO_SUPERUSER_USERNAME -ErrorAction SilentlyContinue
+    Remove-Item Env:DJANGO_SUPERUSER_EMAIL -ErrorAction SilentlyContinue
+    Remove-Item Env:DJANGO_SUPERUSER_PASSWORD -ErrorAction SilentlyContinue
+    if ($LASTEXITCODE -eq 0) {
+        Write-Host ""; Write-Success "Admin user created"
+        Write-Host ""
+        return $EXIT_SUCCESS
+    } else {
+        Write-Host ""; Write-ErrorMsg "Failed to create admin user"
+        return $EXIT_ERROR
+    }
 }
 
 function Invoke-Server {
@@ -666,9 +772,16 @@ function Show-Help {
     Write-Host "  -h, --help        Show help"
     Write-Host "  -v, --version     Show version"
     Write-Host "  -y, --yes         Skip confirmations"
+    Write-Host "  -f, --force       Force run (ignore locks)"
     Write-Host "  --no-color        Disable colors"
     Write-Host "  --verbose         Detailed output"
     Write-Host "  --quiet           Minimal output"
+    Write-Host ""
+    Write-Host "$($C_DIM) ADMIN OPTIONS$($C_RESET)"
+    Write-Host "  -u, --username    Admin username"
+    Write-Host "  -e, --email       Admin email"
+    Write-Host "  -p, --password    Admin password"
+    Write-Host "  --no-input        Use env vars or prompts"
     Write-Host ""
     Write-Host "$($C_DIM) EXAMPLES$($C_RESET)"
     Write-Host "  $($C_WHITE)joi setup$($C_RESET)              $($C_DIM)# Interactive setup$($C_RESET)"
@@ -714,6 +827,8 @@ function Main {
             '--verbose' { $script:JOI_VERBOSE = $true }
             '--quiet' { $script:JOI_QUIET = $true }
             '--debug' { $script:JOI_DEBUG = $true; Set-PSDebug -Trace 1 }
+            '-f' { $script:Force = $true }
+            '--force' { $script:Force = $true }
             '--port' {
                 $i++
                 if ($i -lt $args.Count) { $script:JOI_PORT = $args[$i] }
@@ -724,6 +839,31 @@ function Main {
             '--admin' { $script:JOI_ADMIN_FLAG = "y" }
             '--no-admin' { $script:JOI_ADMIN_FLAG = "n" }
             '--skip-migrations' { $script:JOI_SKIP_MIGRATIONS = $true }
+            '-u' {
+                $i++
+                if ($i -lt $args.Count) { $script:JOI_ADMIN_USERNAME = $args[$i] }
+            }
+            '--username' {
+                $i++
+                if ($i -lt $args.Count) { $script:JOI_ADMIN_USERNAME = $args[$i] }
+            }
+            '-e' {
+                $i++
+                if ($i -lt $args.Count) { $script:JOI_ADMIN_EMAIL = $args[$i] }
+            }
+            '--email' {
+                $i++
+                if ($i -lt $args.Count) { $script:JOI_ADMIN_EMAIL = $args[$i] }
+            }
+            '-p' {
+                $i++
+                if ($i -lt $args.Count) { $script:JOI_ADMIN_PASSWORD = $args[$i] }
+            }
+            '--password' {
+                $i++
+                if ($i -lt $args.Count) { $script:JOI_ADMIN_PASSWORD = $args[$i] }
+            }
+            '--no-input' { $script:JOI_NOINPUT = $true }
             default { $remainingArgs += $arg }
         }
         $i++
