@@ -10,7 +10,7 @@
     {# Profile Form #}
     <form method="post" enctype="multipart/form-data" 
           x-on:submit="submitting = true"
-          hx-post="{% url 'users:profile_update' %}"
+          hx-post="{% url 'profile' %}"
           hx-target="#personal-form-container"
           hx-swap="innerHTML"
           @htmx:after-request="submitting = false"

@@ -112,7 +112,7 @@ def profile(request):
         )
     elif tab == "wishlist":
         context["wishlist_items"] = request.user.profile.wishlist.select_related(
-            "product"
+            "product", "product__brand"
         ).all()
 
     return render(request, "users/profile.html", context)
@@ -259,5 +259,46 @@ def profile_order_detail(request, order_id):
         {
             "order": order,
             "items": items,
+        },
+    )
+
+
+@login_required
+def password_change_partial(request):
+    if request.method == "POST":
+        form = PasswordChangeForm(request.user, request.POST)
+        if form.is_valid():
+            form.save()
+            messages.success(request, _("Password changed successfully!"))
+
+            if request.headers.get("Hx-Request"):
+                return render(
+                    request,
+                    "users/profile/_security.html",
+                    {
+                        "password_form": PasswordChangeForm(request.user),
+                        "user": request.user,
+                    },
+                )
+            return redirect("users:password_change_done")
+        else:
+            if request.headers.get("Hx-Request"):
+                return render(
+                    request,
+                    "users/profile/_security.html",
+                    {
+                        "password_form": form,
+                        "user": request.user,
+                    },
+                )
+    else:
+        form = PasswordChangeForm(request.user)
+
+    return render(
+        request,
+        "users/profile/_security.html",
+        {
+            "password_form": form,
+            "user": request.user,
         },
     )

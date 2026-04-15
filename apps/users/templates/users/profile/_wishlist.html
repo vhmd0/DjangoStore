@@ -24,9 +24,9 @@
         {# Image + Remove #}
         <a href="{{ item.product.get_absolute_url }}" class="block relative aspect-square bg-surface-100 overflow-hidden">
             {% if item.product.img %}
-            <img src="{{ item.product.img.url }}" alt="{{ item.product.name }}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" loading="lazy">
+            <img src="{{ item.product.img.url }}" alt="{{ item.product.name }}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" loading="eager">
             {% elif item.product.img_link %}
-            <img src="{{ item.product.img_link }}" alt="{{ item.product.name }}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" loading="lazy">
+            <img src="{{ item.product.img_link }}" alt="{{ item.product.name }}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" loading="eager">
             {% else %}
             <div class="flex items-center justify-center h-full">
                 <i class="bi bi-phone text-5xl text-charcoal-200 group-hover:text-corporate-600 transition-colors"></i>

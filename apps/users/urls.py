@@ -11,11 +11,8 @@ urlpatterns = [
     path("auth/profile/", views.profile, name="profile"),
     path("auth/profile/update/", views.profile, name="profile_update"),
     path(
-        "auth/password-change/",
-        auth_views.PasswordChangeView.as_view(
-            template_name="pages/users/password_change.html",
-            success_url=reverse_lazy("users:password_change_done"),
-        ),
+        "profile/password-change/",
+        views.password_change_partial,
         name="password_change",
     ),
     path(

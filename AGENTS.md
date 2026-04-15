@@ -58,6 +58,13 @@ static/
 | `/register/` | register | `register` |
 | `/logout/` | LogoutView | `logout` |
 | `/profile/` | profile | `profile` |
+| `/profile/?tab=orders` | profile (tab=orders) | - |
+| `/profile/?tab=addresses` | profile (tab=addresses) | - |
+| `/profile/?tab=security` | profile (tab=security) | - |
+| `/profile/?tab=wishlist` | profile (tab=wishlist) | - |
+| `/profile/order/<id>/` | profile_order_detail | `profile_order_detail` |
+| `/profile/address/form/` | address_form_partial | `address_form_partial` |
+| `/profile/password-change/` | password_change_partial | `users:password_change` |
 | `/users/addresses/` | address_list | `users:address_list` |
 | `/set-language/` | set_language_custom | `set_language_custom` |
 
