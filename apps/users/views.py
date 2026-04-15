@@ -115,7 +115,7 @@ def profile(request):
             "product", "product__brand"
         ).all()
 
-    return render(request, "users/profile.html", context)
+    return render(request, "users/dashboard.html", context)
 
 
 def checkout(request):
@@ -147,7 +147,7 @@ def address_add(request):
                     "-is_default", "-created_at"
                 )
                 return render(
-                    request, "users/profile/_addresses.html", {"addresses": addresses}
+                    request, "users/dashboard/_addresses.html", {"addresses": addresses}
                 )
 
             return redirect("users:address_list")
@@ -176,7 +176,7 @@ def address_edit(request, pk):
                     "-is_default", "-created_at"
                 )
                 return render(
-                    request, "users/profile/_addresses.html", {"addresses": addresses}
+                    request, "users/dashboard/_addresses.html", {"addresses": addresses}
                 )
 
             return redirect("users:address_list")
@@ -198,7 +198,7 @@ def address_delete(request, pk):
             "-is_default", "-created_at"
         )
         return render(
-            request, "users/profile/_addresses.html", {"addresses": addresses}
+            request, "users/dashboard/_addresses.html", {"addresses": addresses}
         )
 
     return redirect("users:address_list")
@@ -217,7 +217,7 @@ def address_set_default(request, pk):
             "-is_default", "-created_at"
         )
         return render(
-            request, "users/profile/_addresses.html", {"addresses": addresses}
+            request, "users/dashboard/_addresses.html", {"addresses": addresses}
         )
 
     return redirect("users:address_list")
@@ -241,7 +241,7 @@ def address_form_partial(request):
 
     return render(
         request,
-        "users/profile/_address_form_modal.html",
+        "users/dashboard/_address_form_modal.html",
         {"form": form, "address_id": address_id},
     )
 
@@ -255,7 +255,7 @@ def profile_order_detail(request, order_id):
 
     return render(
         request,
-        "users/profile/_order_detail_drawer.html",
+        "users/dashboard/_order_detail_drawer.html",
         {
             "order": order,
             "items": items,
@@ -274,7 +274,7 @@ def password_change_partial(request):
             if request.headers.get("Hx-Request"):
                 return render(
                     request,
-                    "users/profile/_security.html",
+                    "users/dashboard/_security.html",
                     {
                         "password_form": PasswordChangeForm(request.user),
                         "user": request.user,
@@ -285,7 +285,7 @@ def password_change_partial(request):
             if request.headers.get("Hx-Request"):
                 return render(
                     request,
-                    "users/profile/_security.html",
+                    "users/dashboard/_security.html",
                     {
                         "password_form": form,
                         "user": request.user,
@@ -296,7 +296,7 @@ def password_change_partial(request):
 
     return render(
         request,
-        "users/profile/_security.html",
+        "users/dashboard/_security.html",
         {
             "password_form": form,
             "user": request.user,

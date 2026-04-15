@@ -224,7 +224,7 @@ def order_confirmation(request, order_id):
     )
     return render(
         request,
-        "pages/orders/order_confirmation.html",
+        "orders/order_confirmation.html",
         {
             "order": order,
             "items": order.items.all(),  # uses the already-prefetched cache
@@ -260,7 +260,7 @@ def order_detail(request, order_id):
     )
     return render(
         request,
-        "pages/orders/order_detail.html",
+        "orders/order_detail.html",
         {
             "order": order,
             "items": order.items.all(),  # uses the already-prefetched cache
@@ -291,7 +291,7 @@ def cancel_order(request, order_id):
         if request.headers.get("Hx-Request"):
             return render(
                 request,
-                "users/profile/_order_detail_drawer.html",
+                "users/dashboard/_order_detail_drawer.html",
                 {
                     "order": order,
                     "items": order.items.select_related("product__brand").all(),
@@ -319,7 +319,7 @@ def cancel_order(request, order_id):
     if request.headers.get("Hx-Request"):
         return render(
             request,
-            "users/profile/_order_detail_drawer.html",
+            "users/dashboard/_order_detail_drawer.html",
             {
                 "order": order,
                 "items": order.items.select_related("product__brand").all(),

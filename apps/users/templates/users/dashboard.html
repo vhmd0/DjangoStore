@@ -192,27 +192,27 @@
             
             {# Personal Tab #}
             <div x-show="activeTab === 'personal'" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100">
-                {% include 'users/profile/_personal.html' %}
+                {% include 'users/dashboard/_personal.html' %}
             </div>
 
             {# Orders Tab #}
             <div x-show="activeTab === 'orders'" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100">
-                {% include 'users/profile/_orders.html' %}
+                {% include 'users/dashboard/_orders.html' %}
             </div>
 
             {# Addresses Tab #}
             <div x-show="activeTab === 'addresses'" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100">
-                {% include 'users/profile/_addresses.html' %}
+                {% include 'users/dashboard/_addresses.html' %}
             </div>
 
             {# Security Tab #}
             <div x-show="activeTab === 'security'" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100">
-                {% include 'users/profile/_security.html' %}
+                {% include 'users/dashboard/_security.html' %}
             </div>
 
             {# Wishlist Tab #}
             <div x-show="activeTab === 'wishlist'" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100">
-                {% include 'users/profile/_wishlist.html' %}
+                {% include 'users/dashboard/_wishlist.html' %}
             </div>
             
         </div>

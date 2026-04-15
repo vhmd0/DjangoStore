@@ -8,7 +8,7 @@ Full-stack e-commerce platform for laptops & smartphones. Arabic/English (RTL) s
 |-------|-----------|
 | Backend | Django 6.0.3, Python 3.14+ |
 | Database | SQLite3 (dev) |
-| Frontend | Tailwind CSS 3 + Flowbite, Alpine.js, HTMX |
+| Frontend | Tailwind CSS 3 + Alpine.js, HTMX |
 | UI Components | django-cotton (`<c-*>` tags) |
 | Admin | django-jazzmin (dark theme) |
 | i18n | EN/AR with `Readex Pro` font |
@@ -20,7 +20,7 @@ Full-stack e-commerce platform for laptops & smartphones. Arabic/English (RTL) s
 ```
 apps/
 ├── core/          ← Home, banners, shared views
-├── users/         ← Auth, profile, addresses
+├── users/         ← Auth, dashboard, addresses
 ├── products/      ← Products, categories, wishlist, reviews
 ├── cart/          ← Session-based shopping cart
 └── orders/        ← Checkout, order management
@@ -29,6 +29,17 @@ templates/
 ├── cotton/        ← Django Cotton UI component library
 ├── shared/        ← base.html + global partials
 └── emails/        ← Email templates
+
+users/templates/users/
+├── dashboard.html         ← Single-view dashboard with tab navigation
+├── dashboard/            ← Dashboard fragment templates
+│   ├── _personal.html
+│   ├── _orders.html
+│   ├── _addresses.html
+│   ├── _security.html
+│   ├── _wishlist.html
+│   ├── _order_detail_drawer.html
+│   └── _address_form_modal.html
 
 static/
 ├── css/           ← Tailwind output (tailwind.css)
