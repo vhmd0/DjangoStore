@@ -5,6 +5,7 @@ __pycache__/
 *.so
 build/
 dist/
+nul
 wheels/
 *.egg-info/
 *.egg
