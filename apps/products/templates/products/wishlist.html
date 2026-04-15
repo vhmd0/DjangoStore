@@ -125,6 +125,7 @@
         <form
           action="{% url 'cart:add' item.product.id %}"
           method="post"
+          hx-boost="false"
           class="m-0"
           x-data="{ submitting: false }"
           x-on:submit.prevent="submitting = true; $store.cart.addToCart($el).then(() => { submitting = false; $store.cart.showOffcanvas() })"

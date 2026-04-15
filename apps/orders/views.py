@@ -98,7 +98,7 @@ def checkout(request):
 
     return render(
         request,
-        "pages/orders/checkout.html",
+        "orders/checkout.html",
         {
             "products": products,
             "total": total,

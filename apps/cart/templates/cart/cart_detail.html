@@ -47,7 +47,7 @@
               {# Quantity stepper with +/- buttons #}
               <div class="flex items-center gap-2">
                 <div class="inline-flex items-center border border-surface-200 rounded-lg bg-white h-9">
-                  <form action="{% url 'cart:add' item.product.id %}" method="post" class="js-cart-form m-0 flex">
+                  <form action="{% url 'cart:add' item.product.id %}" method="post" hx-boost="false" class="js-cart-form m-0 flex">
                     {% csrf_token %}
                     <input type="hidden" name="quantity" value="-1">
                     <button type="submit" class="inline-flex items-center justify-center px-3 h-full text-charcoal-500 hover:bg-surface-100 rounded-l-lg border-r border-surface-200">
@@ -57,7 +57,7 @@
 
                   <span class="flex items-center justify-center font-bold px-3 text-sm h-full w-10 border-x border-surface-200">{{ item.quantity }}</span>
 
-                  <form action="{% url 'cart:add' item.product.id %}" method="post" class="js-cart-form m-0 flex">
+                  <form action="{% url 'cart:add' item.product.id %}" method="post" hx-boost="false" class="js-cart-form m-0 flex">
                     {% csrf_token %}
                     <input type="hidden" name="quantity" value="1">
                     <button type="submit" class="inline-flex items-center justify-center px-3 h-full text-charcoal-500 hover:bg-surface-100 rounded-r-lg border-l border-surface-200">
@@ -118,10 +118,10 @@
       </div>
       {% if cart_items %}
         {% if user.is_authenticated %}
-        <a href="{% url 'orders:checkout' %}" class="inline-flex items-center justify-center w-full px-4 py-3.5 text-base font-semibold text-white bg-corporate-600 rounded-lg hover:bg-corporate-700 shadow-sm">{% trans "Proceed to Checkout" %}</a>
+        <a href="{% url 'orders:checkout' %}" hx-boost="false" class="inline-flex items-center justify-center w-full px-4 py-3.5 text-base font-semibold text-white bg-corporate-600 rounded-lg hover:bg-corporate-700 shadow-sm">{% trans "Proceed to Checkout" %}</a>
         {% else %}
         <button type="button" class="inline-flex items-center justify-center w-full px-4 py-3.5 text-base font-semibold text-white bg-corporate-600 rounded-lg hover:bg-corporate-700 shadow-sm"
-          data-hs-overlay="#authModal">
+          @click="$dispatch('open-auth')">
           {% trans "Proceed to Checkout" %}
         </button>
         {% endif %}

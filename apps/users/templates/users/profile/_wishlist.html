@@ -53,7 +53,7 @@
                 <div class="font-black text-lg">
                     <span class="text-corporate-600 leading-none text-sm align-super me-0.5">{% if request.LANGUAGE_CODE == 'ar' %}ج.م{% else %}EGP{% endif %}</span>{{ item.product.price|floatformat:2|intcomma }}
                 </div>
-                <form action="{% url 'cart:add' item.product.id %}" method="post" class="m-0" x-data="{ submitting: false }" x-on:submit.prevent="submitting = true; $store.cart.addToCart($el).then(() => { submitting = false; $store.cart.showOffcanvas() })">
+                <form action="{% url 'cart:add' item.product.id %}" method="post" hx-boost="false" class="m-0" x-data="{ submitting: false }" x-on:submit.prevent="submitting = true; $store.cart.addToCart($el).then(() => { submitting = false; $store.cart.showOffcanvas() })">
                     {% csrf_token %}
                     <input type="hidden" name="quantity" value="1">
                     <button type="submit" class="inline-flex items-center px-3 py-1.5 text-sm font-semibold text-white bg-corporate-600 rounded-lg hover:bg-corporate-700 shadow-sm" :disabled="submitting" :class="submitting ? 'bg-green-600 hover:bg-green-700' : ''">

@@ -16,7 +16,7 @@
         </a>
 
         {% if user.is_authenticated %}
-            <a href="{% url 'orders:checkout' %}"
+            <a href="{% url 'orders:checkout' %}" hx-boost="false"
                class="inline-flex items-center justify-center w-full px-4 py-2.5 text-sm font-semibold text-white bg-corporate-600 rounded-lg hover:bg-corporate-700 transition-colors shadow-sm">
                <i class="bi bi-shield-lock-fill me-2"></i>
                <span>{% trans "Secure Checkout" %}</span>

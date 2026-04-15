@@ -24,7 +24,7 @@
              class="text-charcoal-900 font-semibold leading-tight block truncate pe-3 text-sm hover:text-corporate-600 transition-colors">
             {{ item.product.name }}
           </a>
-          <form action="{% url 'cart:remove' item.product.id %}" method="post" class="js-cart-form m-0">
+          <form action="{% url 'cart:remove' item.product.id %}" method="post" hx-boost="false" class="js-cart-form m-0">
             {% csrf_token %}
             <button type="submit" class="p-1 text-charcoal-400 hover:text-red-600 transition-colors rounded">
               <i class="bi bi-x-circle text-base"></i>
@@ -38,7 +38,7 @@
             <span class="text-charcoal-400 text-xs ms-2">x{{ item.quantity }}</span>
         </div>
         <div class="inline-flex items-center border border-surface-200 rounded-lg overflow-hidden bg-white">
-          <form action="{% url 'cart:add' item.product.id %}" method="post" class="js-cart-form m-0">
+          <form action="{% url 'cart:add' item.product.id %}" method="post" hx-boost="false" class="js-cart-form m-0">
             {% csrf_token %}
             <input type="hidden" name="quantity" value="-1">
             <button type="submit" class="px-2 py-1 text-charcoal-500 hover:bg-surface-50 hover:text-charcoal-700 transition-colors">
@@ -48,7 +48,7 @@
           <span class="px-3 font-bold text-sm min-w-[2rem] text-center text-charcoal-900">
             {{ item.quantity }}
           </span>
-          <form action="{% url 'cart:add' item.product.id %}" method="post" class="js-cart-form m-0">
+          <form action="{% url 'cart:add' item.product.id %}" method="post" hx-boost="false" class="js-cart-form m-0">
             {% csrf_token %}
             <input type="hidden" name="quantity" value="1">
             <button type="submit" class="px-2 py-1 text-charcoal-500 hover:bg-surface-50 hover:text-charcoal-700 transition-colors">

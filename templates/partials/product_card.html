@@ -103,6 +103,7 @@
           <form 
             action="{% url 'cart:add' product.id %}" 
             method="post"
+            hx-boost="false"
             x-data="{ submitting: false, added: false }"
             x-on:submit.prevent="
               submitting = true;
