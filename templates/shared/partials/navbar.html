@@ -94,6 +94,13 @@
         </div>
 
         <a
+          href="{% url 'products:products' %}?sort=-created_at"
+          class="text-xs font-bold uppercase tracking-wider text-charcoal-700 hover:text-corporate-600 transition-colors {% if 'sort=-created_at' in request.get_full_path %}text-corporate-600{% endif %}"
+        >
+          {% trans "Shop" %}
+        </a>
+
+        <a
           href="{% url 'products:products' %}?on_sale=true"
           class="text-xs font-bold uppercase tracking-wider text-charcoal-700 hover:text-corporate-600 transition-colors {% if 'on_sale=true' in request.get_full_path %}text-corporate-600{% endif %}"
         >
