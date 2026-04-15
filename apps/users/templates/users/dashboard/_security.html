@@ -1,90 +1,58 @@
 {% load i18n %}
 
-{# Security Header #}
-<div class="flex justify-between items-center mb-5">
-    <div class="flex items-center gap-3">
-        <div class="w-12 h-12 rounded-2xl bg-green-100 flex items-center justify-center">
-            <i class="bi bi-shield-lock text-green-600 text-xl"></i>
-        </div>
-        <div>
-            <h2 class="font-bold text-xl text-charcoal-800">{% trans "Security" %}</h2>
-            <p class="text-charcoal-500 text-xs mb-0">{% trans "Password & account safety" %}</p>
-        </div>
-    </div>
-</div>
+<div x-data="{}">
 
-{# Password Change Card #}
-<div class="bg-white border border-surface-200 rounded-xl overflow-hidden mb-4">
-    <div class="bg-surface-50 border-b border-surface-200 px-4 py-3 flex items-center gap-2">
-        <i class="bi bi-key text-corporate-600"></i>
-        <h5 class="font-bold text-sm">{% trans "Change Password" %}</h5>
-    </div>
-    <div class="p-4">
+    <h2 class="font-semibold text-lg text-charcoal-800 mb-4">{% trans "Security Settings" %}</h2>
+
+    {# Password Change #}
+    <div class="bg-white border border-surface-200 rounded-xl p-5 mb-4">
+        <h3 class="font-medium text-charcoal-800 mb-4">{% trans "Change Password" %}</h3>
+        
         <form method="post" 
               hx-post="{% url 'users:password_change' %}"
               hx-target="#security-form-container"
               hx-swap="innerHTML"
-              x-data="{ showold: false, shownew1: false, shownew2: false, submitting: false }"
+              x-data="{ submitting: false }"
               @htmx:after-request="submitting = false"
               @htmx:after-on-load="if(event.detail.successful) { Alpine.store('toast').show('Password changed!', 'success'); } else { Alpine.store('toast').show('Failed to change', 'error'); }">
             {% csrf_token %}
             {% for field in password_form %}
             <div class="mb-3">
-                <label class="block text-xs font-semibold text-charcoal-600 mb-1.5" for="{{ field.id_for_label }}">
+                <label class="block text-sm text-charcoal-600 mb-1" for="{{ field.id_for_label }}">
                     {{ field.label }}
-                    {% if field.field.required %}<span class="text-red-500">*</span>{% endif %}
                 </label>
-                <div class="relative">
-                    <span class="absolute inset-y-0 start-0 flex items-center ps-3 pointer-events-none text-charcoal-400">
-                        <i class="bi bi-shield-lock text-xs"></i>
-                    </span>
-                    <input
-                        :type="show{{ field.name }} ? 'text' : 'password'"
-                        name="{{ field.html_name }}"
-                        id="{{ field.id_for_label }}"
-                        class="block w-full ps-9 pe-10 px-3 py-2 bg-surface-50 border border-surface-200 rounded-lg focus:ring-2 focus:ring-corporate-600 focus:border-corporate-600 text-sm {% if field.errors %}bg-red-50 border-red-300{% endif %}"
-                        placeholder="••••••••"
-                        {% if field.field.required %}required{% endif %}
-                    >
-                    <button type="button" class="absolute inset-y-0 end-0 flex items-center pe-2.5 text-charcoal-400 hover:text-charcoal-600" x-on:click="show{{ field.name }} = !show{{ field.name }}" tabindex="-1">
-                        <i class="bi text-xs" :class="show{{ field.name }} ? 'bi-eye-slash' : 'bi-eye'"></i>
-                    </button>
-                </div>
+                <input type="password" name="{{ field.html_name }}" id="{{ field.id_for_label }}"
+                       class="w-full px-3 py-2 border border-surface-200 rounded-lg focus:ring-2 focus:ring-corporate-600 focus:border-corporate-600 text-sm"
+                       placeholder="••••••••">
                 {% if field.errors %}
-                    <p class="text-red-500 text-[10px] font-semibold mt-1">{% for error in field.errors %}{{ error }}{% endfor %}</p>
+                <p class="text-red-500 text-xs mt-1">{% for error in field.errors %}{{ error }}{% endfor %}</p>
                 {% endif %}
             </div>
             {% endfor %}
 
-            <div id="security-form-container" class="mt-4">
-                <button type="submit" class="inline-flex items-center justify-center px-4 py-2 text-sm font-semibold text-white bg-corporate-600 rounded-lg hover:bg-corporate-700 transition-all" :disabled="submitting" :class="submitting ? 'opacity-50' : ''">
-                    <i class="bi bi-check-lg me-1.5"></i>
+            <div id="security-form-container">
+                <button type="submit" 
+                        class="px-4 py-2 bg-corporate-600 text-white text-sm rounded-lg hover:bg-corporate-700 transition-colors"
+                        :disabled="submitting" :class="submitting ? 'opacity-50' : ''">
                     <span x-text="submitting ? '...' : '{% trans "Update Password" %}'"></span>
                 </button>
             </div>
         </form>
     </div>
-</div>
 
-{# Account Security Status Cards #}
-<div class="grid grid-cols-1 md:grid-cols-2 gap-3">
-    <div class="flex items-center gap-3 p-4 rounded-xl border border-green-200 bg-green-50">
-        <div class="w-10 h-10 rounded-lg bg-white flex items-center justify-center shadow-sm">
-            <i class="bi bi-patch-check-fill text-green-600 text-lg"></i>
+    {# Account Status #}
+    <div class="bg-white border border-surface-200 rounded-xl p-5">
+        <div class="flex items-center gap-3 mb-3">
+            <i class="bi bi-patch-check text-green-600 text-xl"></i>
+            <div>
+                <p class="font-medium text-charcoal-800">{% trans "Account Verified" %}</p>
+                <p class="text-sm text-charcoal-500">{% trans "Your email is confirmed" %}</p>
+            </div>
         </div>
-        <div>
-            <div class="font-semibold text-sm text-green-800">{% trans "Verified" %}</div>
-            <div class="text-green-700 text-xs">{% trans "Email confirmed" %}</div>
-        </div>
+        <p class="text-sm text-charcoal-500">
+            <i class="bi bi-calendar me-1"></i>
+            {% trans "Member since" %} {{ user.date_joined|date:"F Y" }}
+        </p>
     </div>
-    
-    <div class="flex items-center gap-3 p-4 rounded-xl border border-surface-200 bg-white">
-        <div class="w-10 h-10 rounded-lg bg-surface-100 flex items-center justify-center">
-            <i class="bi bi-calendar3 text-corporate-600 text-lg"></i>
-        </div>
-        <div>
-            <div class="font-semibold text-sm text-charcoal-800">{% trans "Member" %}</div>
-            <div class="text-charcoal-500 text-xs">{{ user.date_joined|date:"M Y" }}</div>
-        </div>
-    </div>
+
 </div>

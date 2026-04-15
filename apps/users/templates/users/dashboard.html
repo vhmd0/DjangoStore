@@ -13,13 +13,6 @@
     orderDetailContent: null,
     addressModal: null,
     
-    get greeting() {
-        const hour = new Date().getHours();
-        if (hour < 12) return '{% trans "Good morning" %}';
-        if (hour < 18) return '{% trans "Good afternoon" %}';
-        return '{% trans "Good evening" %}';
-    },
-    
     init() {
         this.$watch('activeTab', value => {
             const url = new URL(window.location);
@@ -68,293 +61,180 @@
     }
 }">
 
+    {# Breadcrumb #}
+    <nav class="text-sm text-charcoal-500 mb-6 flex items-center gap-2">
+        <a href="{% url 'home' %}" class="hover:text-corporate-600 transition-colors flex items-center gap-1">
+            <i class="bi bi-house-door"></i>
+        </a>
+        <i class="bi bi-chevron-right text-xs"></i>
+        <span class="text-charcoal-700">{% trans "My Profile" %}</span>
+    </nav>
+
+    {# Page Header #}
+    <div class="mb-6">
+        <h1 class="text-2xl font-bold text-charcoal-900">{% trans "My Profile" %}</h1>
+        <p class="text-charcoal-500 mt-1">{% trans "Manage your account settings" %}</p>
+    </div>
+
     {# Main Layout #}
-    <div class="flex flex-col lg:flex-row gap-6 lg:gap-8">
+    <div class="flex flex-col lg:flex-row gap-6">
         
-        {# Sidebar (Desktop) #}
-        <div class="lg:w-64 xl:w-72 lg:hidden xl:block">
-            <div class="bg-white border border-surface-200 rounded-2xl overflow-hidden sticky top-24">
+        {# Sidebar #}
+        <div class="lg:w-64 flex-shrink-0">
+            <div class="bg-white border border-surface-200 rounded-xl overflow-hidden">
                 
-                {# Avatar & Names #}
-                <div class="p-5 text-center border-b border-surface-200">
-                    <form method="post" enctype="multipart/form-data" id="avatarForm">
+                {# User Info #}
+                <div class="p-4 text-center border-b border-surface-100">
+                    <form method="post" enctype="multipart/form-data" id="avatarForm" class="inline-block">
                         {% csrf_token %}
                         <input type="file" name="avatar" id="id_avatar" class="hidden" onchange="document.getElementById('avatarForm').submit()">
                     </form>
-
+                    
                     <div class="relative inline-block mb-3">
                         {% if profile_obj.avatar %}
-                            <img src="{{ profile_obj.avatar.url }}" class="rounded-full shadow-md w-20 h-20 object-cover border-3 border-corporate-100" alt="{{ user.username }}">
+                            <img src="{{ profile_obj.avatar.url }}" class="w-16 h-16 rounded-full object-cover border-2 border-surface-100" alt="{{ user.username }}">
                         {% else %}
-                            <div class="rounded-full flex items-center justify-center text-corporate-600 font-bold text-3xl shadow-md w-20 h-20 bg-corporate-50 border-3 border-corporate-100">
+                            <div class="w-16 h-16 rounded-full bg-corporate-50 border-2 border-surface-100 flex items-center justify-center text-corporate-600 text-2xl font-semibold">
                                 {{ user.username|first|upper }}
                             </div>
                         {% endif %}
-                        <button type="button" class="inline-flex items-center justify-center w-7 h-7 text-white bg-corporate-600 rounded-full hover:bg-corporate-700 absolute bottom-0 end-0 shadow-lg min-h-0" 
-                                onclick="document.getElementById('id_avatar').click();">
-                            <i class="bi bi-camera-fill text-xs"></i>
+                        <button type="button" class="absolute bottom-0 end-0 w-6 h-6 bg-corporate-600 text-white rounded-full hover:bg-corporate-700 flex items-center justify-center" onclick="document.getElementById('id_avatar').click();">
+                            <i class="bi bi-camera text-xs"></i>
                         </button>
                     </div>
-
-                    <h6 class="font-bold text-lg mb-0.5">
+                    
+                    <h3 class="font-semibold text-charcoal-800">
                         {% if user.get_full_name %}{{ user.get_full_name }}{% else %}{{ user.username }}{% endif %}
-                    </h6>
-                    <p class="text-charcoal-500 text-xs mb-2 truncate px-2">{{ user.email }}</p>
-
-                    <div class="inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-medium bg-green-50 text-green-700 rounded-full border border-green-200">
-                        <i class="bi bi-patch-check-fill text-sm"></i>
-                        {% trans "Verified" %}
-                    </div>
+                    </h3>
+                    <p class="text-sm text-charcoal-500">{{ user.email }}</p>
                 </div>
 
-                {# Quick Stats - Activity Dashboard Style #}
-                <div class="grid grid-cols-3 gap-2 p-3 border-b border-surface-200">
-                    <button @click.prevent="switchTab('orders')" class="flex flex-col items-center p-3 rounded-xl hover:bg-surface-50 transition-all group">
-                        <div class="w-10 h-10 rounded-full bg-corporate-50 flex items-center justify-center mb-2 group-hover:bg-corporate-100 transition-colors">
-                            <i class="bi bi-bag-check text-corporate-600 text-lg"></i>
-                        </div>
-                        <div class="font-black text-xl text-charcoal-800">{{ order_count }}</div>
-                        <div class="text-charcoal-400 text-[10px] font-semibold uppercase tracking-wider mt-0.5">{% trans "Orders" %}</div>
-                    </button>
-                    <button @click.prevent="switchTab('wishlist')" class="flex flex-col items-center p-3 rounded-xl hover:bg-surface-50 transition-all group">
-                        <div class="w-10 h-10 rounded-full bg-red-50 flex items-center justify-center mb-2 group-hover:bg-red-100 transition-colors">
-                            <i class="bi bi-heart text-red-500 text-lg"></i>
-                        </div>
-                        <div class="font-black text-xl text-charcoal-800">{{ wishlist_count }}</div>
-                        <div class="text-charcoal-400 text-[10px] font-semibold uppercase tracking-wider mt-0.5">{% trans "Wishlist" %}</div>
-                    </button>
-                    <button @click.prevent="switchTab('addresses')" class="flex flex-col items-center p-3 rounded-xl hover:bg-surface-50 transition-all group">
-                        <div class="w-10 h-10 rounded-full bg-amber-50 flex items-center justify-center mb-2 group-hover:bg-amber-100 transition-colors">
-                            <i class="bi bi-geo-alt text-amber-500 text-lg"></i>
-                        </div>
-                        <div class="font-black text-xl text-charcoal-800">{{ address_count }}</div>
-                        <div class="text-charcoal-400 text-[10px] font-semibold uppercase tracking-wider mt-0.5">{% trans "Addrs" %}</div>
-                    </button>
-                </div>
-
-                {# Nav Links - Compact #}
-                <div class="flex flex-col p-2 gap-0.5">
+                {# Nav Links #}
+                <nav class="p-2">
                     <button @click="switchTab('personal')" 
-                            class="inline-flex items-center px-3 py-2.5 text-sm text-charcoal-600 hover:bg-surface-50 rounded-lg justify-start transition-all w-full text-start rounded-s-xl"
-                            :class="activeTab === 'personal' ? 'bg-corporate-50 text-corporate-600 font-semibold border-s-2 border-corporate-600' : ''">
-                        <i class="bi bi-person-gear text-lg me-3 w-5"></i>
-                        <span>{% trans "Personal" %}</span>
+                            class="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-start transition-colors"
+                            :class="activeTab === 'personal' ? 'bg-corporate-50 text-corporate-600 font-medium' : 'text-charcoal-600 hover:bg-surface-50'">
+                        <i class="bi bi-person text-lg"></i>
+                        <span>{% trans "Personal Info" %}</span>
                     </button>
+                    
                     <button @click="switchTab('orders')" 
-                            class="inline-flex items-center px-3 py-2.5 text-sm text-charcoal-600 hover:bg-surface-50 rounded-lg justify-start transition-all w-full text-start rounded-s-xl"
-                            :class="activeTab === 'orders' ? 'bg-corporate-50 text-corporate-600 font-semibold border-s-2 border-corporate-600' : ''">
-                        <i class="bi bi-box-seam text-lg me-3 w-5"></i>
-                        <span class="flex-grow text-start">{% trans "Orders" %}</span>
+                            class="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-start transition-colors"
+                            :class="activeTab === 'orders' ? 'bg-corporate-50 text-corporate-600 font-medium' : 'text-charcoal-600 hover:bg-surface-50'">
+                        <i class="bi bi-box-seam text-lg"></i>
+                        <span>{% trans "Orders" %}</span>
                         {% if order_count > 0 %}
-                        <span class="inline-flex items-center px-1.5 py-0.5 text-[10px] font-medium bg-corporate-100 text-corporate-700 rounded-full">{{ order_count }}</span>
+                        <span class="ms-auto text-xs bg-corporate-100 text-corporate-700 px-2 py-0.5 rounded-full">{{ order_count }}</span>
                         {% endif %}
                     </button>
+                    
                     <button @click="switchTab('addresses')" 
-                            class="inline-flex items-center px-3 py-2.5 text-sm text-charcoal-600 hover:bg-surface-50 rounded-lg justify-start transition-all w-full text-start rounded-s-xl"
-                            :class="activeTab === 'addresses' ? 'bg-corporate-50 text-corporate-600 font-semibold border-s-2 border-corporate-600' : ''">
-                        <i class="bi bi-geo-alt text-lg me-3 w-5"></i>
+                            class="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-start transition-colors"
+                            :class="activeTab === 'addresses' ? 'bg-corporate-50 text-corporate-600 font-medium' : 'text-charcoal-600 hover:bg-surface-50'">
+                        <i class="bi bi-geo-alt text-lg"></i>
                         <span>{% trans "Addresses" %}</span>
                     </button>
+                    
                     <button @click="switchTab('wishlist')" 
-                            class="inline-flex items-center px-3 py-2.5 text-sm text-charcoal-600 hover:bg-surface-50 rounded-lg justify-start transition-all w-full text-start rounded-s-xl"
-                            :class="activeTab === 'wishlist' ? 'bg-corporate-50 text-corporate-600 font-semibold border-s-2 border-corporate-600' : ''">
-                        <i class="bi bi-heart text-lg me-3 w-5"></i>
-                        <span class="flex-grow text-start">{% trans "Wishlist" %}</span>
+                            class="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-start transition-colors"
+                            :class="activeTab === 'wishlist' ? 'bg-corporate-50 text-corporate-600 font-medium' : 'text-charcoal-600 hover:bg-surface-50'">
+                        <i class="bi bi-heart text-lg"></i>
+                        <span>{% trans "Wishlist" %}</span>
                         {% if wishlist_count > 0 %}
-                        <span class="inline-flex items-center px-1.5 py-0.5 text-[10px] font-medium bg-corporate-100 text-corporate-700 rounded-full">{{ wishlist_count }}</span>
+                        <span class="ms-auto text-xs bg-red-100 text-red-700 px-2 py-0.5 rounded-full">{{ wishlist_count }}</span>
                         {% endif %}
                     </button>
+                    
                     <button @click="switchTab('security')" 
-                            class="inline-flex items-center px-3 py-2.5 text-sm text-charcoal-600 hover:bg-surface-50 rounded-lg justify-start transition-all w-full text-start rounded-s-xl"
-                            :class="activeTab === 'security' ? 'bg-corporate-50 text-corporate-600 font-semibold border-s-2 border-corporate-600' : ''">
-                        <i class="bi bi-shield-lock text-lg me-3 w-5"></i>
+                            class="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-start transition-colors"
+                            :class="activeTab === 'security' ? 'bg-corporate-50 text-corporate-600 font-medium' : 'text-charcoal-600 hover:bg-surface-50'">
+                        <i class="bi bi-shield-lock text-lg"></i>
                         <span>{% trans "Security" %}</span>
                     </button>
-
-                    <div class="h-px bg-surface-200 my-1"></div>
-
+                    
+                    <div class="h-px bg-surface-100 my-2"></div>
+                    
                     <form action="{% url 'users:logout' %}" method="post" class="m-0">
                         {% csrf_token %}
-                        <button type="submit" class="inline-flex items-center px-3 py-2.5 text-sm text-red-600 hover:bg-red-50 rounded-lg justify-start w-full rounded-s-xl">
-                            <i class="bi bi-box-arrow-right text-lg me-3 w-5"></i>
+                        <button type="submit" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-start text-red-600 hover:bg-red-50 transition-colors">
+                            <i class="bi bi-box-arrow-right text-lg"></i>
                             <span>{% trans "Logout" %}</span>
                         </button>
                     </form>
-                </div>
+                </nav>
             </div>
         </div>
 
-{# Content Area #}
+        {# Content Area #}
         <div class="flex-1 min-h-[60vh] pb-24 lg:pb-0">
-             
-            {# Welcome Banner - Activity Dashboard #}
-            <div class="bg-gradient-to-r from-corporate-600 to-corporate-700 rounded-2xl p-6 mb-6 text-white relative overflow-hidden">
-                <div class="absolute end-0 top-0 w-1/2 h-full opacity-10">
-                    <svg class="w-full h-full" viewBox="0 0 200 200" fill="currentColor">
-                        <path d="M100 0C44.5 0 0 44.5 0 100s44.5 100 100 100 100-44.5 100-100S155.5 0 100 0zm0 160c-33.1 0-60-27-60-60s27-60 60-60 60 27 60 60-27 60-60 60z"/>
-                        <circle cx="100" cy="100" r="30"/>
-                        <circle cx="100" cy="40" r="15"/>
-                        <circle cx="100" cy="160" r="15"/>
-                        <circle cx="40" cy="100" r="15"/>
-                        <circle cx="160" cy="100" r="15"/>
-                    </svg>
-                </div>
-                <div class="relative">
-                    <p class="text-corporate-100 text-sm font-medium mb-1" x-text="greeting"></p>
-                    <h1 class="font-bold text-2xl mb-1">
-                        {% if user.get_full_name %}{{ user.get_full_name }}{% else %}{{ user.username }}{% endif %}
-                    </h1>
-                    <p class="text-corporate-100 text-sm">{% trans "Welcome back! Here's your activity summary." %}</p>
-                    
-                    {# Quick Stats Row #}
-                    <div class="grid grid-cols-3 gap-3 mt-5">
-                        <div class="bg-white/10 backdrop-blur rounded-xl p-3 text-center">
-                            <div class="font-black text-2xl">{{ order_count }}</div>
-                            <div class="text-xs text-corporate-100">{% trans "Orders" %}</div>
-                        </div>
-                        <div class="bg-white/10 backdrop-blur rounded-xl p-3 text-center">
-                            <div class="font-black text-2xl">{{ wishlist_count }}</div>
-                            <div class="text-xs text-corporate-100">{% trans "Wishlist" %}</div>
-                        </div>
-                        <div class="bg-white/10 backdrop-blur rounded-xl p-3 text-center">
-                            <div class="font-black text-2xl">{{ address_count }}</div>
-                            <div class="text-xs text-corporate-100">{% trans "Addresses" %}</div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            {# Breadcrumb #}
-            <nav class="text-sm mb-4 text-charcoal-500 font-medium flex items-center gap-2">
-                <a href="{% url 'home' %}" class="hover:text-corporate-600 transition-colors flex items-center gap-1">
-                    <i class="bi bi-house pt-1"></i>{% trans "Home" %}
-                </a>
-                <i class="bi bi-chevron-right text-[10px] mt-0.5"></i>
-                <span class="font-bold text-charcoal-700">{% trans "My Profile" %}</span>
-            </nav>
-
-            {# Quick Actions #}
-            <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
-                <button @click="switchTab('orders')" class="flex items-center gap-3 p-3 bg-white border border-surface-200 rounded-xl hover:border-corporate-300 hover:shadow-md transition-all text-start">
-                    <div class="w-10 h-10 rounded-lg bg-corporate-50 flex items-center justify-center">
-                        <i class="bi bi-truck text-corporate-600"></i>
-                    </div>
-                    <div>
-                        <div class="font-semibold text-sm text-charcoal-800">{% trans "Track Order" %}</div>
-                        <div class="text-xs text-charcoal-500">{% trans "View status" %}</div>
-                    </div>
-                </button>
-                <button @click="switchTab('wishlist')" class="flex items-center gap-3 p-3 bg-white border border-surface-200 rounded-xl hover:border-red-300 hover:shadow-md transition-all text-start">
-                    <div class="w-10 h-10 rounded-lg bg-red-50 flex items-center justify-center">
-                        <i class="bi bi-heart text-red-500"></i>
-                    </div>
-                    <div>
-                        <div class="font-semibold text-sm text-charcoal-800">{% trans "Wishlist" %}</div>
-                        <div class="text-xs text-charcoal-500">{{ wishlist_count }} {% trans "items" %}</div>
-                    </div>
-                </button>
-                <button @click="switchTab('addresses')" class="flex items-center gap-3 p-3 bg-white border border-surface-200 rounded-xl hover:border-amber-300 hover:shadow-md transition-all text-start">
-                    <div class="w-10 h-10 rounded-lg bg-amber-50 flex items-center justify-center">
-                        <i class="bi bi-geo-alt text-amber-600"></i>
-                    </div>
-                    <div>
-                        <div class="font-semibold text-sm text-charcoal-800">{% trans "Addresses" %}</div>
-                        <div class="text-xs text-charcoal-500">{% trans "Manage" %}</div>
-                    </div>
-                </button>
-                <a href="{% url 'products:products' %}" class="flex items-center gap-3 p-3 bg-white border border-surface-200 rounded-xl hover:border-green-300 hover:shadow-md transition-all text-start">
-                    <div class="w-10 h-10 rounded-lg bg-green-50 flex items-center justify-center">
-                        <i class="bi bi-bag-heart text-green-600"></i>
-                    </div>
-                    <div>
-                        <div class="font-semibold text-sm text-charcoal-800">{% trans "Shop Now" %}</div>
-                        <div class="text-xs text-charcoal-500">{% trans "Browse" %}</div>
-                    </div>
-                </a>
-            </div>
-             
+            
             {# Personal Tab #}
-            <div x-show="activeTab === 'personal'" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100">
+            <div x-show="activeTab === 'personal'" x-transition>
                 {% include 'users/dashboard/_personal.html' %}
             </div>
 
             {# Orders Tab #}
-            <div x-show="activeTab === 'orders'" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100">
+            <div x-show="activeTab === 'orders'" x-transition>
                 {% include 'users/dashboard/_orders.html' %}
             </div>
 
             {# Addresses Tab #}
-            <div x-show="activeTab === 'addresses'" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100">
+            <div x-show="activeTab === 'addresses'" x-transition>
                 {% include 'users/dashboard/_addresses.html' %}
             </div>
 
             {# Security Tab #}
-            <div x-show="activeTab === 'security'" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100">
+            <div x-show="activeTab === 'security'" x-transition>
                 {% include 'users/dashboard/_security.html' %}
             </div>
 
             {# Wishlist Tab #}
-            <div x-show="activeTab === 'wishlist'" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100">
+            <div x-show="activeTab === 'wishlist'" x-transition>
                 {% include 'users/dashboard/_wishlist.html' %}
             </div>
             
         </div>
     </div>
 
-    {# Mobile Bottom Navigation - Improved #}
-    <nav class="lg:hidden fixed bottom-0 start-0 end-0 bg-white border-t border-surface-200 z-40 safe-area-pb shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)]">
-        <div class="flex justify-around items-end">
+    {# Mobile Bottom Navigation #}
+    <nav class="lg:hidden fixed bottom-0 start-0 end-0 bg-white border-t border-surface-200 z-40 safe-area-pb">
+        <div class="flex justify-around">
             <button @click="switchTab('personal')" 
-                    class="flex flex-col items-center py-2.5 px-3 transition-all relative"
-                    :class="activeTab === 'personal' ? 'text-corporate-600' : 'text-charcoal-400'">
-                <div class="w-10 h-10 rounded-full flex items-center justify-center transition-colors" :class="activeTab === 'personal' ? 'bg-corporate-50' : ''">
-                    <i class="bi bi-person text-xl"></i>
-                </div>
-                <span class="text-[9px] mt-1 font-medium">{% trans "Profile" %}</span>
-                <div class="absolute -bottom-px w-8 h-0.5 bg-corporate-600 rounded-full" x-show="activeTab === 'personal'"></div>
+                    class="flex flex-col items-center py-3 px-4"
+                    :class="activeTab === 'personal' ? 'text-corporate-600' : 'text-charcoal-500'">
+                <i class="bi bi-person text-xl"></i>
+                <span class="text-xs mt-1">{% trans "Profile" %}</span>
             </button>
             
             <button @click="switchTab('orders')" 
-                    class="flex flex-col items-center py-2.5 px-3 transition-all relative"
-                    :class="activeTab === 'orders' ? 'text-corporate-600' : 'text-charcoal-400'">
-                <div class="w-10 h-10 rounded-full flex items-center justify-center transition-colors" :class="activeTab === 'orders' ? 'bg-corporate-50' : ''">
-                    <i class="bi bi-box-seam text-xl"></i>
-                </div>
-                <span class="text-[9px] mt-1 font-medium">{% trans "Orders" %}</span>
+                    class="flex flex-col items-center py-3 px-4 relative"
+                    :class="activeTab === 'orders' ? 'text-corporate-600' : 'text-charcoal-500'">
+                <i class="bi bi-box-seam text-xl"></i>
+                <span class="text-xs mt-1">{% trans "Orders" %}</span>
                 {% if order_count > 0 %}
-                <span class="absolute top-1 end-3 w-4 h-4 bg-red-500 text-white text-[7px] font-bold rounded-full flex items-center justify-center">{{ order_count }}</span>
+                <span class="absolute top-2 end-3 w-4 h-4 bg-red-500 text-white text-[8px] rounded-full flex items-center justify-center">{{ order_count }}</span>
                 {% endif %}
-                <div class="absolute -bottom-px w-8 h-0.5 bg-corporate-600 rounded-full" x-show="activeTab === 'orders'"></div>
             </button>
             
             <button @click="switchTab('addresses')" 
-                    class="flex flex-col items-center py-2.5 px-3 transition-all relative"
-                    :class="activeTab === 'addresses' ? 'text-corporate-600' : 'text-charcoal-400'">
-                <div class="w-10 h-10 rounded-full flex items-center justify-center transition-colors" :class="activeTab === 'addresses' ? 'bg-corporate-50' : ''">
-                    <i class="bi bi-geo-alt text-xl"></i>
-                </div>
-                <span class="text-[9px] mt-1 font-medium">{% trans "Address" %}</span>
-                <div class="absolute -bottom-px w-8 h-0.5 bg-corporate-600 rounded-full" x-show="activeTab === 'addresses'"></div>
+                    class="flex flex-col items-center py-3 px-4"
+                    :class="activeTab === 'addresses' ? 'text-corporate-600' : 'text-charcoal-500'">
+                <i class="bi bi-geo-alt text-xl"></i>
+                <span class="text-xs mt-1">{% trans "Address" %}</span>
             </button>
             
             <button @click="switchTab('wishlist')" 
-                    class="flex flex-col items-center py-2.5 px-3 transition-all relative"
-                    :class="activeTab === 'wishlist' ? 'text-red-500' : 'text-charcoal-400'">
-                <div class="w-10 h-10 rounded-full flex items-center justify-center transition-colors" :class="activeTab === 'wishlist' ? 'bg-red-50' : ''">
-                    <i class="bi bi-heart text-xl"></i>
-                </div>
-                <span class="text-[9px] mt-1 font-medium">{% trans "Wishlist" %}</span>
-                <div class="absolute -bottom-px w-8 h-0.5 bg-red-500 rounded-full" x-show="activeTab === 'wishlist'"></div>
+                    class="flex flex-col items-center py-3 px-4"
+                    :class="activeTab === 'wishlist' ? 'text-corporate-600' : 'text-charcoal-500'">
+                <i class="bi bi-heart text-xl"></i>
+                <span class="text-xs mt-1">{% trans "Wishlist" %}</span>
             </button>
             
             <button @click="switchTab('security')" 
-                    class="flex flex-col items-center py-2.5 px-3 transition-all relative"
-                    :class="activeTab === 'security' ? 'text-corporate-600' : 'text-charcoal-400'">
-                <div class="w-10 h-10 rounded-full flex items-center justify-center transition-colors" :class="activeTab === 'security' ? 'bg-corporate-50' : ''">
-                    <i class="bi bi-shield-lock text-xl"></i>
-                </div>
-                <span class="text-[9px] mt-1 font-medium">{% trans "Security" %}</span>
-                <div class="absolute -bottom-px w-8 h-0.5 bg-corporate-600 rounded-full" x-show="activeTab === 'security'"></div>
+                    class="flex flex-col items-center py-3 px-4"
+                    :class="activeTab === 'security' ? 'text-corporate-600' : 'text-charcoal-500'">
+                <i class="bi bi-shield-lock text-xl"></i>
+                <span class="text-xs mt-1">{% trans "Security" %}</span>
             </button>
         </div>
     </nav>
@@ -372,10 +252,8 @@
          class="fixed inset-0 z-50"
          style="display: none;">
         
-        {# Backdrop #}
-        <div @click="closeOrderDrawer()" class="absolute inset-0 bg-black/50 backdrop-blur-sm"></div>
+        <div @click="closeOrderDrawer()" class="absolute inset-0 bg-black/50"></div>
         
-        {# Drawer #}
         <div x-show="orderDrawer !== null"
              x-transition:enter="transition ease-out duration-300"
              x-transition:enter-start="translate-x-full"
@@ -383,25 +261,19 @@
              x-transition:leave="transition ease-in duration-200"
              x-transition:leave-start="translate-x-0"
              x-transition:leave-end="translate-x-full"
-             class="absolute end-0 top-0 bottom-0 w-full max-w-xl bg-white shadow-2xl overflow-y-auto">
+             class="absolute end-0 top-0 bottom-0 w-full max-w-md bg-white shadow-xl overflow-y-auto">
             
-            {# Loading State #}
-            <div x-show="orderDetailLoading" class="flex items-center justify-center h-full min-h-[50vh]">
-                <div class="text-center">
-                    <i class="bi bi-arrow-repeat animate-spin text-4xl text-corporate-600"></i>
-                    <p class="text-charcoal-500 mt-2">{% trans "Loading..." %}</p>
-                </div>
+            <div x-show="orderDetailLoading" class="flex items-center justify-center h-64">
+                <i class="bi bi-arrow-repeat animate-spin text-2xl text-corporate-600"></i>
             </div>
             
-            {# Order Content #}
             <div x-show="!orderDetailLoading && orderDetailContent" x-html="orderDetailContent"></div>
-            
         </div>
     </div>
 
     {# Address Modal #}
     <div x-show="addressModal !== null"
-         x-transition:enter="transition ease-out duration-300"
+         x-transition:enter="transition ease-out duration-200"
          x-transition:enter-start="opacity-0"
          x-transition:enter-end="opacity-100"
          x-transition:leave="transition ease-in duration-200"
@@ -415,30 +287,23 @@
         
         <div @click.stop
              x-show="addressModal !== null"
-             x-transition:enter="transition ease-out duration-300"
-             x-transition:enter-start="opacity-0 scale-95"
-             x-transition:enter-end="opacity-100 scale-100"
-             x-transition:leave="transition ease-in duration-200"
-             x-transition:leave-start="opacity-100 scale-100"
-             x-transition:leave-end="opacity-0 scale-95"
-             class="bg-white rounded-2xl max-w-lg w-full max-h-[90vh] overflow-y-auto shadow-2xl">
+             x-transition
+             class="bg-white rounded-xl w-full max-w-md max-h-[90vh] overflow-y-auto">
             
-            {# Modal Header #}
-            <div class="sticky top-0 bg-surface-50 border-b border-surface-200 flex items-center justify-between p-4 z-10">
-                <h3 class="font-bold text-lg" x-text="addressModal === null ? '' : addressModal === 'new' ? '{% trans "Add Address" %}' : '{% trans "Edit Address" %}'"></h3>
-                <button @click="closeAddressModal()" class="p-2 hover:bg-surface-100 rounded-lg transition-colors">
+            <div class="border-b border-surface-200 p-4 flex items-center justify-between">
+                <h3 class="font-semibold" x-text="addressModal === null ? '' : addressModal === 'new' ? '{% trans "Add Address" %}' : '{% trans "Edit Address" %}'"></h3>
+                <button @click="closeAddressModal()" class="text-charcoal-400 hover:text-charcoal-600">
                     <i class="bi bi-x-lg"></i>
                 </button>
             </div>
             
-            {# Modal Content - Loaded via HTMX #}
-            <div class="p-6"
+            <div class="p-4"
                  hx-get="{% url 'users:address_form_partial' %}"
                  :hx-vals="addressModal !== null ? `{'id': ${addressModal === 'new' ? 'null' : addressModal}}` : '{}'"
                  hx-trigger="addressModal from:window"
                  hx-swap="innerHTML">
                 
-                <div class="flex items-center justify-center py-8">
+                <div class="flex justify-center py-8">
                     <i class="bi bi-arrow-repeat animate-spin text-2xl text-corporate-600"></i>
                 </div>
             </div>
