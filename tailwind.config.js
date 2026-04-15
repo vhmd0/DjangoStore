@@ -45,13 +45,6 @@ module.exports = {
           950: "#1b1c1e",
         },
       },
-      fontSize: {
-        base: ["1.125rem", { lineHeight: "1.75" }],
-        lg: ["1.375rem", { lineHeight: "1.75" }],
-        xl: ["1.5rem", { lineHeight: "1.75" }],
-        "2xl": ["1.75rem", { lineHeight: "1.75" }],
-        "3xl": ["2rem", { lineHeight: "1.75" }],
-      },
     },
   },
   plugins: [require("flowbite/plugin")],
