@@ -1954,10 +1954,6 @@ input:checked + .toggle-bg {
   touch-action: manipulation;
 }
 
-.resize-none {
-  resize: none;
-}
-
 .resize-y {
   resize: vertical;
 }
