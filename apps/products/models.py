@@ -65,6 +65,26 @@ class Tag(models.Model):
         return self.name
 
 
+class Supplier(models.Model):
+    name = models.CharField(max_length=255)
+    name_ar = models.CharField(max_length=255, blank=True, verbose_name="Name (Arabic)")
+    logo = models.ImageField(upload_to="suppliers/", blank=True, null=True)
+    shipping_time = models.CharField(max_length=50, help_text="e.g., '3‑5 days'")
+    shipping_cost = models.DecimalField(max_digits=6, decimal_places=2, default=0)
+    contact_email = models.EmailField(blank=True)
+
+    class Meta:
+        verbose_name_plural = "Suppliers"
+
+    def __str__(self):
+        return self.name
+
+    def get_name(self):
+        if translation.get_language() == "ar" and self.name_ar:
+            return self.name_ar
+        return self.name
+
+
 class Product(models.Model):
     name = models.CharField(max_length=255)
     name_ar = models.CharField(max_length=255, blank=True, verbose_name="Name (Arabic)")
@@ -88,6 +108,10 @@ class Product(models.Model):
     )
     brand = models.ForeignKey(Brand, on_delete=models.CASCADE, related_name="products")
     tags = models.ManyToManyField(Tag, related_name="products", blank=True)
+    # Drop‑shipping supplier
+    supplier = models.ForeignKey(
+        Supplier, on_delete=models.SET_NULL, null=True, blank=True, related_name="products"
+    )
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -119,6 +143,12 @@ class Product(models.Model):
     @property
     def current_price(self):
         return self.discount_price if self.discount_price else self.price
+
+    @property
+    def get_image_url(self):
+        if self.img:
+            return self.img.url
+        return self.img_link if self.img_link else ""
 
     @property
     def on_sale(self):
