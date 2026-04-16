@@ -144,12 +144,12 @@
   <div class="flex items-end justify-between mb-6">
     <div>
       <span class="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-bold text-white bg-red-600 rounded-md mb-2">
-        <i class="bi bi-lightning-fill"></i> {% trans "Flash Sale" %}
+        <i class="bi bi-lightning-fill"></i> {% if request.LANGUAGE_CODE == 'ar' %}عروض لفترة محدودة{% else %}{% trans "Flash Sale" %}{% endif %}
       </span>
-      <h2 class="font-bold text-2xl lg:text-3xl tracking-tight text-charcoal-900">{% trans "Exclusive Offers" %}</h2>
+      <h2 class="font-bold text-2xl lg:text-3xl tracking-tight text-charcoal-900">{% if request.LANGUAGE_CODE == 'ar' %}عروض حصرية{% else %}{% trans "Exclusive Offers" %}{% endif %}</h2>
     </div>
     <a href="{% url 'products:products' %}?on_sale=true" class="inline-flex items-center text-sm font-semibold text-red-600 hover:text-red-700 transition-colors">
-      {% trans "View all offers" %} <i class="bi bi-arrow-left ms-1 rtl:rotate-180"></i>
+      {% if request.LANGUAGE_CODE == 'ar' %}مشاهدة الكل{% else %}{% trans "View all offers" %}{% endif %} <i class="bi bi-arrow-left ms-1 rtl:rotate-180"></i>
     </a>
   </div>
 
@@ -163,18 +163,17 @@
 
 
 {# Categories Grid #}
-{% cache 3600 home_categories request.LANGUAGE_CODE categories.0.id %}
 {% if categories %}
 <section class="mb-16">
   <div class="flex items-end justify-between mb-6">
     <div>
       <span class="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-bold text-corporate-600 bg-corporate-50 rounded-md mb-2">
-        <i class="bi bi-grid-3x3-gap-fill"></i> {% trans "Browse" %}
+        <i class="bi bi-grid-3x3-gap-fill"></i> {% if request.LANGUAGE_CODE == 'ar' %}تصفح{% else %}{% trans "Browse" %}{% endif %}
       </span>
-      <h2 class="font-bold text-2xl lg:text-3xl tracking-tight text-charcoal-900">{% trans "Shop by category" %}</h2>
+      <h2 class="font-bold text-2xl lg:text-3xl tracking-tight text-charcoal-900">{% if request.LANGUAGE_CODE == 'ar' %}تسوق حسب الفئات{% else %}{% trans "Shop by category" %}{% endif %}</h2>
     </div>
     <a href="{% url 'categories:categories' %}" class="inline-flex items-center text-sm font-semibold text-corporate-600 hover:text-corporate-700 transition-colors">
-      {% trans "View all" %} <i class="bi bi-arrow-left ms-1 rtl:rotate-180"></i>
+      {% if request.LANGUAGE_CODE == 'ar' %}عرض الكل{% else %}{% trans "View all" %}{% endif %} <i class="bi bi-arrow-left ms-1 rtl:rotate-180"></i>
     </a>
   </div>
 
@@ -201,7 +200,6 @@
   </div>
 </section>
 {% endif %}
-{% endcache %}
 
 
 {# Featured Products #}
@@ -210,12 +208,12 @@
   <div class="flex items-end justify-between mb-6">
     <div>
       <span class="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-bold text-corporate-600 bg-corporate-50 rounded-md mb-2">
-        <i class="bi bi-stars"></i> {% trans "Hand-picked for you" %}
+        <i class="bi bi-stars"></i> {% if request.LANGUAGE_CODE == 'ar' %}مختاراتنا لك{% else %}{% trans "Hand-picked for you" %}{% endif %}
       </span>
-      <h2 class="font-bold text-2xl lg:text-3xl tracking-tight text-charcoal-900">{% trans "Featured products" %}</h2>
+      <h2 class="font-bold text-2xl lg:text-3xl tracking-tight text-charcoal-900">{% if request.LANGUAGE_CODE == 'ar' %}منتجات مختارة{% else %}{% trans "Featured products" %}{% endif %}</h2>
     </div>
     <a href="{% url 'products:products' %}" class="inline-flex items-center text-sm font-semibold text-corporate-600 hover:text-corporate-700 transition-colors">
-      {% trans "View all" %} <i class="bi bi-arrow-left ms-1 rtl:rotate-180"></i>
+      {% if request.LANGUAGE_CODE == 'ar' %}عرض الكل{% else %}{% trans "View all" %}{% endif %} <i class="bi bi-arrow-left ms-1 rtl:rotate-180"></i>
     </a>
   </div>
 
@@ -234,12 +232,12 @@
   <div class="flex items-end justify-between mb-6">
     <div>
       <span class="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-bold text-red-600 bg-red-50 rounded-md mb-2">
-        <i class="bi bi-heart-fill"></i> {% trans "Trending" %}
+        <i class="bi bi-heart-fill"></i> {% if request.LANGUAGE_CODE == 'ar' %}الأكثر رواجاً{% else %}{% trans "Trending" %}{% endif %}
       </span>
-      <h2 class="font-bold text-2xl lg:text-3xl tracking-tight text-charcoal-900">{% trans "Most liked products" %}</h2>
+      <h2 class="font-bold text-2xl lg:text-3xl tracking-tight text-charcoal-900">{% if request.LANGUAGE_CODE == 'ar' %}الأكثر إعجاباً{% else %}{% trans "Most liked products" %}{% endif %}</h2>
     </div>
     <a href="{% url 'products:wishlist_list' %}" class="inline-flex items-center text-sm font-semibold text-corporate-600 hover:text-corporate-700 transition-colors">
-      {% trans "My wishlist" %} <i class="bi bi-arrow-left ms-1 rtl:rotate-180"></i>
+      {% if request.LANGUAGE_CODE == 'ar' %}قائمة رغباتي{% else %}{% trans "My wishlist" %}{% endif %} <i class="bi bi-arrow-left ms-1 rtl:rotate-180"></i>
     </a>
   </div>
 
@@ -261,8 +259,8 @@
     </div>
     <div class="relative grid lg:grid-cols-2 gap-8 p-8 md:p-12 items-center">
       <div class="text-center lg:text-start rtl:lg:text-right">
-        <h2 class="text-3xl font-bold text-white mb-2">{% trans "Stay in the loop" %}</h2>
-        <p class="text-corporate-100">{% trans "Join 10,000+ tech enthusiasts for exclusive deals and new arrivals." %}</p>
+        <h2 class="text-3xl font-bold text-white mb-2">{% if request.LANGUAGE_CODE == 'ar' %}كن على اطلاع{% else %}{% trans "Stay in the loop" %}{% endif %}</h2>
+        <p class="text-corporate-100">{% if request.LANGUAGE_CODE == 'ar' %}انضم لأكثر من 10,000 من عشاق التقنية للحصول على عروض حصرية.{% else %}{% trans "Join 10,000+ tech enthusiasts for exclusive deals and new arrivals." %}{% endif %}</p>
       </div>
       <form class="flex flex-col sm:flex-row gap-3" onsubmit="return false;" x-data="{ subscribed: false }">
         <template x-if="!subscribed">

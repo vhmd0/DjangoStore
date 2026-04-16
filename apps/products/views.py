@@ -138,7 +138,7 @@ async def product_list(request):
     brands = await sync_to_async(get_brands)()
 
     # Annotate wishlist status
-    annotate_wishlist(request.user, page_obj.object_list)
+    await sync_to_async(annotate_wishlist)(request.user, page_obj.object_list)
 
     context = {
         "page_obj": page_obj,
