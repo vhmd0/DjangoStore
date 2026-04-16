@@ -52,6 +52,17 @@
           );
         }
       });
+
+      // SPA: Sync <html lang> and dir after every HTMX navigation
+      document.body.addEventListener("htmx:afterSettle", function () {
+        const path = window.location.pathname;
+        const isArabic = path.startsWith("/ar");
+        document.documentElement.lang = isArabic ? "ar" : "en";
+        document.documentElement.dir = isArabic ? "rtl" : "ltr";
+        document.body.classList.toggle("text-lg", isArabic);
+        document.body.classList.toggle("leading-relaxed", isArabic);
+        document.body.classList.toggle("text-base", !isArabic);
+      });
     </script>
     <link rel="stylesheet" href="{% static 'css/tailwind.css' %}" />
     <link rel="stylesheet" href="{% static 'css/style.css' %}" />

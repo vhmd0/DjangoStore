@@ -98,3 +98,24 @@
 </div>
 
 {% endblock %}
+
+{% block extra_js %}
+<script>
+  // Sync the Alpine cart store with the now-empty server cart
+  document.addEventListener("alpine:init", () => {
+    Alpine.nextTick(() => {
+      if (window.Alpine && Alpine.store("cart")) {
+        Alpine.store("cart").refresh();
+      }
+    });
+  });
+  // Also handle case where Alpine is already initialized (HTMX navigation)
+  document.addEventListener("DOMContentLoaded", () => {
+    setTimeout(() => {
+      if (window.Alpine && Alpine.store("cart")) {
+        Alpine.store("cart").refresh();
+      }
+    }, 100);
+  });
+</script>
+{% endblock %}

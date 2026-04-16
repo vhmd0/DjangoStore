@@ -15,13 +15,8 @@ from orders.models import (
 
 def get_cart(request):
     """Get cart from session."""
-    return request.session.get("cart", {})
-
-
-def save_cart(request, cart):
-    """Save cart to session."""
-    request.session["cart"] = cart
-    request.session.modified = True
+    from cart.views import get_cart as cart_get_cart
+    return cart_get_cart(request)
 
 
 def get_cart_products(request):
@@ -188,8 +183,13 @@ def create_order(request):
                 ]
             )
 
-            # Clear the cart
-            save_cart(request, {})
+            # Clear the cart (both DB and session)
+            from cart.views import save_cart as cart_save_cart
+            cart_save_cart(request, {})
+            # Also directly clear DB cart items as a safety net
+            if request.user.is_authenticated:
+                from cart.models import Cart
+                Cart.objects.filter(user=request.user).delete()
 
             # Clear checkout data from session
             if "checkout_data" in request.session:

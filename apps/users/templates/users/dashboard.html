@@ -363,7 +363,7 @@
             <div class="p-4"
                  hx-get="{% url 'users:address_form_partial' %}"
                  :hx-vals="addressModal !== null ? `{'id': ${addressModal === 'new' ? 'null' : addressModal}}` : '{}'"
-                 hx-trigger="addressModal from:window"
+                 hx-trigger="open-address-modal from:window"
                  hx-swap="innerHTML">
                 
                 <div class="flex justify-center py-8">

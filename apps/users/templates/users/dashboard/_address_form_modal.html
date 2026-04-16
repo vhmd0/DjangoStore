@@ -3,15 +3,15 @@
 <div id="address-form-container">
     <form method="post" 
           hx-post="{% if address_id %}{% url 'users:address_edit' address_id %}{% else %}{% url 'users:address_add' %}{% endif %}"
-          hx-target="#address-form-container"
+          hx-target="#addresses-container"
           hx-swap="innerHTML"
           x-data="{ submitting: false }"
+          @submit="submitting = true"
           @htmx:after-request="submitting = false"
           @htmx:after-on-load="
             if(event.detail.successful) { 
                 Alpine.store('toast').show('{% trans "Address saved successfully!" %}', 'success');
                 $dispatch('close-address-modal');
-                $dispatch('refresh-addresses');
             }
           ">
         {% csrf_token %}

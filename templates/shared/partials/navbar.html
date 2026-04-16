@@ -139,7 +139,6 @@
           {% if request.LANGUAGE_CODE == 'ar' %}
           <a
             href="{% url 'set_language_custom' %}?language=en&next={{ request.path|urlencode }}"
-            hx-boost="false"
             class="p-2 text-charcoal-700 hover:text-corporate-600 hover:bg-surface-50 rounded-full transition-all duration-300 group flex items-center gap-1"
             title="Switch to English"
           >
@@ -149,7 +148,6 @@
           {% else %}
           <a
             href="{% url 'set_language_custom' %}?language=ar&next={{ request.path|urlencode }}"
-            hx-boost="false"
             class="p-2 text-charcoal-700 hover:text-corporate-600 hover:bg-surface-50 rounded-full transition-all duration-300 group flex items-center gap-1"
             title="تحويل للعربية"
           >
