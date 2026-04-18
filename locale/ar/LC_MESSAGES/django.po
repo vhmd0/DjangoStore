@@ -703,3 +703,12 @@ msgstr "التأكيد"
 
 msgid "Your order is protected by 256-bit SSL encryption."
 msgstr "طلبك محمي بتشفير 256 بت SSL."
+
+msgid "Premium Tech, Delivered"
+msgstr "تكنولوجيا متطورة، بين يديك"
+
+msgid "Discover the latest laptops, smartphones, and accessories at unbeatable prices."
+msgstr "اكتشف أحدث أجهزة笔记本电脑 والهواتف الذكية والإكسسوارات بأسعار لا تقبل المنافسة."
+
+msgid "Shop now"
+msgstr "تسوق الآن"

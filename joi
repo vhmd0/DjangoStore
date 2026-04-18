@@ -1,8 +1,13 @@
 #!/usr/bin/env bash
 # =============================================================================
-# joi - Project Development Tool
+# joi - Project Development Tool (Optimized)
 # =============================================================================
 set -euo pipefail
+
+# Disable color output if not in terminal
+if [[ ! -t 1 ]]; then
+  NO_COLOR=1
+fi
 
 # =============================================================================
 # Auto-install completion (if running as root or with sudo)
@@ -26,15 +31,9 @@ _joi() {
     fi
 
     case "${words[1]}" in
-        server)
-            COMPREPLY=($(compgen -W "${options} --port" -- "${cur}"))
-            ;;
-        seed)
-            COMPREPLY=($(compgen -W "${options} --clear" -- "${cur}"))
-            ;;
-        setup)
-            COMPREPLY=($(compgen -W "${options} --seed --no-seed --admin --no-admin --skip-migrations" -- "${cur}"))
-            ;;
+        server) COMPREPLY=($(compgen -W "${options} --port" -- "${cur}")) ;;
+        seed) COMPREPLY=($(compgen -W "${options} --clear" -- "${cur}")) ;;
+        setup) COMPREPLY=($(compgen -W "${options} --seed --no-seed --admin --no-admin --skip-migrations" -- "${cur}")) ;;
     esac
 }
 
@@ -79,68 +78,28 @@ is_project_dir() {
 }
 
 # =============================================================================
-# Color support (auto-detect + --no-color flag)
+# Color support
 # =============================================================================
-JOI_NO_COLOR="${JOI_NO_COLOR:-}"
-if [[ -t 1 ]] && [[ -z "${JOI_NO_COLOR}" ]] && [[ "${TERM:-}" != "dumb" ]]; then
-  C_RESET='\033[0m'
-  C_BOLD='\033[1m'
-  C_RED='\033[31m'
-  C_GREEN='\033[32m'
-  C_YELLOW='\033[33m'
-  C_BLUE='\033[34m'
-  C_MAGENTA='\033[35m'
-  C_CYAN='\033[36m'
-  C_WHITE='\033[37m'
-  C_DIM='\033[2m'
-  C_BRIGHT_GREEN='\033[1;32m'
-  C_BRIGHT_CYAN='\033[1;36m'
-  C_BRIGHT_YELLOW='\033[1;33m'
+if [[ "${NO_COLOR:-}" == "1" ]]; then
+  BOLD="" CYAN="" GREEN="" YELLOW="" RED="" DIM="" RESET=""
 else
-  C_RESET='' C_BOLD='' C_RED='' C_GREEN='' C_YELLOW='' C_BLUE=''
-  C_MAGENTA='' C_CYAN='' C_WHITE='' C_DIM='' C_BRIGHT_GREEN=''
-  C_BRIGHT_CYAN='' C_BRIGHT_YELLOW=''
-fi
-
-# Symbols (ASCII-safe for cross-platform compatibility)
-if [[ "${JOI_FORCE_UTF8:-}" == "1" ]] && [[ -n "${TERM}" ]]; then
-  S_SUCCESS="✓"
-  S_ERROR="✗"
-  S_WARN="⚠"
-  S_INFO="ℹ"
-  S_ARROW="→"
-  S_DOTS="…"
-  S_CHECK="✓"
-  S_CROSS="✗"
-  S_BULLET="●"
-  S_CIRCLE="○"
-  S_POINTER="▸"
-else
-  S_SUCCESS="√"
-  S_ERROR="x"
-  S_WARN="!"
-  S_INFO="i"
-  S_ARROW="->"
-  S_DOTS="..."
-  S_CHECK="+"
-  S_CROSS="x"
-  S_BULLET="*"
-  S_CIRCLE="o"
-  S_POINTER=">"
+  BOLD=$(tput bold 2>/dev/null || echo "")
+  CYAN=$(tput setaf 6 2>/dev/null || echo "")
+  GREEN=$(tput setaf 2 2>/dev/null || echo "")
+  YELLOW=$(tput setaf 3 2>/dev/null || echo "")
+  RED=$(tput setaf 1 2>/dev/null || echo "")
+  DIM=$(tput dim 2>/dev/null || echo "")
+  RESET=$(tput sgr0 2>/dev/null || echo "")
 fi
 
 # =============================================================================
 # Timing utilities
 # =============================================================================
 _start_time=0
-
-start_timer() {
-  _start_time=$(date +%s%3N)
-}
+start_timer() { _start_time=$(date +%s%3N); }
 
 get_elapsed() {
-  local end_time
-  end_time=$(date +%s%3N)
+  local end_time=$(date +%s%3N)
   local elapsed=$((end_time - _start_time))
   
   if [[ ${elapsed} -lt 1000 ]]; then
@@ -159,94 +118,51 @@ get_elapsed() {
 }
 
 # =============================================================================
-# Modern logging functions
+# Logging functions
 # =============================================================================
-log_success() {
-  if [[ "${JOI_QUIET}" != "1" ]]; then
-    echo -e "${C_GREEN}${S_SUCCESS}${C_RESET} $*"
-  fi
-}
-
-log_info() {
-  if [[ "${JOI_QUIET}" != "1" ]]; then
-    echo -e "${C_CYAN}${S_INFO}${C_RESET} $*"
-  fi
-}
-
-log_warn() {
-  if [[ "${JOI_QUIET}" != "1" ]]; then
-    echo -e "${C_YELLOW}${S_WARN}${C_RESET} $*"
-  fi
-}
-
-log_error() {
-  echo -e "${C_RED}${S_ERROR}${C_RESET} $*" >&2
-}
-
-log_dim() {
-  if [[ "${JOI_QUIET}" != "1" ]]; then
-    echo -e "${C_DIM}$*${C_RESET}"
-  fi
-}
-
-log_step() {
-  if [[ "${JOI_QUIET}" != "1" ]]; then
-    echo ""
-    echo -e "${C_BRIGHT_CYAN}${S_POINTER}${C_RESET} ${C_BOLD}$1${C_RESET}"
-  fi
-}
-
-log_item() {
-  if [[ "${JOI_QUIET}" != "1" ]]; then
-    echo -e "  ${C_DIM}${S_BULLET}${C_RESET} $*"
-  fi
-}
+log_success() { echo "${GREEN}✓${RESET} $*"; }
+log_info()    { echo "${CYAN}i${RESET} $*"; }
+log_warn()    { echo "${YELLOW}!${RESET} $*"; }
+log_error()   { echo "${RED}✗${RESET} $*" >&2; }
 
 log_header() {
-  if [[ "${JOI_QUIET}" != "1" ]]; then
-    echo ""
-    echo -e "${C_BRIGHT_CYAN}"
-    cat << 'LOGO'
-     _       _ 
-    (_) ___ (_)
-    | |/ _ \| |
-    | | (_) | |
-   _/ |\___/|_|
-  |__/          
-LOGO
-    echo -e "${C_RESET}"
-    echo -e "  ${C_DIM}v${JOI_VERSION} - Project Development Tool${C_RESET}"
-  fi
+  echo ""
+  echo "${CYAN}     _       _ ${RESET}"
+  echo "${CYAN}    (_) ___ (_)${RESET}"
+  echo "${CYAN}    | |/ _ \\| |${RESET}"
+  echo "${CYAN}    | | (_) | |${RESET}"
+  echo "${CYAN}   _/ |\\___/|_|${RESET}"
+  echo "${CYAN}  |__/          ${RESET}"
+  echo ""
+  echo "  ${DIM}v${JOI_VERSION} - Project Development Tool${RESET}"
+  echo ""
 }
+
+log_step()    { echo ""; echo "${CYAN}>${RESET} ${BOLD}$1${RESET}"; }
+log_item()    { echo "  ${DIM}*${RESET} $*"; }
+log_dim()     { echo "${DIM}$*${RESET}"; }
 
 # =============================================================================
 # Progress indicator
 # =============================================================================
 show_progress() {
-  local msg="$1"
-  shift
+  local msg="$1"; shift
   
-  if [[ "${JOI_QUIET}" == "1" ]]; then
-    "$@" >/dev/null 2>&1
-    return $?
-  fi
-  
+  if [[ "${JOI_QUIET}" == "1" ]]; then "$@" >/dev/null 2>&1; return $?; fi
   if [[ "${JOI_VERBOSE}" == "1" ]]; then
-    echo -e "${C_DIM}${S_DOTS}${C_RESET} ${msg}"
+    echo -e "${DIM}....${RESET} ${msg}"
     "$@"
     return $?
   fi
 
-  local pid
   "$@" >/dev/null 2>&1 &
-  pid=$!
-
+  local pid=$!
   local frames=('⠋' '⠙' '⠹' '⠸' '⠼' '⠴' '⠦' '⠧' '⠇' '⠏')
   local i=0
-  echo -ne "${C_CYAN}${frames[0]}${C_RESET} ${msg}"
+  echo -ne "${CYAN}${frames[0]}${RESET} ${msg}"
   
   while kill -0 "$pid" 2>/dev/null; do
-    echo -ne "\r${C_CYAN}${frames[i]}${C_RESET} ${msg}"
+    echo -ne "\r${CYAN}${frames[i]}${RESET} ${msg}"
     i=$(((i + 1) % ${#frames[@]}))
     sleep 0.08
   done
@@ -263,18 +179,15 @@ confirm() {
   local prompt="$1"
   local default="${2:-n}"
 
-  if [[ "${JOI_YES}" == "1" ]]; then
-    return 0
-  fi
+  if [[ "${JOI_YES}" == "1" ]]; then return 0; fi
 
   local yn_hint="y/n"
   [[ "${default}" == "y" ]] && yn_hint="Y/n"
   [[ "${default}" == "n" ]] && yn_hint="y/N"
 
-  echo -ne "${C_YELLOW}?${C_RESET} ${prompt} ${C_DIM}(${yn_hint})${C_RESET} "
+  echo -ne "${YELLOW}?${RESET} ${prompt} ${DIM}(${yn_hint})${RESET} "
   read -r answer
   answer="${answer:-${default}}"
-
   [[ "${answer}" =~ ^[Yy]$ ]]
 }
 
@@ -283,8 +196,7 @@ confirm() {
 # =============================================================================
 acquire_lock() {
   if [[ -f "${JOI_LOCK_FILE}" ]]; then
-    local pid
-    pid=$(cat "${JOI_LOCK_FILE}" 2>/dev/null || echo "")
+    local pid=$(cat "${JOI_LOCK_FILE}" 2>/dev/null || echo "")
     if [[ -n "${pid}" ]] && kill -0 "${pid}" 2>/dev/null; then
       log_error "Another instance is running (PID ${pid})"
       log_dim "  If stuck, delete ${JOI_LOCK_FILE}"
@@ -295,20 +207,14 @@ acquire_lock() {
   echo $$ >"${JOI_LOCK_FILE}"
 }
 
-release_lock() {
-  rm -f "${JOI_LOCK_FILE}" 2>/dev/null || true
-}
+release_lock() { rm -f "${JOI_LOCK_FILE}" 2>/dev/null || true; }
 
 cleanup() {
   local exit_code=$?
   release_lock
-  if [[ ${exit_code} -eq 130 ]]; then
-    echo ""
-    log_warn "Interrupted"
-  fi
+  if [[ ${exit_code} -eq 130 ]]; then echo ""; log_warn "Interrupted"; fi
   exit "${exit_code}"
 }
-
 trap cleanup EXIT INT TERM
 
 # =============================================================================
@@ -326,15 +232,14 @@ load_config() {
       key=$(echo "${key}" | xargs)
       value=$(echo "${value}" | xargs | sed 's/^["'\'']\(.*\)["'\'']$/\1/')
       case "${key}" in
-      SEED_DATA) JOI_SEED_DATA="${JOI_SEED_DATA:-${value}}" ;;
-      CREATE_ADMIN) JOI_CREATE_ADMIN="${JOI_CREATE_ADMIN:-${value}}" ;;
-      PORT) JOI_PORT="${JOI_PORT:-${value}}" ;;
-      PYTHON) JOI_PYTHON="${JOI_PYTHON:-${value}}" ;;
+        SEED_DATA) JOI_SEED_DATA="${JOI_SEED_DATA:-${value}}" ;;
+        CREATE_ADMIN) JOI_CREATE_ADMIN="${JOI_CREATE_ADMIN:-${value}}" ;;
+        PORT) JOI_PORT="${JOI_PORT:-${value}}" ;;
+        PYTHON) JOI_PYTHON="${JOI_PYTHON:-${value}}" ;;
       esac
     done <"${JOI_ENV_FILE}"
   fi
 
-  # Apply defaults
   JOI_SEED_DATA="${JOI_SEED_DATA:-y}"
   JOI_CREATE_ADMIN="${JOI_CREATE_ADMIN:-n}"
   JOI_PORT="${JOI_PORT:-8000}"
@@ -345,10 +250,9 @@ load_config() {
 # =============================================================================
 setup_uv_env() {
   if [[ "$(uname -s)" == "Linux" ]]; then
-    # Detect if we are on a mounted drive (WSL or Linux mount)
     if [[ "${JOI_ROOT}" == /mnt/* || "${JOI_ROOT}" == /media/* ]]; then
       if [[ -z "${UV_LINK_MODE:-}" ]]; then
-        log_dim "  ${S_BULLET} Detected Linux on mounted drive, setting UV_LINK_MODE=copy"
+        log_dim "  * Detected Linux on mounted drive, setting UV_LINK_MODE=copy"
         export UV_LINK_MODE=copy
       fi
     fi
@@ -369,7 +273,7 @@ check_uv() {
       fi
     else
       log_error "uv is required"
-      log_dim "  Install: ${C_CYAN}https://docs.astral.sh/uv/${C_RESET}"
+      log_dim "  Install: ${CYAN}https://docs.astral.sh/uv/${RESET}"
       return 1
     fi
   fi
@@ -418,31 +322,57 @@ get_python() {
   fi
 }
 
+# Private helper to install dependencies
+_install_deps() {
+  log_step "Package manager"
+  check_uv || return $?
+  setup_uv_env
+  check_venv || return $?
+
+  # Clean up Windows-created venv artifacts on Unix (skip on Windows)
+  if [[ "$OSTYPE" != "msys" && "$OSTYPE" != "cygwin" ]]; then
+    [[ -L "${JOI_ROOT}/.venv/lib64" ]] && rm -f "${JOI_ROOT}/.venv/lib64"
+  fi
+  
+  log_step "Dependencies"
+  start_timer
+  if show_progress "Running uv sync" uv sync; then
+    local elapsed=$(get_elapsed)
+    local python; python=$(get_python)
+    local count
+    if command -v uv &>/dev/null; then
+      count=$(uv pip list 2>/dev/null | tail -n +3 | wc -l)
+    else
+      count=$("${python}" -m pip list 2>/dev/null | tail -n +3 | wc -l || echo "0")
+    fi
+    echo ""
+    log_success "Installed ${BOLD}${count}${RESET} packages in ${DIM}${elapsed}${RESET}"
+    cmd_compile
+  else
+    echo ""
+    log_error "Installation failed"
+    return "${EXIT_ERROR}"
+  fi
+  echo ""
+}
+
 # =============================================================================
-# Command: check
+# Commands
 # =============================================================================
 cmd_check() {
-  log_header
-  echo ""
+  log_header; echo ""
   
-  # uv
   if command -v uv &>/dev/null; then
-    local uv_version
-    uv_version=$(uv --version 2>/dev/null | head -1 | awk '{print $2}')
-    log_success "uv ${C_DIM}${uv_version}${C_RESET}"
+    local uv_version; uv_version=$(uv --version 2>/dev/null | head -1 | awk '{print $2}')
+    log_success "uv ${DIM}${uv_version}${RESET}"
   else
-    log_error "uv not installed"
-    log_dim "  Run: ${C_CYAN}joi install${C_RESET}"
+    log_error "uv not installed"; log_dim "  Run: ${CYAN}joi install${RESET}"
   fi
 
-  # venv
   if [[ -d "${JOI_ROOT}/.venv" ]]; then
-    local python
-    if python=$(get_python); then
-      local py_version
-      py_version=$("${python}" --version 2>&1 | awk '{print $2}')
-      log_success "Python ${C_DIM}${py_version}${C_RESET}"
-      
+    if local python=$(get_python); then
+      local py_version; py_version=$("${python}" --version 2>&1 | awk '{print $2}')
+      log_success "Python ${DIM}${py_version}${RESET}"
       local pkg_count
       if command -v uv &>/dev/null; then
         pkg_count=$(uv pip list 2>/dev/null | tail -n +3 | wc -l)
@@ -454,25 +384,19 @@ cmd_check() {
       log_warn "Virtual environment exists but Python not found"
     fi
   else
-    log_error "Virtual environment not found"
-    log_dim "  Run: ${C_CYAN}joi install${C_RESET}"
+    log_error "Virtual environment not found"; log_dim "  Run: ${CYAN}joi install${RESET}"
   fi
 
-  # database
   echo ""
   if [[ -f "${JOI_ROOT}/db.sqlite3" ]]; then
-    local size
-    size=$(du -h "${JOI_ROOT}/db.sqlite3" 2>/dev/null | cut -f1)
-    log_success "Database ${C_DIM}${size}${C_RESET}"
+    local size; size=$(du -h "${JOI_ROOT}/db.sqlite3" 2>/dev/null | cut -f1)
+    log_success "Database ${DIM}${size}${RESET}"
   else
-    log_warn "Database not found"
-    log_dim "  Run: ${C_CYAN}joi migrate${C_RESET}"
+    log_warn "Database not found"; log_dim "  Run: ${CYAN}joi migrate${RESET}"
   fi
 
-  # fixtures
   if [[ -d "${JOI_ROOT}/fixtures" ]]; then
-    local count
-    count=$(ls "${JOI_ROOT}/fixtures"/*.json 2>/dev/null | wc -l)
+    local count; count=$(ls "${JOI_ROOT}/fixtures"/*.json 2>/dev/null | wc -l)
     log_item "${count} fixture files"
   elif [[ -f "${JOI_ROOT}/data_seeding.sql" ]]; then
     log_item "data_seeding.sql available"
@@ -480,23 +404,18 @@ cmd_check() {
     log_warn "No seed data found"
   fi
 
-  # config
   echo ""
   if [[ -f "${JOI_ENV_FILE}" ]]; then
-    log_success "Configuration loaded"
-    log_dim "  ${JOI_ENV_FILE}"
+    log_success "Configuration loaded"; log_dim "  ${JOI_ENV_FILE}"
   else
-    log_info "Using default configuration"
-    log_dim "  Copy ${JOI_ENV_EXAMPLE} → ${JOI_ENV_FILE} to customize"
+    log_info "Using default configuration"; log_dim "  Copy ${JOI_ENV_EXAMPLE} → ${JOI_ENV_FILE} to customize"
   fi
-  
   echo ""
 }
 
 cmd_compile() {
-  local python
-  python="$(get_python)" || return 0
-  log_dim "  ${S_BULLET} Compiling translations..."
+  local python; python="$(get_python)" || return 0
+  log_dim "  * Compiling translations..."
   if "${python}" manage.py compilemessages >/dev/null 2>&1; then
     log_success "Translations compiled"
   else
@@ -504,480 +423,272 @@ cmd_compile() {
   fi
 }
 
-# =============================================================================
-# Command: install
-# =============================================================================
 cmd_install() {
   log_header
-  
-  log_step "Installing dependencies"
-  
-  check_uv || return $?
-  setup_uv_env
-  check_venv || return $?
-  
-  # Clean up Windows-created venv artifacts on Unix (skip on Windows)
-  if [[ "$OSTYPE" != "msys" && "$OSTYPE" != "cygwin" ]]; then
-    [[ -L "${JOI_ROOT}/.venv/lib64" ]] && rm -f "${JOI_ROOT}/.venv/lib64"
-  fi
-  
-  start_timer
-  if show_progress "Running uv sync" uv sync; then
-    local elapsed
-    elapsed=$(get_elapsed)
-    local python
-    python=$(get_python)
-    local count
-    if command -v uv &>/dev/null; then
-      count=$(uv pip list 2>/dev/null | tail -n +3 | wc -l)
-    else
-      count=$("${python}" -m pip list 2>/dev/null | tail -n +3 | wc -l || echo "0")
-    fi
-    
-    echo ""
-    log_success "Installed ${C_BOLD}${count}${C_RESET} packages in ${C_DIM}${elapsed}${C_RESET}"
-    
-    cmd_compile
-  else
-    echo ""
-    log_error "Installation failed"
-    return "${EXIT_ERROR}"
-  fi
-  
-  echo ""
+  _install_deps
 }
 
-# =============================================================================
-# Command: migrate
-# =============================================================================
 cmd_migrate() {
   log_header
-  local python
-  python="$(get_python)" || return "${EXIT_DEP}"
-
+  local python; python="$(get_python)" || return "${EXIT_DEP}"
   log_step "Running migrations"
+  start_timer; echo ""
   
-  start_timer
-  echo ""
-  
-  log_dim "  makemigrations"
   if "${python}" manage.py makemigrations; then
-    log_dim "  migrate"
     if "${python}" manage.py migrate; then
-      echo ""
-      log_success "Migrations applied in $(get_elapsed)"
+      echo ""; log_success "Migrations applied in $(get_elapsed)"
     else
-      echo ""
-      log_error "Migration failed"
-      return "${EXIT_ERROR}"
+      echo ""; log_error "Migration failed"; return "${EXIT_ERROR}"
     fi
   else
-    echo ""
-    log_error "makemigrations failed"
-    return "${EXIT_ERROR}"
+    echo ""; log_error "makemigrations failed"; return "${EXIT_ERROR}"
   fi
-  
   echo ""
 }
 
-# =============================================================================
-# Command: seed
-# =============================================================================
 cmd_seed() {
   log_header
-  local python
-  python="$(get_python)" || return "${EXIT_DEP}"
-
+  local python; python="$(get_python)" || return "${EXIT_DEP}"
   local clear="${JOI_CLEAR:-0}"
   while [[ $# -gt 0 ]]; do
-    case "$1" in
-    --clear) clear=1; shift ;;
-    *) shift ;;
-    esac
+    case "$1" in --clear) clear=1; shift ;; *) shift ;; esac
   done
 
   if [[ "${clear}" -eq 1 ]]; then
     log_warn "This will delete all existing data"
     if confirm "Continue?" "n"; then
-      start_timer
-      echo ""
+      start_timer; echo ""
       if "${python}" manage.py load_data --clear; then
-        echo ""
-        log_success "Database cleared and reseeded in $(get_elapsed)"
+        echo ""; log_success "Database cleared and reseeded in $(get_elapsed)"
       else
-        echo ""
-        log_error "Seeding failed"
-        return "${EXIT_ERROR}"
+        echo ""; log_error "Seeding failed"; return "${EXIT_ERROR}"
       fi
     else
       log_info "Cancelled"
     fi
-    echo ""
-    return 0
+    echo ""; return 0
   fi
 
   log_step "Seeding database"
-  
-  start_timer
-  echo ""
+  start_timer; echo ""
   
   if [[ -d "${JOI_ROOT}/fixtures" ]]; then
     if "${python}" manage.py load_data; then
-      echo ""
-      log_success "Database seeded in $(get_elapsed)"
+      echo ""; log_success "Database seeded in $(get_elapsed)"
     else
-      echo ""
-      log_error "Seeding failed"
-      return "${EXIT_ERROR}"
+      echo ""; log_error "Seeding failed"; return "${EXIT_ERROR}"
     fi
   elif [[ -f "${JOI_ROOT}/data_seeding.sql" ]]; then
     log_warn "Using legacy data_seeding.sql"
     if "${python}" seed_db.py; then
-      echo ""
-      log_success "Database seeded in $(get_elapsed)"
+      echo ""; log_success "Database seeded in $(get_elapsed)"
     else
-      echo ""
-      log_error "Seeding failed"
-      return "${EXIT_ERROR}"
+      echo ""; log_error "Seeding failed"; return "${EXIT_ERROR}"
     fi
   else
     log_error "No seed data found"
     log_dim "  Expected: fixtures/ or data_seeding.sql"
     return "${EXIT_ERROR}"
   fi
-  
   echo ""
 }
 
-# =============================================================================
-# Command: admin
-# =============================================================================
 cmd_admin() {
   log_header
-  local python
-  python="$(get_python)" || return "${EXIT_DEP}"
-
-  log_step "Creating admin user"
-  echo ""
-  
+  local python; python="$(get_python)" || return "${EXIT_DEP}"
+  log_step "Creating admin user"; echo ""
   "${python}" manage.py createsuperuser
-  
-  echo ""
-  log_success "Admin user created"
-  echo ""
+  echo ""; log_success "Admin user created"; echo ""
 }
 
-# =============================================================================
-# Command: server
-# =============================================================================
 cmd_server() {
   log_header
-  local python
-  python="$(get_python)" || return "${EXIT_DEP}"
-
+  local python; python="$(get_python)" || return "${EXIT_DEP}"
   cmd_compile
 
   local port="${JOI_PORT}"
   while [[ $# -gt 0 ]]; do
-    case "$1" in
-    --port) port="$2"; shift 2 ;;
-    --port=*) port="${1#*=}"; shift ;;
-    -*) shift ;;
-    *) port="$1"; shift ;;
-    esac
+    case "$1" in --port) port="$2"; shift 2 ;; --port=*) port="${1#*=}"; shift ;; -*) shift ;; *) port="$1"; shift ;; esac
   done
 
-  echo ""
-  log_success "Starting server on ${C_CYAN}http://127.0.0.1:${port}${C_RESET}"
-  log_dim "  Press Ctrl+C to stop"
-  echo ""
-  
+  echo ""; log_success "Starting server on ${CYAN}http://127.0.0.1:${port}${RESET}"; log_dim "  Press Ctrl+C to stop"; echo ""
   "${python}" manage.py runserver "127.0.0.1:${port}"
 }
 
-# =============================================================================
-# Command: reset
-# =============================================================================
 cmd_reset() {
   log_header
-  local python
-  python="$(get_python)" || return "${EXIT_DEP}"
+  local python; python="$(get_python)" || return "${EXIT_DEP}"
 
   log_warn "This will delete the database and all data"
-  if ! confirm "Continue?" "n"; then
-    log_info "Cancelled"
-    return 0
-  fi
+  if ! confirm "Continue?" "n"; then log_info "Cancelled"; return 0; fi
 
-  log_step "Resetting database"
-  echo ""
+  log_step "Resetting database"; echo ""; start_timer
   
-  start_timer
+  [[ -f "${JOI_ROOT}/db.sqlite3" ]] && rm -f "${JOI_ROOT}/db.sqlite3" && log_dim "  * Removed db.sqlite3"
   
-  # Remove database
-  if [[ -f "${JOI_ROOT}/db.sqlite3" ]]; then
-    rm -f "${JOI_ROOT}/db.sqlite3"
-    log_dim "  ${S_BULLET} Removed db.sqlite3"
-  fi
+  log_dim "  * Running makemigrations"; "${python}" manage.py makemigrations >/dev/null 2>&1
+  log_dim "  * Running migrate"; "${python}" manage.py migrate >/dev/null 2>&1
+  echo ""; log_success "Database reset in $(get_elapsed)"
 
-  # Recreate
-  log_dim "  ${S_BULLET} Running makemigrations"
-  "${python}" manage.py makemigrations >/dev/null 2>&1
-  
-  log_dim "  ${S_BULLET} Running migrate"
-  "${python}" manage.py migrate >/dev/null 2>&1
-
-  echo ""
-  log_success "Database reset in $(get_elapsed)"
-
-  # Reseed
   if [[ -d "${JOI_ROOT}/fixtures" ]] || [[ -f "${JOI_ROOT}/data_seeding.sql" ]]; then
-    if confirm "Seed the database?" "y"; then
-      JOI_YES=1 cmd_seed
-    fi
+    if confirm "Seed the database?" "y"; then JOI_YES=1 cmd_seed; fi
   fi
-  
   echo ""
 }
 
-# =============================================================================
-# Command: setup (full setup flow)
-# =============================================================================
+# Helper to handle user prompts based on flags/config
+_handle_user_prompt() {
+  local flag="$1"
+  local config="$2"
+  local prompt_text="$3"
+  local action_func="$4"
+  local step_name="$5"
+
+  local should_run="n"
+  
+  # Determine if we should run
+  if [[ "${flag}" == "y" ]]; then
+    should_run="y"
+  elif [[ "${flag}" == "n" ]]; then
+    should_run="n"
+  elif [[ "${config}" == "y" ]]; then
+    should_run="y"
+  elif [[ "${JOI_YES}" == "1" ]]; then
+    # If JOI_YES is set (auto-yes) and no explicit no-flag, usually we default to config or skip.
+    # Let's default to skipping if forced auto and no explicit yes.
+    should_run="n"
+  fi
+  
+  # If not decided and no explicit flag, ask user
+  if [[ "${flag}" == "" ]]; then
+    if confirm "${prompt_text}" "${should_run}"; then
+      should_run="y"
+    else
+      should_run="n"
+    fi
+  fi
+
+  if [[ "${should_run}" == "y" ]]; then
+    log_step "${step_name}"; echo ""
+    ${action_func}
+    echo ""; log_success "${step_name} completed"
+  fi
+}
+
 cmd_setup() {
-  local flag_seed="${JOI_SEED_FLAG:-}" flag_admin="${JOI_ADMIN_FLAG:-}" flag_migrations="${JOI_SKIP_MIGRATIONS:-0}"
+  local flag_seed="${JOI_SEED_FLAG:-}" 
+  local flag_admin="${JOI_ADMIN_FLAG:-}" 
+  local flag_migrations="${JOI_SKIP_MIGRATIONS:-0}"
 
   while [[ $# -gt 0 ]]; do
     case "$1" in
-    --seed) flag_seed="y"; shift ;;
-    --no-seed) flag_seed="n"; shift ;;
-    --admin) flag_admin="y"; shift ;;
-    --no-admin) flag_admin="n"; shift ;;
-    --skip-migrations) flag_migrations="1"; shift ;;
-    *) shift ;;
+      --seed) flag_seed="y"; shift ;;
+      --no-seed) flag_seed="n"; shift ;;
+      --admin) flag_admin="y"; shift ;;
+      --no-admin) flag_admin="n"; shift ;;
+      --skip-migrations) flag_migrations="1"; shift ;;
+      *) shift ;;
     esac
   done
 
-  log_header
-  echo ""
-  
-  local setup_start
-  setup_start=$(date +%s%3N)
+  log_header; echo ""
+  local setup_start=$(date +%s%3N)
 
-  # Step 1: uv
-  log_step "Package manager"
-  check_uv || return $?
-  setup_uv_env
+  # Step 1-3: Dependencies (Reusing logic)
+  if ! _install_deps; then return $?; fi
 
-  # Step 2: venv
-  log_step "Virtual environment"
-  check_venv || return $?
+  local python; python="$(get_python)" || return "${EXIT_DEP}"
 
-  # Step 3: dependencies
-  log_step "Dependencies"
-  # Clean up Windows-created venv artifacts on Unix (skip on Windows)
-  if [[ "$OSTYPE" != "msys" && "$OSTYPE" != "cygwin" ]]; then
-    [[ -L "${JOI_ROOT}/.venv/lib64" ]] && rm -f "${JOI_ROOT}/.venv/lib64"
-  fi
-  
-  start_timer
-  if show_progress "Running uv sync" uv sync; then
-    local elapsed
-    elapsed=$(get_elapsed)
-    local python
-    python=$(get_python)
-    local count
-    if command -v uv &>/dev/null; then
-      count=$(uv pip list 2>/dev/null | tail -n +3 | wc -l)
-    else
-      count=$("${python}" -m pip list 2>/dev/null | tail -n +3 | wc -l || echo "0")
-    fi
-    
-    echo ""
-    log_success "Installed ${C_BOLD}${count}${C_RESET} packages in ${C_DIM}${elapsed}${C_RESET}"
-  else
-    echo ""
-    log_error "Installation failed"
-    return "${EXIT_ERROR}"
-  fi
-
-  local python
-  python="$(get_python)" || return "${EXIT_DEP}"
-
-  # Step 4: migrations
+  # Step 4: Migrations
   if [[ "${flag_migrations}" == "0" ]]; then
     log_step "Database"
-    
-    start_timer
-    echo ""
-    log_dim "  ${S_BULLET} makemigrations"
-    "${python}" manage.py makemigrations >/dev/null 2>&1
-    log_dim "  ${S_BULLET} migrate"
-    "${python}" manage.py migrate >/dev/null 2>&1
-    
-    echo ""
-    log_success "Migrations applied in $(get_elapsed)"
+    start_timer; echo ""
+    log_dim "  * makemigrations"; "${python}" manage.py makemigrations >/dev/null 2>&1
+    log_dim "  * migrate"; "${python}" manage.py migrate >/dev/null 2>&1
+    echo ""; log_success "Migrations applied in $(get_elapsed)"
   fi
 
-  # Step 5: admin
-  local create_admin="${flag_admin:-${JOI_CREATE_ADMIN}}"
-  if [[ "${create_admin}" == "y" ]] || [[ "${JOI_YES}" == "1" && -z "${flag_admin}" ]]; then
-    log_step "Admin user"
-    echo ""
-    "${python}" manage.py createsuperuser
-    echo ""
-    log_success "Admin user created"
-  elif [[ -z "${flag_admin}" ]]; then
-    if confirm "Create admin user?" "n"; then
-      log_step "Admin user"
-      echo ""
-      "${python}" manage.py createsuperuser
-      echo ""
-      log_success "Admin user created"
-    fi
+  # Step 5: Admin User
+  _handle_user_prompt "${flag_admin}" "${JOI_CREATE_ADMIN}" "Create admin user?" "\"${python}\" manage.py createsuperuser" "Admin user"
+
+  # Step 6: Seed Data
+  if [[ "${flag_seed}" == "y" ]] || ([[ "${flag_seed}" == "" ]] && [[ "${JOI_SEED_DATA}" == "y" ]]); then
+     # Simplified seed logic if yes
+     log_step "Seed data"
+     start_timer; echo ""
+     [[ -d "${JOI_ROOT}/fixtures" ]] && "${python}" manage.py load_data >/dev/null 2>&1
+     echo ""; log_success "Database seeded in $(get_elapsed)"
+  elif [[ "${flag_seed}" == "" ]]; then
+     # Prompt
+     _handle_user_prompt "${flag_seed}" "n" "Seed database with sample data?" "\"${python}\" manage.py load_data" "Database seeded"
   fi
 
-  # Step 6: seed
-  local seed="${flag_seed:-${JOI_SEED_DATA}}"
-  if [[ "${seed}" == "y" ]]; then
-    log_step "Seed data"
-    start_timer
-    echo ""
-    if [[ -d "${JOI_ROOT}/fixtures" ]]; then
-      "${python}" manage.py load_data >/dev/null 2>&1
-      echo ""
-      log_success "Database seeded in $(get_elapsed)"
-    fi
-  elif [[ -z "${flag_seed}" ]]; then
-    if confirm "Seed database with sample data?" "n"; then
-      log_step "Seed data"
-      start_timer
-      echo ""
-      if [[ -d "${JOI_ROOT}/fixtures" ]]; then
-        "${python}" manage.py load_data >/dev/null 2>&1
-        echo ""
-        log_success "Database seeded in $(get_elapsed)"
-      fi
-    fi
-  fi
-
-  cmd_compile
-
-  # Calculate total time
-  local setup_end
-  setup_end=$(date +%s%3N)
+  # Summary
+  local setup_end=$(date +%s%3N)
   local total_time=$((setup_end - setup_start))
   local total_seconds=$((total_time / 1000))
   local total_ms=$((total_time % 1000))
-  local time_display="${total_seconds}.${total_ms:0:1}s"
-  
-  # Summary
   echo ""
-  echo -e "${C_BRIGHT_GREEN}${S_SUCCESS}${C_RESET} ${C_BOLD}Setup complete!${C_RESET} ${C_DIM}${time_display}${C_RESET}"
+  echo -e "${GREEN}${S_SUCCESS}${RESET} ${BOLD}Setup complete!${RESET} ${DIM}${total_seconds}.${total_ms:0:1}s${RESET}"
   echo ""
-  echo -e "  \033[30;42m READY \033[0m ${C_DIM}Your project is configured and ready to go${C_RESET}"
+  echo -e "  \033[30;42m READY \033[0m ${DIM}Your project is configured and ready to go${RESET}"
   echo ""
   log_dim "Next steps:"
-  echo -e "  ${C_CYAN}joi server${C_RESET}  Start development server"
-  echo -e "  ${C_CYAN}joi admin${C_RESET}   Create admin user"
+  echo -e "  ${CYAN}joi server${RESET}  Start development server"
+  echo -e "  ${CYAN}joi admin${RESET}   Create admin user"
   echo ""
 }
 
-# =============================================================================
-# Help text
-# =============================================================================
 cmd_help() {
-  cat <<EOF
-
-${C_BRIGHT_CYAN}
-     _       _ 
-    (_) ___ (_)
-    | |/ _ \| |
-    | | (_) | |
-   _/ |\___/|_|
-  |__/          
-${C_RESET}
-  ${C_DIM}v${JOI_VERSION} - Project Development Tool${C_RESET}
-
-${C_DIM}USAGE${C_RESET}
-  ${C_WHITE}joi${C_RESET} ${C_DIM}<command> [options]${C_RESET}
-
-${C_DIM}COMMANDS${C_RESET}
-  ${C_CYAN}setup${C_RESET}       Full project setup (install + migrate + seed)
-  ${C_CYAN}install${C_RESET}     Install dependencies
-  ${C_CYAN}migrate${C_RESET}     Run database migrations
-  ${C_CYAN}seed${C_RESET}        Seed database with fixtures
-  ${C_CYAN}admin${C_RESET}       Create admin user
-  ${C_CYAN}server${C_RESET}      Start development server
-  ${C_CYAN}check${C_RESET}       Check environment status
-  ${C_CYAN}reset${C_RESET}       Reset database
-  ${C_CYAN}install-completion${C_RESET} Install bash tab completion
-  ${C_CYAN}help${C_RESET}        Show this help
-
-${C_DIM}OPTIONS${C_RESET}
-  -h, --help        Show help
-  -v, --version     Show version
-  -y, --yes         Skip confirmations
-  --no-color        Disable colors
-  --verbose         Detailed output
-  --quiet           Minimal output
-
-${C_DIM}EXAMPLES${C_RESET}
-  ${C_WHITE}joi setup${C_RESET}                 ${C_DIM}# Interactive setup${C_RESET}
-  ${C_WHITE}joi setup -y --no-seed${C_RESET}    ${C_DIM}# Auto-setup, skip seeding${C_RESET}
-  ${C_WHITE}joi seed --clear${C_RESET}          ${C_DIM}# Reset and reseed data${C_RESET}
-  ${C_WHITE}joi server --port 8080${C_RESET}    ${C_DIM}# Custom port${C_RESET}
-  ${C_WHITE}joi check${C_RESET}                 ${C_DIM}# Check environment${C_RESET}
-
-${C_DIM}CONFIGURATION${C_RESET}
-  Copy ${C_CYAN}.joi.env.example${C_RESET} to ${C_CYAN}.joi.env${C_RESET} to set defaults
-  See documentation for all options
-
-EOF
+  log_header
+  echo "${DIM}USAGE${RESET}"
+  echo "  ${CYAN}joi${RESET} ${DIM}<command> [options]${RESET}"
+  echo ""
+  echo "${DIM}COMMANDS${RESET}"
+  echo "  ${CYAN}setup${RESET}       Full project setup (install + migrate + seed)"
+  echo "  ${CYAN}install${RESET}     Install dependencies"
+  echo "  ${CYAN}migrate${RESET}     Run database migrations"
+  echo "  ${CYAN}seed${RESET}        Seed database with fixtures"
+  echo "  ${CYAN}admin${RESET}       Create admin user"
+  echo "  ${CYAN}server${RESET}      Start development server"
+  echo "  ${CYAN}check${RESET}       Check environment status"
+  echo "  ${CYAN}reset${RESET}       Reset database"
+  echo "  ${CYAN}install-completion${RESET} Install bash tab completion"
+  echo "  ${CYAN}help${RESET}        Show this help"
+  echo ""
+  echo "${DIM}OPTIONS${RESET}"
+  echo "  -h, --help        Show help"
+  echo "  -v, --version     Show version"
+  echo "  -y, --yes         Skip confirmations"
+  echo "  --no-color        Disable colors"
+  echo "  --verbose         Detailed output"
+  echo "  --quiet           Minimal output"
+  echo ""
+  echo "${DIM}EXAMPLES${RESET}"
+  echo "  ${CYAN}joi setup${RESET}                 ${DIM}# Interactive setup${RESET}"
+  echo "  ${CYAN}joi setup -y --no-seed${RESET}    ${DIM}# Auto-setup, skip seeding${RESET}"
+  echo "  ${CYAN}joi seed --clear${RESET}          ${DIM}# Reset and reseed data${RESET}"
+  echo "  ${CYAN}joi server --port 8080${RESET}    ${DIM}# Custom port${RESET}"
+  echo "  ${CYAN}joi check${RESET}                 ${DIM}# Check environment${RESET}"
+  echo ""
+  echo "${DIM}CONFIGURATION${RESET}"
+  echo "  Copy ${CYAN}.joi.env.example${RESET} to ${CYAN}.joi.env${RESET} to set defaults"
+  echo "  See documentation for all options"
+  echo ""
 }
 
 cmd_update() {
   log_header
-  echo ""
-
-  log_step "Checking for updates..."
-  echo ""
-
-  log_dim "  Current version: ${C_BOLD}${JOI_VERSION}${C_RESET}"
-
-  log_dim "  Latest version:  ${C_BOLD}${JOI_VERSION}${C_RESET} (check GitHub for updates)"
-  echo ""
-  log_info "To update manually:"
+  log_step "Checking for updates..."; echo ""
+  log_dim "  Current version: ${BOLD}${JOI_VERSION}${RESET}"
+  log_dim "  Latest version:  ${BOLD}${JOI_VERSION}${RESET} (check GitHub for updates)"
+  echo ""; log_info "To update manually:"
   echo "    1. Download latest joi script"
   echo "    2. Replace this file"
   echo ""
-  log_info "To reinstall from project:"
-  echo "    ${C_CYAN}joit install${C_RESET}"
-  echo ""
 }
 
-cmd_version() {
-  echo ""
-  echo -e "${C_BRIGHT_CYAN}"
-  cat << 'LOGO'
-     _       _ 
-    (_) ___ (_)
-    | |/ _ \| |
-    | | (_) | |
-   _/ |\___/|_|
-  |__/          
-LOGO
-  echo -e "${C_RESET}"
-  echo -e "  ${C_DIM}version${C_RESET} ${C_BOLD}${JOI_VERSION}${C_RESET}"
-  echo ""
-}
-
-# =============================================================================
-# Argument parsing
-# =============================================================================
-JOI_YES=0
-JOI_VERBOSE=0
-JOI_QUIET=0
-JOI_DEBUG=0
+cmd_version() { log_header; echo "  ${DIM}version${RESET} ${BOLD}${JOI_VERSION}${RESET}"; echo ""; }
 
 # =============================================================================
 # Main
@@ -985,83 +696,59 @@ JOI_DEBUG=0
 main() {
   load_config
 
-  if [[ $# -eq 0 ]]; then
-    cmd_help
-    exit "${EXIT_SUCCESS}"
-  fi
+  if [[ $# -eq 0 ]]; then cmd_help; exit "${EXIT_SUCCESS}"; fi
 
   # Parse global flags
   while [[ $# -gt 0 ]]; do
     case "$1" in
-    -h|--help) cmd_help; exit "${EXIT_SUCCESS}" ;;
-    -v|--version) cmd_version; exit "${EXIT_SUCCESS}" ;;
-    -y|--yes) JOI_YES=1; shift ;;
-    --no-color)
-      JOI_NO_COLOR=1
-      C_RESET='' C_BOLD='' C_RED='' C_GREEN='' C_YELLOW='' C_BLUE=''
-      C_MAGENTA='' C_CYAN='' C_WHITE='' C_DIM='' C_BRIGHT_GREEN=''
-      C_BRIGHT_CYAN='' C_BRIGHT_YELLOW=''
-      shift
-      ;;
-    --verbose) JOI_VERBOSE=1; shift ;;
-    --quiet) JOI_QUIET=1; shift ;;
-    --debug) JOI_DEBUG=1; set -x; shift ;;
-    --port) JOI_PORT="$2"; shift 2 ;;
-    --port=*) JOI_PORT="${1#*=}"; shift ;;
-    --clear) JOI_CLEAR=1; shift ;;
-    --seed) JOI_SEED_FLAG="y"; shift ;;
-    --no-seed) JOI_SEED_FLAG="n"; shift ;;
-    --admin) JOI_ADMIN_FLAG="y"; shift ;;
-    --no-admin) JOI_ADMIN_FLAG="n"; shift ;;
-    --skip-migrations) JOI_SKIP_MIGRATIONS=1; shift ;;
-    -*) log_error "Unknown option: $1"; echo "  Run 'joi --help' for usage"; exit "${EXIT_USAGE}" ;;
-    *) break ;;
+      -h|--help) cmd_help; exit "${EXIT_SUCCESS}" ;;
+      -v|--version) cmd_version; exit "${EXIT_SUCCESS}" ;;
+      -y|--yes) JOI_YES=1; shift ;;
+      --no-color) NO_COLOR=1; BOLD=""; CYAN=""; GREEN=""; YELLOW=""; RED=""; DIM=""; RESET=""; shift ;;
+      --verbose) JOI_VERBOSE=1; shift ;;
+      --quiet) JOI_QUIET=1; shift ;;
+      --debug) JOI_DEBUG=1; set -x; shift ;;
+      --port) JOI_PORT="$2"; shift 2 ;;
+      --port=*) JOI_PORT="${1#*=}"; shift ;;
+      --clear) JOI_CLEAR=1; shift ;;
+      --seed) JOI_SEED_FLAG="y"; shift ;;
+      --no-seed) JOI_SEED_FLAG="n"; shift ;;
+      --admin) JOI_ADMIN_FLAG="y"; shift ;;
+      --no-admin) JOI_ADMIN_FLAG="n"; shift ;;
+      --skip-migrations) JOI_SKIP_MIGRATIONS=1; shift ;;
+      -*) log_error "Unknown option: $1"; echo "  Run 'joi --help' for usage"; exit "${EXIT_USAGE}" ;;
+      *) break ;;
     esac
   done
 
-  local command="${1:-}"
-  shift || true
+  local command="${1:-}"; shift || true
 
-  if [[ -z "${command}" ]]; then
-    cmd_help
-    exit "${EXIT_SUCCESS}"
-  fi
+  if [[ -z "${command}" ]]; then cmd_help; exit "${EXIT_SUCCESS}"; fi
 
-  # Check project directory (allow update from anywhere)
   if ! is_project_dir; then
     case "${command}" in
-    update) ;;  # Allow update from anywhere
-    *)
-      log_error "Not a joi project directory"
-      echo "  Run 'joi' from a project folder"
-      exit "${EXIT_ERROR}"
-      ;;
+      update) ;;
+      *) log_error "Not a joi project directory"; echo "  Run 'joi' from a project folder"; exit "${EXIT_ERROR}" ;;
     esac
   fi
 
-  # Acquire lock for mutating commands
   case "${command}" in
-  setup|install|migrate|seed|admin|reset) acquire_lock ;;
+    setup|install|migrate|seed|admin|reset) acquire_lock ;;
   esac
 
-  # Dispatch command
   case "${command}" in
-  setup) cmd_setup "$@" ;;
-  install) cmd_install "$@" ;;
-  migrate) cmd_migrate "$@" ;;
-  seed) cmd_seed "$@" ;;
-  admin) cmd_admin "$@" ;;
-  server) cmd_server "$@" ;;
-  check) cmd_check "$@" ;;
-  reset) cmd_reset "$@" ;;
-  update) cmd_update "$@" ;;
-  help) cmd_help ;;
-  version) cmd_version ;;
-  *)
-    log_error "Unknown command: ${command}"
-    echo "  Run 'joi --help' for usage"
-    exit "${EXIT_USAGE}"
-    ;;
+    setup) cmd_setup "$@" ;;
+    install) cmd_install "$@" ;;
+    migrate) cmd_migrate "$@" ;;
+    seed) cmd_seed "$@" ;;
+    admin) cmd_admin "$@" ;;
+    server) cmd_server "$@" ;;
+    check) cmd_check "$@" ;;
+    reset) cmd_reset "$@" ;;
+    update) cmd_update "$@" ;;
+    help) cmd_help ;;
+    version) cmd_version ;;
+    *) log_error "Unknown command: ${command}"; echo "  Run 'joi --help' for usage"; exit "${EXIT_USAGE}" ;;
   esac
 }
 

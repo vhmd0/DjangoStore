@@ -14,7 +14,7 @@
     userMenuOpen: false,
     categoryDropdown: false 
   }"
-  class="fixed w-full z-50 top-0 start-0 bg-white border-b border-gray-200 shadow-sm"
+  class="fixed w-full z-50 top-0 start-0 bg-white border-b border-surface-200 shadow-sm"
 >
   <!-- Top Promotional Bar -->
   <div class="bg-green-500 py-2 text-center text-white text-[10px] md:text-xs font-bold uppercase tracking-widest px-4">
@@ -46,7 +46,7 @@
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"/>
             </svg>
           </button>
-          <div x-show="open" x-transition class="absolute top-full start-1/2 -translate-x-1/2 mt-2 w-56 bg-white rounded-xl shadow-2xl border border-gray-100 py-3 z-50">
+          <div x-show="open" x-transition class="absolute top-full start-1/2 -translate-x-1/2 mt-2 w-56 bg-white rounded-xl shadow-2xl border border-surface-100 py-3 z-50">
             {% for category in menu_categories %}
             <a href="{{ category.get_absolute_url }}" class="block px-6 py-2 text-xs font-bold text-charcoal-600 hover:bg-surface-50 hover:text-corporate-600 transition-colors">
               {{ category.name }}
@@ -54,7 +54,7 @@
             {% empty %}
             <span class="block px-6 py-2 text-xs text-charcoal-400 italic">{% trans "No categories found" %}</span>
             {% endfor %}
-            <div class="border-t border-gray-100 mt-2 pt-2">
+            <div class="border-t border-surface-100 mt-2 pt-2">
               <a href="{% url 'categories:categories' %}" class="block px-6 py-2 text-xs font-black text-corporate-600 hover:bg-corporate-50">
                 {% trans "View All Categories" %} →
               </a>
@@ -86,7 +86,7 @@
       <!-- Right Side Actions -->
       <div class="flex items-center gap-1 md:gap-3">
         <!-- Language Switcher -->
-        <div class="px-1 border-x border-gray-100 flex items-center mx-1">
+        <div class="px-1 border-x border-surface-100 flex items-center mx-1">
           {% if lang == 'ar' %}
           <a href="{% url 'set_language_custom' %}?language=en&next={{ request.path|urlencode }}"
              class="p-2 text-charcoal-700 hover:text-corporate-600 hover:bg-surface-50 rounded-full transition-all duration-300 flex items-center gap-1" title="Switch to English">
@@ -115,7 +115,7 @@
           <button @click="open = !open" class="p-2.5 text-charcoal-700 hover:text-corporate-600 hover:bg-surface-50 rounded-full transition-all duration-300">
             {% if user.is_authenticated %}
               {% if user.profile.avatar %}
-              <img class="w-6 h-6 rounded-full object-cover border border-gray-200" src="{{ user.profile.avatar.url }}" alt="{{ user.username }}"/>
+              <img class="w-6 h-6 rounded-full object-cover border border-surface-200" src="{{ user.profile.avatar.url }}" alt="{{ user.username }}"/>
               {% else %}
               <div class="w-6 h-6 rounded-full bg-charcoal-900 flex items-center justify-center text-white text-[10px] font-black uppercase">{{ user.username|first }}</div>
               {% endif %}
@@ -125,15 +125,15 @@
             </svg>
             {% endif %}
           </button>
-          <div x-show="open" x-transition class="absolute end-0 mt-3 w-56 bg-white rounded-xl shadow-2xl border border-gray-100 py-2 z-50">
+          <div x-show="open" x-transition class="absolute end-0 mt-3 w-56 bg-white rounded-xl shadow-2xl border border-surface-100 py-2 z-50">
             {% if user.is_authenticated %}
-            <div class="px-5 py-3 border-b border-gray-50 mb-1">
+            <div class="px-5 py-3 border-b border-surface-50 mb-1">
               <p class="text-xs font-black text-charcoal-900 truncate">{{ user.username }}</p>
               <p class="text-[10px] text-charcoal-500 truncate">{{ user.email }}</p>
             </div>
             <a href="{% url 'profile' %}" class="block px-5 py-2 text-xs font-bold text-charcoal-700 hover:bg-surface-50 hover:text-corporate-600">{% trans "Account Settings" %}</a>
             <a href="{% url 'orders:order_list' %}" class="block px-5 py-2 text-xs font-bold text-charcoal-700 hover:bg-surface-50 hover:text-corporate-600">{% trans "Track Orders" %}</a>
-            <form action="{% url 'logout' %}" method="post" class="mt-1 pt-1 border-t border-gray-50">
+            <form action="{% url 'logout' %}" method="post" class="mt-1 pt-1 border-t border-surface-50">
               {% csrf_token %}
               <button type="submit" class="w-full text-start px-5 py-2 text-xs font-black text-red-600 hover:bg-red-50">{% trans "Log Out" %}</button>
             </form>
@@ -186,7 +186,7 @@
          x-transition:leave-start="opacity-100"
          x-transition:leave-end="opacity-0"
          @click="mobileDrawer = false"
-         class="fixed inset-0 bg-gray-900/50 backdrop-blur-sm"></div>
+         class="fixed inset-0 bg-charcoal-900/50 backdrop-blur-sm"></div>
     
     <!-- Drawer Panel -->
     <div x-show="mobileDrawer"
@@ -196,10 +196,10 @@
          x-transition:leave="transition ease-in duration-200"
          x-transition:leave-start="translate-x-0"
          x-transition:leave-end="-translate-x-full"
-         class="fixed top-0 start-0 z-50 w-72 h-full bg-white border-e border-gray-200 shadow-2xl overflow-y-auto">
+         class="fixed top-0 start-0 z-50 w-72 h-full bg-white border-e border-surface-200 shadow-2xl overflow-y-auto">
       
       <!-- Drawer Header -->
-      <div class="flex items-center justify-between p-4 border-b border-gray-100">
+      <div class="flex items-center justify-between p-4 border-b border-surface-100">
         <span class="text-lg font-black text-charcoal-900">SMART<span class="text-corporate-600">S3R</span></span>
         <button @click="mobileDrawer = false" class="p-2 text-charcoal-500 hover:text-charcoal-700 hover:bg-surface-50 rounded-full">
           <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -230,7 +230,7 @@
         </a>
 
         {% if not user.is_authenticated %}
-        <div class="pt-4 mt-4 border-t border-gray-100 space-y-3">
+        <div class="pt-4 mt-4 border-t border-surface-100 space-y-3">
           <a href="{% url 'login' %}" class="block py-3 text-center text-sm font-black uppercase tracking-wider bg-charcoal-900 text-white rounded-lg hover:bg-charcoal-800 transition-colors">
             {% trans "Sign In" %}
           </a>
@@ -239,7 +239,7 @@
           </a>
         </div>
         {% else %}
-        <div class="pt-4 mt-4 border-t border-gray-100 space-y-2">
+        <div class="pt-4 mt-4 border-t border-surface-100 space-y-2">
           <a href="{% url 'profile' %}" class="block py-3 px-4 text-sm font-bold text-charcoal-700 hover:bg-surface-50 hover:text-corporate-600 rounded-lg">
             {% trans "Account Settings" %}
           </a>
