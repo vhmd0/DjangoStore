@@ -33,8 +33,52 @@
     <script src="https://unpkg.com/htmx.org@1.9.10"></script>
     <script>
       window.CART_FRAGMENT_URL = "{% url 'cart:offcanvas_fragment' %}";
+
+      // HTMX Loading Spinner & Progress Bar
+      const spinner = document.getElementById('htmx-spinner');
+      const progress = document.getElementById('htmx-progress');
+      let progressInterval = null;
+
+      // Show spinner and start progress
+      document.body.addEventListener('htmx:beforeRequest', function(evt) {
+        // Only show for GET requests that target the main content
+        const target = evt.detail.target;
+        if (target && (target.id === 'main-content' || target.closest('#main-content') || target.tagName === 'BODY')) {
+          if (spinner) spinner.style.display = 'flex';
+          if (progress) {
+            progress.style.opacity = '1';
+            progress.style.width = '0%';
+            // Animate progress
+            let width = 0;
+            progressInterval = setInterval(() => {
+              if (width < 70) width += Math.random() * 10;
+              progress.style.width = Math.min(width, 70) + '%';
+            }, 100);
+          }
+        }
+      });
+
+      // Hide spinner and complete progress
+      document.body.addEventListener('htmx:afterRequest', function(evt) {
+        if (spinner) spinner.style.display = 'none';
+        if (progress && progressInterval) {
+          clearInterval(progressInterval);
+          progress.style.width = '100%';
+          setTimeout(() => {
+            progress.style.opacity = '0';
+            progress.style.width = '0%';
+          }, 200);
+        }
+      });
+
+      // CSRF Token
       document.body.addEventListener("htmx:configRequest", (event) => {
         event.detail.headers["X-CSRFToken"] = "{{ csrf_token }}";
+      });
+
+      // Scroll to top on navigation
+      document.body.addEventListener('htmx:afterSettle', function() {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
       });
       document.addEventListener("htmx:afterOnLoad", function (evt) {
         if (window.initFlowbite) {
@@ -90,9 +134,17 @@
 
     {% include 'shared/partials/navbar.html' %}
 
+    <!-- HTMX Progress Bar -->
+    <div id="htmx-progress" class="fixed top-[80px] start-0 h-0.5 bg-corporate-600 z-[60] transition-all duration-300 opacity-0"></div>
+
     <!-- Main content wrapper with padding-top for fixed navbar -->
     <div class="pt-20">
-      <main id="main-content" class="container mx-auto px-4 py-8 flex-grow">
+      <main id="main-content" class="container mx-auto px-4 py-8 flex-grow relative">
+        <!-- HTMX Loading Spinner -->
+        <div id="htmx-spinner" class="absolute inset-0 flex items-center justify-center bg-white/80 z-40" style="display: none;">
+          <div class="inline-block animate-spin rounded-full border-2 border-surface-200 border-t-corporate-600 h-8 w-8"></div>
+        </div>
+        
         {% include 'shared/partials/messages.html' %}
         {% block content %}{% endblock %}
       </main>

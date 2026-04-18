@@ -7,6 +7,9 @@
 
 {% block content %}
 
+{# Main wrapper with explicit padding to clear fixed navbar #}
+<div class="pt-4">
+
 {# Breadcrumb #}
 <nav class="text-sm mb-6 text-charcoal-500" aria-label="Breadcrumb">
   <ol class="flex items-center gap-2 flex-wrap">
@@ -536,4 +539,5 @@
   ]
 }
 </script>
+</div>
 {% endblock %}

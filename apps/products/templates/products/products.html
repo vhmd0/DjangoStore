@@ -99,7 +99,7 @@
 <div class="flex gap-6 items-start">
 
   {# Desktop Sidebar #}
-  <aside class="flex-shrink-0 bg-white border border-surface-200 rounded-xl p-5 hidden lg:block w-64 sticky top-24">
+  <aside class="flex-shrink-0 bg-white border border-surface-200 rounded-xl p-5 hidden lg:block w-64 sticky top-28">
     <p class="text-xs font-bold text-charcoal-400 uppercase tracking-widest mb-4">{% trans "Categories" %}</p>
     <div class="flex flex-col gap-1">
       <a href="{% url 'products:products' %}{% if current_sort %}?sort={{ current_sort }}{% endif %}"

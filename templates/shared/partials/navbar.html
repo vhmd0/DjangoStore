@@ -67,7 +67,7 @@
           {% trans "Shop" %}
         </a>
 
-        <a href="{% url 'products:products' %}?on_sale=true" hx-boost="false"
+        <a href="{% url 'products:products' %}?on_sale=true&sort=-created_at" hx-boost="false"
            class="text-xs font-bold uppercase tracking-wider text-charcoal-700 hover:text-corporate-600 transition-colors">
           {% if lang == 'ar' %}العروض{% else %}Offers{% endif %}
         </a>
@@ -219,7 +219,7 @@
         <a href="{% url 'products:products' %}?sort=-created_at" class="block py-3 px-4 text-sm font-bold uppercase tracking-wider text-charcoal-700 hover:bg-surface-50 hover:text-corporate-600 rounded-lg transition-colors">
           {% trans "Shop" %}
         </a>
-        <a href="{% url 'products:products' %}?on_sale=true" class="block py-3 px-4 text-sm font-bold uppercase tracking-wider text-charcoal-700 hover:bg-surface-50 hover:text-corporate-600 rounded-lg transition-colors">
+        <a href="{% url 'products:products' %}?on_sale=true&sort=-created_at" class="block py-3 px-4 text-sm font-bold uppercase tracking-wider text-charcoal-700 hover:bg-surface-50 hover:text-corporate-600 rounded-lg transition-colors">
           {% if lang == 'ar' %}العروض{% else %}Offers{% endif %}
         </a>
         <a href="{% url 'wishlist' %}" class="block py-3 px-4 text-sm font-bold uppercase tracking-wider text-charcoal-700 hover:bg-surface-50 hover:text-corporate-600 rounded-lg transition-colors">

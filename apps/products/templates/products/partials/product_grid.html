@@ -3,13 +3,7 @@
 
 {% if page_obj.object_list %}
 <div id="product-grid"
-     class="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4 lg:gap-6"
-     x-data="{ stockStatuses: {} }"
-     hx-get="{% url 'products:products' %}"
-     hx-trigger="every 60s"
-     hx-target="#product-grid"
-     hx-swap="innerHTML"
-     hx-headers='{"X-Stock-Request": "true"}'>
+     class="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4 lg:gap-6">
   {% for product in page_obj %}
     {% include 'partials/product_card.html' with product=product %}
   {% endfor %}
