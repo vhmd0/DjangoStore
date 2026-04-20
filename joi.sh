@@ -49,6 +49,13 @@ COMPLETION
 fi
 
 # =============================================================================
+# Defaults
+# =============================================================================
+JOI_QUIET=""
+JOI_VERBOSE=""
+JOI_YES=""
+
+# =============================================================================
 # Constants
 # =============================================================================
 readonly JOI_VERSION="0.2.0"
@@ -629,7 +636,7 @@ cmd_setup() {
   local total_seconds=$((total_time / 1000))
   local total_ms=$((total_time % 1000))
   echo ""
-  echo -e "${GREEN}${S_SUCCESS}${RESET} ${BOLD}Setup complete!${RESET} ${DIM}${total_seconds}.${total_ms:0:1}s${RESET}"
+  echo -e "${GREEN}✓${RESET} ${BOLD}Setup complete!${RESET} ${DIM}${total_seconds}.${total_ms:0:1}s${RESET}"
   echo ""
   echo -e "  \033[30;42m READY \033[0m ${DIM}Your project is configured and ready to go${RESET}"
   echo ""
