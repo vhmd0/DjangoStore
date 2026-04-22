@@ -146,25 +146,13 @@ function Invoke-WithProgress {
         [scriptblock]$ScriptBlock
     )
     if ($script:JOI_QUIET) {
-        & $ScriptBlock | Out-Default
+        & $ScriptBlock | Out-Null
         return $LASTEXITCODE
     }
-    if ($script:JOI_VERBOSE) {
-        Write-Dim "... $Message"
-        & $ScriptBlock
-        return $LASTEXITCODE
-    }
-    $spinner = @('⠋', '⠙', '⠹', '⠸', '⠼', '⠴', '⠦', '⠧', '⠇', '⠏')
-    $job = Start-Job -ScriptBlock $ScriptBlock
-    $i = 0
-    while ($job.State -eq 'Running') {
-        Write-Host -NoNewline "`r$($C_CYAN)$($spinner[$i])$($C_RESET) $Message"
-        $i = ($i + 1) % $spinner.Length
-        Start-Sleep -Milliseconds 80
-    }
-    Write-Host -NoNewline "`r"
-    Receive-Job $job -Wait -AutoRemoveJob | Out-Default
-    return $job.ExitCode
+    Write-Dim "... $Message"
+    $result = & $ScriptBlock 2>&1
+    $result | Out-Null
+    return $LASTEXITCODE
 }
 
 # =============================================================================
@@ -273,6 +261,7 @@ function Get-PythonPath {
 function Test-Uv {
     if (Get-Command uv -ErrorAction SilentlyContinue) { return $true }
     Write-Warn "uv is not installed"
+    Import-Module Microsoft.PowerShell.Archive -ErrorAction SilentlyContinue
     if (Confirm-Action "Install uv now?" "y") {
         Write-Info "Installing uv..."
         try {
@@ -681,17 +670,39 @@ function Invoke-Setup {
         Write-Host ""; Write-Success "Migrations applied"
     }
 
-    $createAdmin = if ($AdminFlag) { $AdminFlag } elseif ($script:JOI_ADMIN_FLAG) { $script:JOI_ADMIN_FLAG } else { $script:JOI_CREATE_ADMIN }
-    if ($createAdmin -eq 'y' -or ($script:JOI_YES -and -not $AdminFlag -and -not $script:JOI_ADMIN_FLAG)) {
+    $createAdmin = if ($AdminFlag) { $AdminFlag } elseif ($script:JOI_ADMIN_FLAG) { $script:JOI_ADMIN_FLAG } elseif ($script:JOI_CREATE_ADMIN) { $script:JOI_CREATE_ADMIN } else { "n" }
+    if ($createAdmin -eq 'y' -and $script:JOI_ADMIN_USERNAME -and $script:JOI_ADMIN_EMAIL -and $script:JOI_ADMIN_PASSWORD) {
         Write-Step "Admin user"; Write-Host ""
-        & $python manage.py createsuperuser
-        Write-Host ""; Write-Success "Admin user created"
+        $env:DJANGO_SUPERUSER_USERNAME = $script:JOI_ADMIN_USERNAME
+        $env:DJANGO_SUPERUSER_EMAIL = $script:JOI_ADMIN_EMAIL
+        $env:DJANGO_SUPERUSER_PASSWORD = $script:JOI_ADMIN_PASSWORD
+        & $python manage.py createsuperuser --noinput 2>&1 | ForEach-Object {
+            if ($_ -match '^(Error|error)') { Write-ErrorMsg $_ } else { Write-Dim "  $_" } }
+        Remove-Item Env:DJANGO_SUPERUSER_USERNAME -ErrorAction SilentlyContinue
+        Remove-Item Env:DJANGO_SUPERUSER_EMAIL -ErrorAction SilentlyContinue
+        Remove-Item Env:DJANGO_SUPERUSER_PASSWORD -ErrorAction SilentlyContinue
+        if ($LASTEXITCODE -eq 0) { Write-Host ""; Write-Success "Admin user created" }
+    }
+    elseif ($createAdmin -eq 'y') {
+        Write-Dim "Admin credentials not configured, skipping..."
     }
     elseif (-not $AdminFlag -and -not $script:JOI_ADMIN_FLAG) {
         if (Confirm-Action "Create admin user?" "n") {
             Write-Step "Admin user"; Write-Host ""
-            & $python manage.py createsuperuser
-            Write-Host ""; Write-Success "Admin user created"
+            if ($script:JOI_ADMIN_USERNAME -and $script:JOI_ADMIN_EMAIL -and $script:JOI_ADMIN_PASSWORD) {
+                $env:DJANGO_SUPERUSER_USERNAME = $script:JOI_ADMIN_USERNAME
+                $env:DJANGO_SUPERUSER_EMAIL = $script:JOI_ADMIN_EMAIL
+                $env:DJANGO_SUPERUSER_PASSWORD = $script:JOI_ADMIN_PASSWORD
+                & $python manage.py createsuperuser --noinput 2>&1 | ForEach-Object {
+                    if ($_ -match '^(Error|error)') { Write-ErrorMsg $_ } else { Write-Dim "  $_" }
+                }
+                Remove-Item Env:DJANGO_SUPERUSER_USERNAME -ErrorAction SilentlyContinue
+                Remove-Item Env:DJANGO_SUPERUSER_EMAIL -ErrorAction SilentlyContinue
+                Remove-Item Env:DJANGO_SUPERUSER_PASSWORD -ErrorAction SilentlyContinue
+                if ($LASTEXITCODE -eq 0) { Write-Host ""; Write-Success "Admin user created" }
+            } else {
+                Write-Warn "Admin credentials required. Set in .joi.env or use -u/-e/-p flags"
+            }
         }
     }
 
