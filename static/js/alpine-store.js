@@ -66,8 +66,11 @@ document.addEventListener("alpine:init", () => {
     },
 
     updateUI(data) {
-      if (data.items_html) document.querySelector(".js-cart-body").innerHTML = data.items_html;
-      if (data.footer_html) document.querySelector(".js-cart-footer").innerHTML = data.footer_html;
+      const cartBody = document.querySelector(".js-cart-body");
+      const cartFooter = document.querySelector(".js-cart-footer");
+      
+      if (data.items_html && cartBody) cartBody.innerHTML = data.items_html;
+      if (data.footer_html && cartFooter) cartFooter.innerHTML = data.footer_html;
       document.querySelectorAll(".js-cart-badge").forEach((el) => (el.textContent = data.cart_count));
     },
 

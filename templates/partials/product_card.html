@@ -101,11 +101,18 @@
       {% if user.is_authenticated %}
         {% if product.stock > 0 %}
           <form 
+            id="product-form-{{ product.id }}"
             action="{% url 'cart:add' product.id %}" 
             method="post"
             hx-boost="false"
             x-data="{ submitting: false, added: false }"
-            @submit.prevent="alert('Form submit event!'); submitting = true; $store.cart.addToCart($el)"
+            @submit.prevent="
+              submitting = true;
+              $store.cart.addToCart($el)
+                .then(() => { added = true; setTimeout(() => added = false, 1500); })
+                .catch(() => {})
+                .finally(() => { submitting = false; })
+            "
             class="w-full"
           >
             {% csrf_token %}
