@@ -26,13 +26,16 @@ document.addEventListener("alpine:init", () => {
     addedId: null,
 
     async addToCart(form) {
-      if (this.adding) return;
+      if (this.adding) return Promise.reject(new Error("Already adding"));
       this.adding = true;
+      console.log("addToCart function called", form);
 
       const formData = new FormData(form);
       const csrf = Alpine.store("utils").csrf();
+      console.log("CSRF token:", csrf);
 
       try {
+        console.log("Fetching:", form.action);
         const res = await fetch(form.action, {
           method: "POST",
           headers: {
@@ -41,17 +44,22 @@ document.addEventListener("alpine:init", () => {
           },
           body: formData,
         });
+        console.log("Response status:", res.status);
         const data = await res.json();
+        console.log("Response data:", data);
         if (res.ok && data.success) {
           this.updateUI(data);
           this.addedId = form.dataset.productId || Date.now();
           setTimeout(() => { this.addedId = null; }, 1500);
+          return data;
         } else {
           Alpine.store("toast").show(data.error || "Error updating cart", "error");
+          throw new Error(data.error || "Error");
         }
       } catch (e) {
         console.error("Cart error:", e);
         Alpine.store("toast").show("Connection error", "error");
+        throw e;
       } finally {
         this.adding = false;
       }

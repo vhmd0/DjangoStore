@@ -105,15 +105,7 @@
             method="post"
             hx-boost="false"
             x-data="{ submitting: false, added: false }"
-            x-on:submit.prevent="
-              submitting = true;
-              $store.cart.addToCart($el).then(() => { 
-                submitting = false; 
-                added = true;
-                $store.cart.showOffcanvas();
-                setTimeout(() => { added = false; }, 2000);
-              }).catch(() => { submitting = false; });
-            "
+            @submit.prevent="alert('Form submit event!'); submitting = true; $store.cart.addToCart($el)"
             class="w-full"
           >
             {% csrf_token %}
