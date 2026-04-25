@@ -3,168 +3,176 @@
 
 <!doctype html>
 <html lang="{{ lang }}" dir="{% if lang == 'ar' %}rtl{% else %}ltr{% endif %}">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="color-scheme" content="light" />
-    
-    <title>{% block title %}SMART S3R{% endblock %}</title>
-    <link rel="icon" href="{% static 'img/favicon.ico' %}" type="image/x-icon" />
-    
-    <!-- Preconnect & Fonts -->
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Readex+Pro:wght@200;300;400;500;600;700;800&family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
-    
-    <!-- Styles -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
-    <link rel="stylesheet" href="{% static 'css/tailwind.css' %}" />
-    <link href="https://cdn.jsdelivr.net/npm/flowbite@4.0.1/dist/flowbite.min.css" rel="stylesheet" />
-    <script src="https://cdn.jsdelivr.net/npm/flowbite@4.0.1/dist/flowbite.min.js"></script>
-    
-    <!-- Alpine.js & Store (Deferred) -->
-    <style>[x-cloak] { display: none !important; }</style>
-    <script defer src="{% static 'js/alpine-store.js' %}"></script>
-    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
 
-    {% block extra_css %}{% endblock %}
-  </head>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="color-scheme" content="light" />
 
-  <!-- 
+  <title>{% block title %}SMART S3R{% endblock %}</title>
+  <link rel="icon" href="{% static 'img/favicon.ico' %}" type="image/x-icon" />
+
+  <!-- Preconnect & Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Readex+Pro:wght@200;300;400;500;600;700;800&family=Inter:wght@300;400;500;600;700;800&display=swap"
+    rel="stylesheet" />
+
+  <!-- Styles -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
+  <link rel="stylesheet" href="{% static 'css/tailwind.css' %}" />
+  <link href="https://cdn.jsdelivr.net/npm/flowbite@4.0.1/dist/flowbite.min.css" rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/flowbite@4.0.1/dist/flowbite.min.js"></script>
+
+  <!-- Alpine.js & Store (Deferred) -->
+  <style>
+    [x-cloak] {
+      display: none !important;
+    }
+  </style>
+  <script defer src="{% static 'js/alpine-store.js' %}"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+
+  {% block extra_css %}{% endblock %}
+</head>
+
+<!-- 
     Body Fix: 
     1. Uncommented the body tag.
     2. Added hx-boost for SPA-like experience.
     3. Added classes for typography based on language.
   -->
-  <body 
-    hx-boost="true"
-    class="bg-white text-charcoal-900 min-h-screen flex flex-col font-readex {% if lang == 'ar' %}text-lg leading-relaxed{% else %}text-base{% endif %} overflow-x-hidden touch-manipulation"
-  >
-    <!-- Skip to content for accessibility -->
-    <a
-      href="#main-content"
-      class="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:start-4 focus:z-[100] focus:px-4 focus:py-2 focus:bg-corporate-600 focus:text-white focus:rounded-lg"
-    >
-      {% trans "Skip to content" %}
-    </a>
 
-    <!-- Navbar (Uncommented - Essential for layout) -->
-    {% include 'shared/partials/navbar.html' %}
+<body hx-boost="true"
+  class="bg-white text-charcoal-900 min-h-screen flex flex-col font-readex {% if lang == 'ar' %}text-lg leading-relaxed{% else %}text-base{% endif %} overflow-x-hidden touch-manipulation">
+  <!-- Skip to content for accessibility -->
+  <a href="#main-content"
+    class="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:start-4 focus:z-[100] focus:px-4 focus:py-2 focus:bg-corporate-600 focus:text-white focus:rounded-lg">
+    {% trans "Skip to content" %}
+  </a>
 
-<!-- HTMX Progress Bar -->
-    <div id="htmx-progress" class="fixed top-[96px] start-0 h-0.5 bg-corporate-600 z-[60] transition-all duration-300 opacity-0"></div>
+  <!-- Navbar (Uncommented - Essential for layout) -->
+  {% include 'shared/partials/navbar.html' %}
 
-    <!-- Fixed Sidebar (only on sidebar pages) -->
-    {% if has_sidebar %}
-    {% include 'shared/partials/sidebar.html' %}
-    {% endif %}
+  <!-- HTMX Progress Bar -->
+  <div id="htmx-progress"
+    class="fixed top-[96px] start-0 h-0.5 bg-corporate-600 z-[60] transition-all duration-300 opacity-0"></div>
 
-    <!-- Main content wrapper: pt-20 clears navbar, ms-64 offsets sidebar (when present) -->
-    <div class="pt-24 {% if has_sidebar %}ms-0 lg:ms-64{% endif %}">
-      <main id="main-content" class="container mx-auto px-4 py-8 flex-grow relative">
-        <!-- HTMX Loading Spinner -->
-        <div id="htmx-spinner" class="absolute inset-0 flex items-center justify-center bg-white/80 z-[55] hidden transition-opacity duration-300">
-          <div class="inline-block animate-spin rounded-full border-2 border-surface-200 border-t-corporate-600 h-8 w-8"></div>
+  <!-- Fixed Sidebar (only on sidebar pages) -->
+  {% if has_sidebar %}
+  {% include 'shared/partials/sidebar.html' %}
+  {% endif %}
+
+  <!-- Main content wrapper: pt-20 clears navbar, ms-64 offsets sidebar (when present) -->
+  <div class="pt-24 {% if has_sidebar %}ms-0 lg:ms-64{% endif %}">
+    <main id="main-content" class="container mx-auto px-4 py-8 flex-grow relative">
+      <!-- HTMX Loading Spinner -->
+      <div id="htmx-spinner"
+        class="absolute inset-0 flex items-center justify-center bg-white/80 z-[55] hidden transition-opacity duration-300">
+        <div class="inline-block animate-spin rounded-full border-2 border-surface-200 border-t-corporate-600 h-8 w-8">
         </div>
+      </div>
 
-        <!-- Messages -->
-        {% include 'shared/partials/messages.html' %}
-        
-        <!-- Page Content -->
-        {% block content %}{% endblock %}
-        
-      </main>
-    </div>
+      <!-- Messages -->
+      {% include 'shared/partials/messages.html' %}
 
-    <!-- Footer & Modals -->
-    {% include 'shared/partials/footer.html' %}
-    {% include 'shared/partials/auth_modal.html' %}
-    {% include 'shared/partials/search_modal.html' %}
-    {% include 'shared/partials/toast.html' %}
+      <!-- Page Content -->
+      {% block content %}{% endblock %}
 
-    <!-- HTMX Library -->
-    <script src="https://unpkg.com/htmx.org@1.9.10"></script>
+    </main>
+  </div>
 
-   
-    <script>
-      // Global Config
-      window.CART_FRAGMENT_URL = "{% url 'cart:offcanvas_fragment' %}";
+  <!-- Footer & Modals -->
+  {% include 'shared/partials/footer.html' %}
+  {% include 'shared/partials/auth_modal.html' %}
+  {% include 'shared/partials/search_modal.html' %}
+  {% include 'shared/partials/toast.html' %}
 
-      document.addEventListener("DOMContentLoaded", () => {
-        // --- CSRF Token Setup ---
-        document.body.addEventListener("htmx:configRequest", (event) => {
-          event.detail.headers["X-CSRFToken"] = "{{ csrf_token }}";
-        });
+  <!-- HTMX Library -->
+  <script src="https://unpkg.com/htmx.org@1.9.10"></script>
 
-        // --- Spinner Logic ---
-        const spinner = document.getElementById('htmx-spinner');
 
-        document.body.addEventListener('htmx:beforeRequest', function(evt) {
-          const target = evt.detail.target;
-          // Show spinner for main content requests
-          if (target && (target.id === 'main-content' || target.closest('#main-content') || target.tagName === 'BODY')) {
-            if (spinner) {
-              spinner.classList.remove('hidden');
-              // Small timeout to prevent flickering for super fast requests
-              setTimeout(() => { if(spinner) spinner.classList.remove('opacity-0'); }, 10);
-            }
-          }
-        });
+  <script>
+    // Global Config
+    window.CART_FRAGMENT_URL = "{% url 'cart:offcanvas_fragment' %}";
 
-        document.body.addEventListener('htmx:afterRequest', function(evt) {
-          if (spinner) spinner.classList.add('hidden');
-        });
-
-        // --- Scroll to Top on Navigation ---
-        document.body.addEventListener('htmx:afterSettle', function() {
-          window.scrollTo({ top: 0, behavior: 'smooth' });
-        });
-
-        // --- Re-initialize Flowbite Components ---
-        document.addEventListener("htmx:afterOnLoad", function (evt) {
-          if (window.initFlowbite) {
-            window.initFlowbite();
-          }
-        });
-
-        // --- Error Handling (Toast) ---
-        const handleError = (msg, type) => {
-          if (window.Alpine && Alpine.store("toast")) {
-            Alpine.store("toast").show(msg, type || "error");
-          } else {
-            console.error(msg);
-          }
-        };
-
-        document.body.addEventListener("htmx:responseError", (evt) => {
-          const msg = evt.detail.xhr.status === 0 
-            ? "Network error. Please check your connection." 
-            : `Server error (${evt.detail.xhr.status}). Please try again.`;
-          handleError(msg);
-        });
-
-        document.body.addEventListener("htmx:sendError", (evt) => {
-          handleError("Network error. Please check your connection.");
-        });
-
-        // --- RTL/LTR Language Switching Logic ---
-        document.body.addEventListener("htmx:afterSettle", function () {
-          const path = window.location.pathname;
-          const isArabic = path.startsWith("/ar");
-          
-          const html = document.documentElement;
-          html.lang = isArabic ? "ar" : "en";
-          html.dir = isArabic ? "rtl" : "ltr";
-          
-          const body = document.body;
-          body.classList.toggle("text-lg", isArabic);
-          body.classList.toggle("leading-relaxed", isArabic);
-          body.classList.toggle("text-base", !isArabic);
-        });
+    document.addEventListener("DOMContentLoaded", () => {
+      // --- CSRF Token Setup ---
+      document.body.addEventListener("htmx:configRequest", (event) => {
+        event.detail.headers["X-CSRFToken"] = "{{ csrf_token }}";
       });
-    </script>
 
-    {% block extra_js %}{% endblock %}
-  </body>
+      // --- Spinner Logic ---
+      const spinner = document.getElementById('htmx-spinner');
+
+      document.body.addEventListener('htmx:beforeRequest', function (evt) {
+        const target = evt.detail.target;
+        // Show spinner for main content requests
+        if (target && (target.id === 'main-content' || target.closest('#main-content') || target.tagName === 'BODY')) {
+          if (spinner) {
+            spinner.classList.remove('hidden');
+            // Small timeout to prevent flickering for super fast requests
+            setTimeout(() => { if (spinner) spinner.classList.remove('opacity-0'); }, 10);
+          }
+        }
+      });
+
+      document.body.addEventListener('htmx:afterRequest', function (evt) {
+        if (spinner) spinner.classList.add('hidden');
+      });
+
+      // --- Scroll to Top on Navigation ---
+      document.body.addEventListener('htmx:afterSettle', function () {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      });
+
+      // --- Re-initialize Flowbite Components ---
+      document.addEventListener("htmx:afterOnLoad", function (evt) {
+        if (window.initFlowbite) {
+          window.initFlowbite();
+        }
+      });
+
+      // --- Error Handling (Toast) ---
+      const handleError = (msg, type) => {
+        if (window.Alpine && Alpine.store("toast")) {
+          Alpine.store("toast").show(msg, type || "error");
+        } else {
+          console.error(msg);
+        }
+      };
+
+      document.body.addEventListener("htmx:responseError", (evt) => {
+        const msg = evt.detail.xhr.status === 0
+          ? "Network error. Please check your connection."
+          : `Server error (${evt.detail.xhr.status}). Please try again.`;
+        handleError(msg);
+      });
+
+      document.body.addEventListener("htmx:sendError", (evt) => {
+        handleError("Network error. Please check your connection.");
+      });
+
+      // --- RTL/LTR Language Switching Logic ---
+      document.body.addEventListener("htmx:afterSettle", function () {
+        const path = window.location.pathname;
+        const isArabic = path.startsWith("/ar");
+
+        const html = document.documentElement;
+        html.lang = isArabic ? "ar" : "en";
+        html.dir = isArabic ? "rtl" : "ltr";
+
+        const body = document.body;
+        body.classList.toggle("text-lg", isArabic);
+        body.classList.toggle("leading-relaxed", isArabic);
+        body.classList.toggle("text-base", !isArabic);
+      });
+    });
+  </script>
+
+  {% block extra_js %}{% endblock %}
+</body>
+
 </html>
 ```

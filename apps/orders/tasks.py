@@ -1,12 +1,10 @@
-from celery import shared_task
 from django.core.mail import send_mail
 from django.conf import settings
 from django.template.loader import render_to_string
 
 
-@shared_task
 def send_order_confirmation_task(order_id):
-    from orders.models import Order, OrderItem
+    from orders.models import Order
 
     try:
         order = (
@@ -55,7 +53,6 @@ Smart S3r Team
         return f"Order #{order_id} not found"
 
 
-@shared_task
 def send_order_status_update_task(order_id, old_status, new_status):
     from orders.models import Order
 
@@ -110,7 +107,6 @@ Smart S3r Team
         return f"Order #{order_id} not found"
 
 
-@shared_task
 def send_order_cancelled_task(order_id):
     from orders.models import Order
 

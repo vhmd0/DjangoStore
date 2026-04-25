@@ -118,8 +118,7 @@ TEMPLATES = [
 WSGI_APPLICATION = "shop.wsgi.application"
 
 
-REDIS_URL = os.environ.get("REDIS_URL", "redis://127.0.0.1:6379/0")
-
+# Cache Configuration (Local memory in dev, Redis in production)
 if DEBUG:
     CACHES = {
         "default": {
@@ -130,20 +129,9 @@ else:
     CACHES = {
         "default": {
             "BACKEND": "django.core.cache.backends.redis.RedisCache",
-            "LOCATION": REDIS_URL,
+            "LOCATION": os.environ.get("REDIS_URL", "redis://127.0.0.1:6379/0"),
         }
     }
-
-
-# Celery Configuration
-CELERY_TASK_ALWAYS_EAGER = DEBUG  # Sync in dev, async in production
-CELERY_TASK_EAGER_PROPAGATES = True
-CELERY_BROKER_URL = os.environ.get("CELERY_BROKER_URL", "redis://127.0.0.1:6379/0")
-CELERY_RESULT_BACKEND = REDIS_URL
-
-CELERY_ACCEPT_CONTENT = ["json"]
-CELERY_TASK_SERIALIZER = "json"
-CELERY_RESULT_SERIALIZER = "json"
 
 
 # Email Configuration (Console backend for development)

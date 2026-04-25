@@ -202,11 +202,11 @@ def create_order(request):
 
             from .tasks import send_order_confirmation_task
 
-            send_order_confirmation_task.delay(order.id)
+            send_order_confirmation_task(order.id)
 
             from products.tasks import check_and_notify_low_stock_task
 
-            check_and_notify_low_stock_task.delay()
+            check_and_notify_low_stock_task()
 
             return redirect("orders:confirmation", order_id=order.id)
 
@@ -317,7 +317,7 @@ def cancel_order(request, order_id):
 
     from .tasks import send_order_cancelled_task
 
-    send_order_cancelled_task.delay(order.id)
+    send_order_cancelled_task(order.id)
 
     if request.headers.get("Hx-Request"):
         return render(

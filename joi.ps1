@@ -358,9 +358,6 @@ function Invoke-Check {
         $count = (Get-ChildItem "$fixtures\*.json" -ErrorAction SilentlyContinue | Measure-Object).Count
         Write-Item "$count fixture files"
     }
-    elseif (Test-Path (Join-Path $JOI_ROOT "data_seeding.sql")) {
-        Write-Item "data_seeding.sql available"
-    }
     else {
         Write-Warn "No seed data found"
     }
@@ -468,14 +465,8 @@ function Invoke-Seed {
         if ($LASTEXITCODE -ne 0) { Write-Host ""; Write-ErrorMsg "Seeding failed"; return $EXIT_ERROR }
         Write-Host ""; Write-Success "Database seeded"
     }
-    elseif (Test-Path (Join-Path $JOI_ROOT "data_seeding.sql")) {
-        Write-Warn "Using legacy data_seeding.sql"
-        & $python seed_db.py
-        if ($LASTEXITCODE -ne 0) { Write-Host ""; Write-ErrorMsg "Seeding failed"; return $EXIT_ERROR }
-        Write-Host ""; Write-Success "Database seeded"
-    }
     else {
-        Write-ErrorMsg "No seed data found (fixtures/ or data_seeding.sql)"
+        Write-ErrorMsg "No seed data found (fixtures/)"
         return $EXIT_ERROR
     }
     Write-Host ""

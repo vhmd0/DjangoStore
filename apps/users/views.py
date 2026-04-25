@@ -50,7 +50,7 @@ def register(request):
 
             from .tasks import send_welcome_email_task
 
-            send_welcome_email_task.delay(user.id)
+            send_welcome_email_task(user.id)
 
             return redirect("profile")
         else:

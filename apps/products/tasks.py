@@ -1,4 +1,3 @@
-from celery import shared_task
 from django.core.mail import send_mail
 from django.conf import settings
 from django.template.loader import render_to_string
@@ -8,7 +7,6 @@ from django.contrib.auth import get_user_model
 LOW_STOCK_THRESHOLD = 5
 
 
-@shared_task
 def check_low_stock_task():
     from products.models import Product
 
@@ -63,10 +61,8 @@ Smart S3r System
     return f"Low stock alert sent to {len(admin_emails)} admin(s) for {len(low_stock_products)} products"
 
 
-@shared_task
 def check_and_notify_low_stock_task():
     from products.models import Product
-    from django.db.models import F
 
     newly_low = Product.objects.filter(
         stock__lte=LOW_STOCK_THRESHOLD, stock__gt=0

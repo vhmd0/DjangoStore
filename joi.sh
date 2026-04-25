@@ -414,8 +414,6 @@ cmd_check() {
   if [[ -d "${JOI_ROOT}/fixtures" ]]; then
     local count; count=$(ls "${JOI_ROOT}/fixtures"/*.json 2>/dev/null | wc -l)
     log_item "${count} fixture files"
-  elif [[ -f "${JOI_ROOT}/data_seeding.sql" ]]; then
-    log_item "data_seeding.sql available"
   else
     log_warn "No seed data found"
   fi
@@ -488,25 +486,11 @@ cmd_seed() {
   log_step "Seeding database"
   start_timer; echo ""
   
-  if [[ -d "${JOI_ROOT}/fixtures" ]]; then
-    if "${python}" manage.py load_data; then
-      echo ""; log_success "Database seeded in $(get_elapsed)"
-    else
-      echo ""; log_error "Seeding failed"; return "${EXIT_ERROR}"
-    fi
-  elif [[ -f "${JOI_ROOT}/data_seeding.sql" ]]; then
-    log_warn "Using legacy data_seeding.sql"
-    if "${python}" seed_db.py; then
-      echo ""; log_success "Database seeded in $(get_elapsed)"
-    else
-      echo ""; log_error "Seeding failed"; return "${EXIT_ERROR}"
-    fi
+  if "${python}" manage.py load_data; then
+    echo ""; log_success "Database seeded in $(get_elapsed)"
   else
-    log_error "No seed data found"
-    log_dim "  Expected: fixtures/ or data_seeding.sql"
-    return "${EXIT_ERROR}"
+    echo ""; log_error "Seeding failed"; return "${EXIT_ERROR}"
   fi
-  echo ""
 }
 
 cmd_admin() {
@@ -546,7 +530,7 @@ cmd_reset() {
   log_dim "  * Running migrate"; "${python}" manage.py migrate >/dev/null 2>&1
   echo ""; log_success "Database reset in $(get_elapsed)"
 
-  if [[ -d "${JOI_ROOT}/fixtures" ]] || [[ -f "${JOI_ROOT}/data_seeding.sql" ]]; then
+  if [[ -d "${JOI_ROOT}/fixtures" ]]; then
     if confirm "Seed the database?" "y"; then JOI_YES=1 cmd_seed; fi
   fi
   echo ""
