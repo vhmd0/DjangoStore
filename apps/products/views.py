@@ -84,6 +84,7 @@ async def product_list(request):
     on_sale = request.GET.get("on_sale")
     if on_sale == "true":
         from django.db.models import F
+
         products = products.filter(discount_price__lt=F("price"))
 
     if query:
@@ -397,8 +398,10 @@ def toggle_wishlist(request, product_id):
     cache.delete(f"wishlist_count_{request.user.id}")
 
     # Detect AJAX reliably
-    is_ajax = request.headers.get("X-Requested-With") == "XMLHttpRequest" or \
-              request.headers.get("Accept") == "application/json"
+    is_ajax = (
+        request.headers.get("X-Requested-With") == "XMLHttpRequest"
+        or request.headers.get("Accept") == "application/json"
+    )
 
     if is_ajax:
         from .models import Wishlist as WL

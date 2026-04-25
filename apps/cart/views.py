@@ -156,7 +156,7 @@ async def cart_add(request, product_id):
 
     try:
         quantity = int(request.POST.get("quantity", 1))
-    except (TypeError, ValueError):
+    except TypeError, ValueError:
         quantity = 1
 
     pid = str(product_id)

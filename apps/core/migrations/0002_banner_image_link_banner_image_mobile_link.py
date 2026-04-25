@@ -4,20 +4,23 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('core', '0001_initial'),
+        ("core", "0001_initial"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='banner',
-            name='image_link',
-            field=models.URLField(blank=True, help_text='External image URL', null=True),
+            model_name="banner",
+            name="image_link",
+            field=models.URLField(
+                blank=True, help_text="External image URL", null=True
+            ),
         ),
         migrations.AddField(
-            model_name='banner',
-            name='image_mobile_link',
-            field=models.URLField(blank=True, help_text='External mobile image URL', null=True),
+            model_name="banner",
+            name="image_mobile_link",
+            field=models.URLField(
+                blank=True, help_text="External mobile image URL", null=True
+            ),
         ),
     ]

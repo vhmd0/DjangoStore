@@ -4,8 +4,7 @@
     mobileDrawer: false,
     searchOpen: false,
     userMenuOpen: false,
-    categoryDropdown: false 
-  }" class="fixed w-full z-50 top-0 start-0 bg-white border-b border-surface-200 shadow-sm">
+    categoryDropdown: false }" class="fixed w-full z-50 top-0 start-0 bg-white border-b border-surface-200 shadow-sm">
 
 
   <div class="max-w-screen-2xl mx-auto px-4 lg:px-8">
@@ -136,18 +135,17 @@
               trans "Track Orders" %}</a>
             <form action="{% url 'logout' %}" method="post" class="mt-1 pt-1 border-t border-surface-50">
               {% csrf_token %}
-              <button type="submit"
-                class="w-full text-start px-5 py-2 text-xs font-black text-red-600 hover:bg-red-50">{% trans "Log Out"
-                %}</button>
+              <button type="submit" class="w-full text-start px-5 py-2 text-xs 
+                font-black text-red-600 hover:bg-red-50">
+                {% trans "Log Out"%}</button>
             </form>
             {% else %}
-            <a href="{% url 'login' %}"
-              class="block px-5 py-3 text-xs font-black text-charcoal-900 hover:text-corporate-600 text-start">{% trans
-              "Sign In" %}</a>
+            <a href="{% url 'login' %}" class="block px-5 py-3 text-xs font-black text-charcoal-900 
+              hover:text-corporate-600 text-start">{% trans "Sign In" %}</a>
             <div class="px-5 pb-2">
-              <a href="{% url 'register' %}"
-                class="block w-full text-center py-2 text-[10px] font-black uppercase tracking-widest bg-corporate-600 text-white rounded-lg hover:bg-corporate-700">{%
-                trans "New Account" %}</a>
+              <a href="{% url 'register' %}" class="block w-full text-center py-2 text-[10px] 
+                font-black uppercase tracking-widest bg-corporate-600 text-white rounded-lg hover:bg-corporate-700">
+                {% trans "New Account" %}</a>
             </div>
             {% endif %}
           </div>
@@ -161,8 +159,8 @@
           </svg>
           {% if cart_count > 0 %}
           <span
-            class="absolute top-1 end-1 flex items-center justify-center min-w-[18px] h-[18px] px-1 text-[9px] font-black text-white bg-charcoal-900 rounded-full ring-2 ring-white">{{
-            cart_count }}</span>
+            class="absolute top-1 end-1 flex items-center justify-center min-w-[18px] h-[18px] px-1 text-[9px] font-black text-white bg-charcoal-900 rounded-full ring-2 ring-white">
+            {{ cart_count }}</span>
           {% endif %}
         </a>
 
@@ -170,9 +168,9 @@
           class="relative p-2.5 text-charcoal-700 hover:text-corporate-600 hover:bg-surface-50 rounded-full transition-all duration-300">
           <i class="bi bi-heart text-xl"></i>
           {% if wishlist_count > 0 %}
-          <span
-            class="absolute top-1 end-1 flex items-center justify-center min-w-[18px] h-[18px] px-1 text-[9px] font-black text-white bg-red-500 rounded-full ring-2 ring-white">{{
-            wishlist_count }}</span>
+          <span class="absolute top-1 end-1 flex items-center justify-center min-w-[18px] h-[18px] px-1 text-[9px] 
+            font-black text-white bg-red-500 rounded-full ring-2 ring-white">
+            {{ wishlist_count }}</span>
           {% endif %}
         </a>
 
@@ -188,18 +186,11 @@
   </div>
 
   <!-- Mobile Drawer -->
-  <div
-    x-show="mobileDrawer"
-    x-transition:enter="transition ease-out duration-300"
-    x-transition:enter-start="opacity-0 translate-x-full"
-    x-transition:enter-end="opacity-100 translate-x-0"
-    x-transition:leave="transition ease-in duration-200"
-    x-transition:leave-start="opacity-100 translate-x-0"
-    x-transition:leave-end="opacity-0 translate-x-full"
-    @click.away="mobileDrawer = false"
-    class="fixed inset-y-0 end-0 w-72 bg-white shadow-2xl z-[60] lg:hidden overflow-y-auto"
-    x-cloak
-  >
+  <div x-show="mobileDrawer" x-transition:enter="transition ease-out duration-300"
+    x-transition:enter-start="opacity-0 translate-x-full" x-transition:enter-end="opacity-100 translate-x-0"
+    x-transition:leave="transition ease-in duration-200" x-transition:leave-start="opacity-100 translate-x-0"
+    x-transition:leave-end="opacity-0 translate-x-full" @click.away="mobileDrawer = false"
+    class="fixed inset-y-0 end-0 w-72 bg-white shadow-2xl z-[60] lg:hidden overflow-y-auto" x-cloak>
     <div class="p-4 border-b border-surface-100 flex items-center justify-between">
       <span class="text-sm font-black text-charcoal-900">{% trans "Menu" %}</span>
       <button @click="mobileDrawer = false" class="p-2 text-charcoal-500 hover:text-charcoal-900">
@@ -208,70 +199,73 @@
         </svg>
       </button>
     </div>
-    
+
     <div class="p-4 space-y-2">
-      <a href="{% url 'home' %}" class="block px-4 py-3 text-sm font-bold text-charcoal-700 hover:bg-surface-50 hover:text-corporate-600 rounded-lg {% if request.resolver_match.url_name == 'home' %}bg-surface-50 text-corporate-600{% endif %}">
+      <a href="{% url 'home' %}"
+        class="block px-4 py-3 text-sm font-bold text-charcoal-700 hover:bg-surface-50 hover:text-corporate-600 rounded-lg {% if request.resolver_match.url_name == 'home' %}bg-surface-50 text-corporate-600{% endif %}">
         {% trans "Home" %}
       </a>
-      
-      <a href="{% url 'categories:categories' %}" class="block px-4 py-3 text-sm font-bold text-charcoal-700 hover:bg-surface-50 hover:text-corporate-600 rounded-lg">
+
+      <a href="{% url 'categories:categories' %}"
+        class="block px-4 py-3 text-sm font-bold text-charcoal-700 hover:bg-surface-50 hover:text-corporate-600 rounded-lg">
         {% if lang == 'ar' %}الفئات{% else %}Categories{% endif %}
       </a>
-      
-      <a href="{% url 'products:products' %}" class="block px-4 py-3 text-sm font-bold text-charcoal-700 hover:bg-surface-50 hover:text-corporate-600 rounded-lg">
+
+      <a href="{% url 'products:products' %}"
+        class="block px-4 py-3 text-sm font-bold text-charcoal-700 hover:bg-surface-50 hover:text-corporate-600 rounded-lg">
         {% trans "Shop" %}
       </a>
-      
-      <a href="{% url 'products:products' %}?on_sale=true" class="block px-4 py-3 text-sm font-bold text-charcoal-700 hover:bg-surface-50 hover:text-corporate-600 rounded-lg">
+
+      <a href="{% url 'products:products' %}?on_sale=true"
+        class="block px-4 py-3 text-sm font-bold text-charcoal-700 hover:bg-surface-50 hover:text-corporate-600 rounded-lg">
         {% if lang == 'ar' %}العروض{% else %}Offers{% endif %}
       </a>
-      
-      <a href="{% url 'wishlist' %}" class="block px-4 py-3 text-sm font-bold text-charcoal-700 hover:bg-surface-50 hover:text-corporate-600 rounded-lg {% if request.resolver_match.url_name == 'wishlist' %}bg-surface-50 text-corporate-600{% endif %}">
+
+      <a href="{% url 'wishlist' %}"
+        class="block px-4 py-3 text-sm font-bold text-charcoal-700 hover:bg-surface-50 hover:text-corporate-600 rounded-lg {% if request.resolver_match.url_name == 'wishlist' %}bg-surface-50 text-corporate-600{% endif %}">
         {% trans "Wishlist" %}
       </a>
-      
-      <a href="{% url 'orders:checkout' %}" class="block px-4 py-3 text-sm font-bold text-charcoal-700 hover:bg-surface-50 hover:text-corporate-600 rounded-lg">
+
+      <a href="{% url 'orders:checkout' %}"
+        class="block px-4 py-3 text-sm font-bold text-charcoal-700 hover:bg-surface-50 hover:text-corporate-600 rounded-lg">
         {% trans "Checkout" %}
       </a>
-      
+
       <div class="border-t border-surface-100 pt-2 mt-2">
         {% if user.is_authenticated %}
-          <a href="{% url 'profile' %}" class="block px-4 py-3 text-sm font-bold text-charcoal-700 hover:bg-surface-50 hover:text-corporate-600 rounded-lg">
-            {% trans "Account Settings" %}
-          </a>
-          <a href="{% url 'orders:order_list' %}" class="block px-4 py-3 text-sm font-bold text-charcoal-700 hover:bg-surface-50 hover:text-corporate-600 rounded-lg">
-            {% trans "Track Orders" %}
-          </a>
-          <form action="{% url 'logout' %}" method="post">
-            {% csrf_token %}
-            <button type="submit" class="w-full text-start px-4 py-3 text-sm font-bold text-red-600 hover:bg-red-50 rounded-lg">
-              {% trans "Log Out" %}
-            </button>
-          </form>
+        <a href="{% url 'profile' %}"
+          class="block px-4 py-3 text-sm font-bold text-charcoal-700 hover:bg-surface-50 hover:text-corporate-600 rounded-lg">
+          {% trans "Account Settings" %}
+        </a>
+        <a href="{% url 'orders:order_list' %}"
+          class="block px-4 py-3 text-sm font-bold text-charcoal-700 hover:bg-surface-50 hover:text-corporate-600 rounded-lg">
+          {% trans "Track Orders" %}
+        </a>
+        <form action="{% url 'logout' %}" method="post">
+          {% csrf_token %}
+          <button type="submit"
+            class="w-full text-start px-4 py-3 text-sm font-bold text-red-600 hover:bg-red-50 rounded-lg">
+            {% trans "Log Out" %}
+          </button>
+        </form>
         {% else %}
-          <a href="{% url 'login' %}" class="block px-4 py-3 text-sm font-bold text-charcoal-700 hover:bg-surface-50 hover:text-corporate-600 rounded-lg">
-            {% trans "Sign In" %}
-          </a>
-          <a href="{% url 'register' %}" class="block px-4 py-3 text-sm font-black text-corporate-600 hover:bg-corporate-50 rounded-lg">
-            {% trans "New Account" %}
-          </a>
+        <a href="{% url 'login' %}"
+          class="block px-4 py-3 text-sm font-bold text-charcoal-700 hover:bg-surface-50 hover:text-corporate-600 rounded-lg">
+          {% trans "Sign In" %}
+        </a>
+        <a href="{% url 'register' %}"
+          class="block px-4 py-3 text-sm font-black text-corporate-600 hover:bg-corporate-50 rounded-lg">
+          {% trans "New Account" %}
+        </a>
         {% endif %}
       </div>
     </div>
   </div>
 
   <!-- Mobile Drawer Overlay -->
-  <div
-    x-show="mobileDrawer"
-    @click="mobileDrawer = false"
-    x-transition:enter="transition ease-out duration-300"
-    x-transition:enter-start="opacity-0"
-    x-transition:enter-end="opacity-100"
-    x-transition:leave="transition ease-in duration-200"
-    x-transition:leave-start="opacity-100"
-    x-transition:leave-end="opacity-0"
-    class="fixed inset-0 bg-black/50 z-[55] lg:hidden"
-    x-cloak
-  ></div>
+  <div x-show="mobileDrawer" @click="mobileDrawer = false" x-transition:enter="transition ease-out duration-300"
+    x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
+    x-transition:leave="transition ease-in duration-200" x-transition:leave-start="opacity-100"
+    x-transition:leave-end="opacity-0" class="fixed inset-0 bg-black/50 z-[55] lg:hidden" x-cloak></div>
 
 </nav>

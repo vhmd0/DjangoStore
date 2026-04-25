@@ -96,7 +96,11 @@ class Product(models.Model):
     )
     price = models.DecimalField(max_digits=10, decimal_places=2)
     discount_price = models.DecimalField(
-        max_digits=10, decimal_places=2, blank=True, null=True, verbose_name="Discount Price"
+        max_digits=10,
+        decimal_places=2,
+        blank=True,
+        null=True,
+        verbose_name="Discount Price",
     )
     stock = models.PositiveIntegerField(default=0)
     type = models.CharField(max_length=100, blank=True)
@@ -110,7 +114,11 @@ class Product(models.Model):
     tags = models.ManyToManyField(Tag, related_name="products", blank=True)
     # Drop‑shipping supplier
     supplier = models.ForeignKey(
-        Supplier, on_delete=models.SET_NULL, null=True, blank=True, related_name="products"
+        Supplier,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="products",
     )
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)

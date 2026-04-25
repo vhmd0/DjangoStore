@@ -152,6 +152,7 @@ def home(request):
 
     # Annotate wishlist status for all lists
     from apps.products.views import annotate_wishlist
+
     annotate_wishlist(request.user, featured_products)
     annotate_wishlist(request.user, most_liked)
     annotate_wishlist(request.user, sale_products)

@@ -4,15 +4,18 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('products', '0007_brand_name_ar_category_name_ar_and_more'),
+        ("products", "0007_brand_name_ar_category_name_ar_and_more"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='category',
-            name='image_link',
-            field=models.URLField(blank=True, help_text='External image URL (alternative to uploading)', null=True),
+            model_name="category",
+            name="image_link",
+            field=models.URLField(
+                blank=True,
+                help_text="External image URL (alternative to uploading)",
+                null=True,
+            ),
         ),
     ]

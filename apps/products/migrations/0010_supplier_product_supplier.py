@@ -5,30 +5,57 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('products', '0009_product_discount_price'),
+        ("products", "0009_product_discount_price"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='Supplier',
+            name="Supplier",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('name', models.CharField(max_length=255)),
-                ('name_ar', models.CharField(blank=True, max_length=255, verbose_name='Name (Arabic)')),
-                ('logo', models.ImageField(blank=True, null=True, upload_to='suppliers/')),
-                ('shipping_time', models.CharField(help_text="e.g., '3‑5 days'", max_length=50)),
-                ('shipping_cost', models.DecimalField(decimal_places=2, default=0, max_digits=6)),
-                ('contact_email', models.EmailField(blank=True, max_length=254)),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("name", models.CharField(max_length=255)),
+                (
+                    "name_ar",
+                    models.CharField(
+                        blank=True, max_length=255, verbose_name="Name (Arabic)"
+                    ),
+                ),
+                (
+                    "logo",
+                    models.ImageField(blank=True, null=True, upload_to="suppliers/"),
+                ),
+                (
+                    "shipping_time",
+                    models.CharField(help_text="e.g., '3‑5 days'", max_length=50),
+                ),
+                (
+                    "shipping_cost",
+                    models.DecimalField(decimal_places=2, default=0, max_digits=6),
+                ),
+                ("contact_email", models.EmailField(blank=True, max_length=254)),
             ],
             options={
-                'verbose_name_plural': 'Suppliers',
+                "verbose_name_plural": "Suppliers",
             },
         ),
         migrations.AddField(
-            model_name='product',
-            name='supplier',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='products', to='products.supplier'),
+            model_name="product",
+            name="supplier",
+            field=models.ForeignKey(
+                blank=True,
+                null=True,
+                on_delete=django.db.models.deletion.SET_NULL,
+                related_name="products",
+                to="products.supplier",
+            ),
         ),
     ]

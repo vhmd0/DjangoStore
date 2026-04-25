@@ -16,6 +16,7 @@ from orders.models import (
 def get_cart(request):
     """Get cart from session."""
     from cart.views import get_cart as cart_get_cart
+
     return cart_get_cart(request)
 
 
@@ -185,10 +186,12 @@ def create_order(request):
 
             # Clear the cart (both DB and session)
             from cart.views import save_cart as cart_save_cart
+
             cart_save_cart(request, {})
             # Also directly clear DB cart items as a safety net
             if request.user.is_authenticated:
                 from cart.models import Cart
+
                 Cart.objects.filter(user=request.user).delete()
 
             # Clear checkout data from session

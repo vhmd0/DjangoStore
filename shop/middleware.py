@@ -5,6 +5,7 @@ Custom middleware for the SmartS3R project.
 from django.utils.translation import get_language
 from django.shortcuts import render
 
+
 class HtmxPartialMiddleware:
     def __init__(self, get_response):
         self.get_response = get_response
@@ -21,4 +22,3 @@ class HtmxPartialMiddleware:
             # For now, let's focus on hx-boost which handles the swap automatically.
             pass
         return response
-

@@ -10,20 +10,24 @@ class BannerAdmin(admin.ModelAdmin):
     list_editable = ["order", "is_active"]
     ordering = ["order"]
     search_fields = ["title", "subtitle", "title_ar", "subtitle_ar"]
-    
+
     fieldsets = (
-        ("General Information", {
-            "fields": ("title", "title_ar", "subtitle", "subtitle_ar", "order", "is_active")
-        }),
-        ("Desktop Media", {
-            "fields": ("image", "image_link")
-        }),
-        ("Mobile Media", {
-            "fields": ("image_mobile", "image_mobile_link")
-        }),
-        ("Link / Action", {
-            "fields": ("link", "link_text", "link_text_ar")
-        }),
+        (
+            "General Information",
+            {
+                "fields": (
+                    "title",
+                    "title_ar",
+                    "subtitle",
+                    "subtitle_ar",
+                    "order",
+                    "is_active",
+                )
+            },
+        ),
+        ("Desktop Media", {"fields": ("image", "image_link")}),
+        ("Mobile Media", {"fields": ("image_mobile", "image_mobile_link")}),
+        ("Link / Action", {"fields": ("link", "link_text", "link_text_ar")}),
     )
 
     def get_preview(self, obj):
@@ -32,9 +36,12 @@ class BannerAdmin(admin.ModelAdmin):
             img_url = obj.image.url
         elif obj.image_link:
             img_url = obj.image_link
-            
+
         if img_url:
-            return format_html('<img src="{}" style="width: 100px; height: auto; border-radius: 4px;" />', img_url)
+            return format_html(
+                '<img src="{}" style="width: 100px; height: auto; border-radius: 4px;" />',
+                img_url,
+            )
         return "No Image"
-    
+
     get_preview.short_description = "Preview"
