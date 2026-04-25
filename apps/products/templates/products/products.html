@@ -48,7 +48,7 @@
 
   <div class="flex items-center gap-3">
     {# Mobile Filter Button #}
-    <button type="button" @click="$data.filterOpen = true" x-data="{ filterOpen: false }" x-init="$watch('filterOpen', val => { if (val) { const drawer = document.querySelector('[x-data=\"filterDrawer\"]'); if (drawer) Alpine.$data(drawer).open = true; } })"
+    <button type="button" @click="$data.filterOpen = true" x-data="{ filterOpen: false }" x-init="$watch('filterOpen', val => { if (val) { const drawer = document.querySelector('[x-data=\'filterDrawer\']'); if (drawer) Alpine.$data(drawer).open = true; } })"
             class="lg:hidden inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-charcoal-700 bg-white border border-surface-200 rounded-lg hover:bg-surface-50 transition-colors">
       <i class="bi bi-funnel"></i> {% trans "Filters" %}
     </button>
